@@ -10,19 +10,9 @@
 
 //open gl does not provide us with defalts for vertex fragment shaders, so i need to write my own
 
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
 
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
-"}\n\0";
+
+
 
 
 int main()
@@ -55,15 +45,27 @@ int main()
     //     (Y)
 
     GLfloat vertices[] = {
-        //The cords make an equlateral triangle, thats why its so complex
-        -0.5, -0.5, 0.0f, 
-        0.5, -0.5, 0.0f,
-        -0.5, 0.5, 0.0f,
+       
+        ///this is drawing a square
 
-        0.5, -0.5, 0.0f,
-        -0.5, 0.5, 0.0f,
-        0.5, 0.5, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f,
+        0.5f, 0.5f, 0.0f,
+        0.5, -0.5, 0.0f
+
         
+        
+
+
+       
+    };
+
+    //this basicly says where to draw each triangle, and how many to draw, where 0 corisponds to 0 of vertices, same with 1,2,3,4,5
+    GLuint indices[]
+    {
+        0,1,2,
+        2,3,0,
+       
     };
 
 
@@ -147,10 +149,17 @@ int main()
 
         GLuint VAO;
 
+        
+        GLuint EBO;
+
+
+
         glGenVertexArrays(1, &VAO); //make sure its before the gen buffers and the bind buffers
 
         //one because we only have one object
         glGenBuffers(1, &VBO);
+        glGenBuffers(1, &EBO);
+
 
         //Find VAO to work with
         glBindVertexArray(VAO);
@@ -165,6 +174,10 @@ int main()
         //draw means the vertices will be modded
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        //link indices array
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 
         //config so that open gl knows how to read the vbo
 
@@ -175,10 +188,11 @@ int main()
         glEnableVertexAttribArray(0);
 
 
-        //prevent changing the VBO or VAO while it runs. Order is very important
+        //prevent changing the VBO or VAO or EBO while it runs. Order is very important
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
 
@@ -218,7 +232,10 @@ int main()
         //draw
         glUseProgram(shaderpro);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0 , 6);
+
+        //(triangles, how many points to draw, then how many indicies (0))
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //glDrawArrays(GL_TRIANGLES, 0 , 6); replace with gldraw elements
 
         glfwSwapBuffers(window);
 
@@ -233,6 +250,7 @@ int main()
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderpro);
+    glDeleteBuffers(1, &EBO);
 
 
     //kill
