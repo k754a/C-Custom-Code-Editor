@@ -56,9 +56,14 @@ int main()
 
     GLfloat vertices[] = {
         //The cords make an equlateral triangle, thats why its so complex
-        -0.5, -0.5 * float(sqrt(3)) / 3, 0.0f, 
-        0.5, -0.5 * float(sqrt(3)) / 3, 0.0f,
-        0.0, 0.5 * float(sqrt(3)) * 2 / 3, 0.0f,
+        -0.5, -0.5, 0.0f, 
+        0.5, -0.5, 0.0f,
+        -0.5, 0.5, 0.0f,
+
+        0.5, -0.5, 0.0f,
+        -0.5, 0.5, 0.0f,
+        0.5, 0.5, 0.0f,
+        
     };
 
 
@@ -213,7 +218,7 @@ int main()
         //draw
         glUseProgram(shaderpro);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0 , 3);
+        glDrawArrays(GL_TRIANGLES, 0 , 6);
 
         glfwSwapBuffers(window);
 
