@@ -10,19 +10,9 @@
 
 //open gl does not provide us with defalts for vertex fragment shaders, so i need to write my own
 
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
+///------------was moved to shaders/ default.vert & default.frag
 //Fragment Shader source code
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
-"}\n\0";
+
 
 
 
@@ -109,48 +99,7 @@ int main()
     glViewport(0, 0, 800, 800);
 
 
-    //shaders
-    ///////////////////////////////////////////////////////////////////////////////////
-
-
-        //create a refrance to store our vertex shader, (line 10)
-        //open gl version of a positive int
-    GLuint VertexShader = glCreateShader(GL_VERTEX_SHADER);
-    //1 is one screen
-    glShaderSource(VertexShader, 1, &vertexShaderSource, NULL);
-
-    //gpu cannot understand, we need to compile it into machine code.
-    glCompileShader(VertexShader);
-
-    //same for fragment shader
-
-    GLuint FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    //1 is one screen
-    glShaderSource(FragmentShader, 1, &fragmentShaderSource, NULL);
-
-    //gpu cannot understand, we need to compile it into machine code.
-    glCompileShader(FragmentShader);
-
-
-
-    //we need to wrap up into a shader program
-    GLuint shaderpro = glCreateProgram();
-
-    //attach the shader to the refrance, (Refrace, shader);
-    //attach both vertex and fragment
-    glAttachShader(shaderpro, VertexShader);
-    glAttachShader(shaderpro, FragmentShader);
-
-
-    //wrap up shader program
-    //link to gpu
-    glLinkProgram(shaderpro);
-
-    //there already in program, destroy to prevent issues.
-    glDeleteShader(VertexShader);
-    glDeleteShader(FragmentShader);
-
-    ///////////////////////////////////////////////////////////////////////////////////
+    
 
     //we want to create a buffer, a buffer is like a batch of tasks sent from the gpu to the cpu, that is slow so thats why we send it in a big batch.
 
@@ -169,14 +118,14 @@ int main()
     glGenVertexArrays(1, &VAO); //make sure its before the gen buffers and the bind buffers
 
     //one because we only have one object
-    glGenBuffers(1, &VBO);
+    
     glGenBuffers(1, &EBO);
 
 
     //Find VAO to work with
     glBindVertexArray(VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+   
 
     //lets store the vertices
 
@@ -184,7 +133,7 @@ int main()
     //static is writen too once and used a few times, dynamic is used many times, but changes
 
     //draw means the vertices will be modded
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+   
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //link indices array
@@ -242,7 +191,7 @@ int main()
 
 
         //draw
-        glUseProgram(shaderpro);
+       
         glBindVertexArray(VAO);
 
         //(triangles, how many points to draw, then how many indicies (0))
@@ -260,8 +209,8 @@ int main()
 
     //keep this clean
     glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderpro);
+   
+  
     glDeleteBuffers(1, &EBO);
 
 

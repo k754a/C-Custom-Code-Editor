@@ -1,2 +1,5 @@
 ﻿  Main.cpp
-  Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe
+  shaderClass.cpp
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(110,38): error C2065: 'vertexShaderSource': undeclared identifier
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(119,40): error C2065: 'fragmentShaderSource': undeclared identifier
+  Generating Code...
