@@ -1,5 +1,6 @@
 ﻿  Main.cpp
-  shaderClass.cpp
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(110,38): error C2065: 'vertexShaderSource': undeclared identifier
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(119,40): error C2065: 'fragmentShaderSource': undeclared identifier
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(162,38): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+  VAO.cpp
+C:\Users\K754a\source\repos\Project2\Project2\VAO.cpp(12,63): warning C4244: 'argument': conversion from 'GLsizeiptr' to 'GLsizei', possible loss of data
   Generating Code...
+  Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe

@@ -14,21 +14,14 @@
 //Fragment Shader source code
 
 
+#include "shaderclass.h"
+#include "VAO.h"
+#include "VBO.h"
+#include "EBO.h"
 
 
 
-int main()
-{
-    //Init glfw
-    glfwInit();
-
-    //tell what version we are on (not sure if it effects vs code but the tutorial is in vs)
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    //glfw profile
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    //we use glfloat instead of std::float because glfloat does not change per system or across devices.
+//we use glfloat instead of std::float because glfloat does not change per system or across devices.
     //unlike c# for a float[] you use an = sign
 
     //for this array ever 3 values will repersent one cord, so like 1, 1, -1, is one and 0.5, -0.32, 0.1 are ones too
@@ -46,31 +39,42 @@ int main()
     //     -1
     //     (Y)
 
-    GLfloat vertices[] = {
-
-        ///this is drawing a square
-
-        -0.5f, -0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f,
-        0.5f, 0.5f, 0.0f,
-        0.5, -0.5, 0.0f
 
 
+GLfloat vertices[] =
+{
+    //cords-------------------------|----------------|colors---------------|
+    -0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,           0.8f, 0.3f, 0.02f,
+
+    0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,            0.8f, 0.3f, 0.02f,
+    0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f,         1.0f, 0.6f, 0.32f,
+    -0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,        0.9f, 0.43f, 0.17f,
+    0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,         0.9f, 0.43f, 0.17f,
+    0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f,             0.8f, 0.3f, 0.02f,
+};
 
 
+GLuint indices[] =
+{
+    0, 3, 5, 
+    3, 2, 4,
+    5, 4, 1 
+};
 
+int main()
+{
+    //Init glfw
+    glfwInit();
 
-    };
+    //tell what version we are on (not sure if it effects vs code but the tutorial is in vs)
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    //glfw profile
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    //this basicly says where to draw each triangle, and how many to draw, where 0 corisponds to 0 of vertices, same with 1,2,3,4,5
-    GLuint indices[]
-    {
-        0,1,2,
-        2,3,0,
+    
 
-    };
-
-
+    
 
 
     //create the window :)
@@ -91,6 +95,11 @@ int main()
 
     //opengl
     gladLoadGL();
+       
+
+
+    
+
 
 
 
@@ -98,75 +107,26 @@ int main()
     //area we want gl to render :) from bottom to top
     glViewport(0, 0, 800, 800);
 
-
     
 
     //we want to create a buffer, a buffer is like a batch of tasks sent from the gpu to the cpu, that is slow so thats why we send it in a big batch.
 
-
     //vertex buffer object
-    GLuint VBO;
-    //open gl doesn't actly know where to find it, so we need a vertex array object 
+    Shader shaderProgram("default.vert", "default.frag");
+    VAO VAO1;
+    VAO1.Bind();
 
-    GLuint VAO;
+    VBO VBO1(vertices, sizeof(vertices));
+    // Generates Element Buffer Object and links it to indices
+    EBO EBO1(indices, sizeof(indices));
 
-
-    GLuint EBO;
-
-
-
-    glGenVertexArrays(1, &VAO); //make sure its before the gen buffers and the bind buffers
-
-    //one because we only have one object
-    
-    glGenBuffers(1, &EBO);
-
-
-    //Find VAO to work with
-    glBindVertexArray(VAO);
-
-   
-
-    //lets store the vertices
-
-    //the buffer, the size of bites in the data being sent, and the use of the data (buffer, size of bytes, vertices)
-    //static is writen too once and used a few times, dynamic is used many times, but changes
-
-    //draw means the vertices will be modded
-   
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //link indices array
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-
-    //config so that open gl knows how to read the vbo
-
-    //(pos of vertex atrobutes, values per vertex, if we have the cords as ints (we do not so its GL_FLOAT))
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);//that void is just so its 0 beacause we cant use null
-    //we need to use it so lets do that
-    //0 becase we have no pos for it
-    glEnableVertexAttribArray(0);
-
-
-    //prevent changing the VBO or VAO or EBO while it runs. Order is very important
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // Links VBO to VAO
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3*sizeof(float)));
+    // Unbind all to prevent accidentally modifying them
+    VAO1.Unbind();
+    VBO1.Unbind();
+    EBO1.Unbind();
 
 
 
@@ -192,10 +152,14 @@ int main()
 
         //draw
        
-        glBindVertexArray(VAO);
+        shaderProgram.Activate();
+        // Bind the VAO so OpenGL knows to use it
+        VAO1.Bind();
 
+        //number of indices
+        size_t numElements = sizeof(indices) / sizeof(indices[0]);
         //(triangles, how many points to draw, then how many indicies (0))
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_INT, 0);
         //glDrawArrays(GL_TRIANGLES, 0 , 6); replace with gldraw elements
 
         glfwSwapBuffers(window);
@@ -208,10 +172,13 @@ int main()
     }
 
     //keep this clean
-    glDeleteVertexArrays(1, &VAO);
+   
    
   
-    glDeleteBuffers(1, &EBO);
+    VAO1.Delete();
+    VBO1.Delete();
+    EBO1.Delete();
+    shaderProgram.Delete();
 
 
     //kill
