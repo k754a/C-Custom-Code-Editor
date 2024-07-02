@@ -154,8 +154,11 @@ int main()
     EBO1.Unbind();
 
     //Coding Uniforms
-    GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
+    GLuint uniIDx = glGetUniformLocation(shaderProgram.ID, "scalex");
+    GLuint uniIDy = glGetUniformLocation(shaderProgram.ID, "scaley");
 
+    glUniform1f(uniIDx, 1.0f);
+    glUniform1f(uniIDy, 1.0f);
 
     Texture texture("example.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     texture.texUnit(shaderProgram, "tex0", 0);
@@ -201,6 +204,12 @@ int main()
 
         bool drawTriangle = true;
 
+        //set to false, can be set to true manuly
+        bool slider = false;
+
+    //floats
+        float x = 1.0f;
+        float y = 1.0f;
 
     //only make it end if the window is closed.
 
@@ -229,8 +238,11 @@ int main()
        
         shaderProgram.Activate();
         //lets use 1f cause we only have one float
+        // 
+        // 
         //this changes sizes in the game, so like -0.5 makes it half smaller, 0 is normal, and 0.5 is 0.5 * larger
-        glUniform1f(uniID, 0);
+        glUniform1f(uniIDx, x / 100);
+        glUniform1f(uniIDy, y / 100);
 
         //give object a texture:
         //glBindTexture(GL_TEXTURE_2D, texture);
@@ -248,19 +260,45 @@ int main()
             glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_INT, 0);
         //glDrawArrays(GL_TRIANGLES, 0 , 6); replace with gldraw elements
 
+       
 
-        //create ui window, give it a name
-        ImGui::Begin("Size modifier");
-        //text
-        ImGui::Text("Slide To Change Size");
 
-        ImGui::End();
+       
+        
+
+ 
 
 
         //needs to be diffrent names
-        ImGui::Begin("Render Object");
+        ImGui::Begin("Object");
         //checkbox
         ImGui::Checkbox("Render?", &drawTriangle);
+
+        INT32_C(x);
+        INT32_C(y);
+        if (!slider)
+        {
+            ImGui::InputFloat("X", &x);
+            ImGui::InputFloat("Y", &y);
+            if (x <= 0.0009)
+            {
+                x = 1;
+            }
+            if (y <= 0.0009)
+            {
+                y = 1;
+            }
+        }
+           
+        else
+        {
+            ImGui::SliderFloat("X", &x, 1.0f, 100.0f); 
+            ImGui::SliderFloat("Y", &y, 1.0f, 100.0f); 
+        }
+               
+       
+
+        ImGui::Checkbox("Slider or Float", &slider);
      
 
         RenderMenuBar();

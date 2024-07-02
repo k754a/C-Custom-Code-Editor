@@ -1,5 +1,13 @@
 
+#include "shaderclass.h"
+#include "VAO.h"
+#include "VBO.h"
+#include "EBO.h"
 #include "MenuBar.h"
+#include"Texture.h"
+#include<iostream>
+#include<glad/glad.h>
+#include<GLFW/glfw3.h>
 
 void RenderMenuBar()
 {
@@ -26,6 +34,19 @@ void RenderMenuBar()
             {
                 
             }
+            if (ImGui::MenuItem("New"))
+            {
+                
+            }
+            if (ImGui::MenuItem("ObjectEdit window"))
+            {
+            
+            }
+            if (ImGui::MenuItem("Close All Windows"))
+            {
+
+            }
+
             ImGui::Separator();
             
             ImGui::EndMenu();
