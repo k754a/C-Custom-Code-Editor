@@ -18,11 +18,16 @@
 ///------------was moved to shaders/ default.vert & default.frag
 //Fragment Shader source code
 
+//import imgui
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 #include "shaderclass.h"
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
+#include "MenuBar.h"
 
 
 
@@ -76,6 +81,10 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     //glfw profile
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+
+
+
 
     
 
@@ -167,6 +176,32 @@ int main()
     glClear(GL_COLOR_BUFFER_BIT);
     glfwSwapBuffers(window);
 
+
+
+
+
+
+    //check for the correct verison
+    IMGUI_CHECKVERSION();
+    //create a contex
+    ImGui::CreateContext();
+    //create a var
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //dark mode 
+    ImGui::StyleColorsDark();
+    //this takes the window and glsl version we use.
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    //im using version 330
+    ImGui_ImplOpenGL3_Init("#version 330");
+
+
+
+
+    //bools
+
+        bool drawTriangle = true;
+
+
     //only make it end if the window is closed.
 
     while (!glfwWindowShouldClose(window)) //way more simple than python.
@@ -180,6 +215,13 @@ int main()
         glClearColor(0.05f, 0.05f, 0.2f, 1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT);
+
+        //ui windows (prob will be changed to a fuction like shaderProgram.Activate)
+
+        //new frame for opengl3 and for glfw
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
 
 
@@ -201,8 +243,44 @@ int main()
         //number of indices
         size_t numElements = sizeof(indices) / sizeof(indices[0]);
         //(triangles, how many points to draw, then how many indicies (0))
-        glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_INT, 0);
+
+        if(drawTriangle)
+            glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_INT, 0);
         //glDrawArrays(GL_TRIANGLES, 0 , 6); replace with gldraw elements
+
+
+        //create ui window, give it a name
+        ImGui::Begin("Size modifier");
+        //text
+        ImGui::Text("Slide To Change Size");
+
+        ImGui::End();
+
+
+        //needs to be diffrent names
+        ImGui::Begin("Render Object");
+        //checkbox
+        ImGui::Checkbox("Render?", &drawTriangle);
+     
+
+        RenderMenuBar();
+      
+
+        ImGui::End();
+
+        //this causes errors if not added
+        ImGui::Render();
+        //this above will not work without this
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+
+
+        
+
+
+
+
 
         glfwSwapBuffers(window);
 
@@ -212,6 +290,13 @@ int main()
 
         glfwPollEvents();
     }
+
+    //end the prosses before running...
+    //it causes a lot of problems
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     //keep this clean
     VAO1.Delete();
