@@ -5,6 +5,9 @@
 //lets use stb
 #include<stb/stb_image.h>
 
+//custom texture class
+#include"Texture.h"
+
 //My notes are not very good. If you want more, I would suggest checking out the documentation. It's extensive but thorough: https://registry.khronos.org/OpenGL-Refpages/gl4/
 //I learned from https://www.youtube.com/watch?v=XpBGwZNyUh0&list=PLPaoO-vpZnumdcb4tZc4x5Q-v7CkrQ6M-&index=1, very good lessons.
 //remember cmath lol
@@ -45,12 +48,12 @@
 
 GLfloat vertices[] =
 {
-    //cords-------------------------|----------------|colors---------------|
-    -0.5f, -0.5f , 0.0f,                                1.0f, 0.0f, 0.0f,
+    //cords-------------------------|----------------colors---------------|------------texturemap----------|
+    -0.5f, -0.5f , 0.0f,                           1.0f, 0.0f, 0.0f,          0.0f, 0.0f,
 
-    -0.5f, 0.5f, 0.0f,                                  0.0f, 1.0f, 0.0f,
-    0.5f, 0.5f , 0.0f,                                  0.0f, 0.0f, 1.0f,
-    0.5f , -0.5f , 0.0f,                                1.0f, 1.0f, 1.0f,
+    -0.5f, 0.5f, 0.0f,                             0.0f, 1.0f, 0.0f,          0.0f, 1.0f,
+    0.5f, 0.5f , 0.0f,                             0.0f, 0.0f, 1.0f,          1.0f, 1.0f,
+    0.5f , -0.5f , 0.0f,                           1.0f, 1.0f, 1.0f,          1.0f, 0.0f,
 
 };
 
@@ -133,8 +136,9 @@ int main()
     EBO EBO1(indices, sizeof(indices));
 
     // Links VBO to VAO
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3*sizeof(float)));
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3*sizeof(float)));
+    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     // Unbind all to prevent accidentally modifying them
     VAO1.Unbind();
     VBO1.Unbind();
@@ -142,6 +146,20 @@ int main()
 
     //Coding Uniforms
     GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
+
+
+    Texture texture("example.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    texture.texUnit(shaderProgram, "tex0", 0);
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -172,8 +190,13 @@ int main()
         //this changes sizes in the game, so like -0.5 makes it half smaller, 0 is normal, and 0.5 is 0.5 * larger
         glUniform1f(uniID, 0);
 
+        //give object a texture:
+        //glBindTexture(GL_TEXTURE_2D, texture);
+
         // Bind the VAO so OpenGL knows to use it
         VAO1.Bind();
+        texture.Bind();
+   
 
         //number of indices
         size_t numElements = sizeof(indices) / sizeof(indices[0]);
@@ -191,14 +214,11 @@ int main()
     }
 
     //keep this clean
-   
-   
-  
     VAO1.Delete();
     VBO1.Delete();
     EBO1.Delete();
     shaderProgram.Delete();
-
+    texture.Delete();
 
     //kill
     glfwDestroyWindow(window);
