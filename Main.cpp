@@ -2,6 +2,8 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 
+//lets use stb
+#include<stb/stb_image.h>
 
 //My notes are not very good. If you want more, I would suggest checking out the documentation. It's extensive but thorough: https://registry.khronos.org/OpenGL-Refpages/gl4/
 //I learned from https://www.youtube.com/watch?v=XpBGwZNyUh0&list=PLPaoO-vpZnumdcb4tZc4x5Q-v7CkrQ6M-&index=1, very good lessons.
@@ -44,21 +46,21 @@
 GLfloat vertices[] =
 {
     //cords-------------------------|----------------|colors---------------|
-    -0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,           0.8f, 0.3f, 0.02f,
+    -0.5f, -0.5f , 0.0f,                                1.0f, 0.0f, 0.0f,
 
-    0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,            0.8f, 0.3f, 0.02f,
-    0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f,         1.0f, 0.6f, 0.32f,
-    -0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,        0.9f, 0.43f, 0.17f,
-    0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,         0.9f, 0.43f, 0.17f,
-    0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f,             0.8f, 0.3f, 0.02f,
+    -0.5f, 0.5f, 0.0f,                                  0.0f, 1.0f, 0.0f,
+    0.5f, 0.5f , 0.0f,                                  0.0f, 0.0f, 1.0f,
+    0.5f , -0.5f , 0.0f,                                1.0f, 1.0f, 1.0f,
+
 };
+
+
 
 
 GLuint indices[] =
 {
-    0, 3, 5, 
-    3, 2, 4,
-    5, 4, 1 
+    0,2,1,
+    0,3,2  
 };
 
 int main()
@@ -97,7 +99,17 @@ int main()
     gladLoadGL();
        
 
-
+    //__________________NOTE______________________\\
+    For textures, the best optimized ones are powers of 2 so like 1 x 1 is better than 1 x 4
+    //1x1
+    //2x2
+    //4x4
+    //8x8
+    //16x16
+    //32x32
+    //64x64
+    //128x128...
+    
     
 
 
@@ -128,6 +140,9 @@ int main()
     VBO1.Unbind();
     EBO1.Unbind();
 
+    //Coding Uniforms
+    GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
+
 
 
     glClearColor(0.9f, 0.12f, 1.17f, 1.0f);
@@ -153,6 +168,10 @@ int main()
         //draw
        
         shaderProgram.Activate();
+        //lets use 1f cause we only have one float
+        //this changes sizes in the game, so like -0.5 makes it half smaller, 0 is normal, and 0.5 is 0.5 * larger
+        glUniform1f(uniID, 0);
+
         // Bind the VAO so OpenGL knows to use it
         VAO1.Bind();
 
