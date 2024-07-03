@@ -1,4 +1,4 @@
 ﻿  Main.cpp
 C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(115,1): warning C4010: single-line comment contains line-continuation character
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(260,42): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(266,42): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe

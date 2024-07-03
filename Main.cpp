@@ -160,11 +160,12 @@ int main()
     glUniform1f(uniIDx, 1.0f);
     glUniform1f(uniIDy, 1.0f);
 
+  
+
+
     Texture texture("example.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     texture.texUnit(shaderProgram, "tex0", 0);
-
-
-
+    texture.Bind();
 
 
 
@@ -206,12 +207,17 @@ int main()
 
         //set to false, can be set to true manuly
         bool slider = false;
+        bool customImg = false;
+        bool LcustomImg = false;
 
     //floats
         float x = 1.0f;
         float y = 1.0f;
 
     //only make it end if the window is closed.
+        //max amount of words
+        static std::string inputPath = "example.png";
+        static char buffer[256] = "";
 
     while (!glfwWindowShouldClose(window)) //way more simple than python.
     {
@@ -249,7 +255,7 @@ int main()
 
         // Bind the VAO so OpenGL knows to use it
         VAO1.Bind();
-        texture.Bind();
+       
    
 
         //number of indices
@@ -278,8 +284,8 @@ int main()
         INT32_C(y);
         if (!slider)
         {
-            ImGui::InputFloat("X", &x);
-            ImGui::InputFloat("Y", &y);
+            ImGui::InputFloat("X Size", &x);
+            ImGui::InputFloat("Y Size", &y);
             if (x <= 0.0009)
             {
                 x = 1;
@@ -299,6 +305,70 @@ int main()
        
 
         ImGui::Checkbox("Slider or Float", &slider);
+
+        ImGui::Checkbox("Custom Image", &customImg);
+
+
+
+       
+
+     
+        if (customImg) {
+            if (ImGui::InputText("Texture Path", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+               
+                //Coding Uniforms
+                GLuint uniIDx = glGetUniformLocation(shaderProgram.ID, "scalex");
+                GLuint uniIDy = glGetUniformLocation(shaderProgram.ID, "scaley");
+
+                glUniform1f(uniIDx, 1.0f);
+                glUniform1f(uniIDy, 1.0f);
+
+
+
+
+                inputPath = buffer;
+                texture = Texture(inputPath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+                texture.texUnit(shaderProgram, "tex0", 0);
+                texture.Bind();
+
+
+
+
+                glClearColor(0.9f, 0.12f, 1.17f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+                glfwSwapBuffers(window);
+            }
+        }
+       
+
+        //this fixes soo much lag
+        if (customImg != LcustomImg)
+        {
+            std::cout << "non custom image loaded"<<std::endl;
+            LcustomImg = customImg;
+
+            if (!customImg)
+            {
+                //Coding Uniforms
+                GLuint uniIDx = glGetUniformLocation(shaderProgram.ID, "scalex");
+                GLuint uniIDy = glGetUniformLocation(shaderProgram.ID, "scaley");
+
+                glUniform1f(uniIDx, 1.0f);
+                glUniform1f(uniIDy, 1.0f);
+
+                LcustomImg = customImg;
+                texture = Texture("example.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+                texture.texUnit(shaderProgram, "tex0", 0);
+                texture.Bind();
+
+          
+            }
+            
+
+        }
+       
+       
+        
      
 
         RenderMenuBar();
