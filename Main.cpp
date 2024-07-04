@@ -28,6 +28,12 @@
 #include "VBO.h"
 #include "EBO.h"
 #include "MenuBar.h"
+//save and load
+#include <fstream>
+#include "Save.h"
+
+#include <sstream>
+
 
 
 
@@ -49,6 +55,7 @@
     //     -1
     //     (Y)
 
+std::string floatToString(GLfloat value);//prevents Error C3861 'floatToString': identifier not found	
 
 
 GLfloat vertices[] =
@@ -217,7 +224,9 @@ int main()
     //only make it end if the window is closed.
         //max amount of words
         static std::string inputPath = "example.png";
+        static std::string winname = "object";
         static char buffer[256] = "";
+        static char winbuffer[30] = "";
 
     while (!glfwWindowShouldClose(window)) //way more simple than python.
     {
@@ -276,7 +285,14 @@ int main()
 
 
         //needs to be diffrent names
-        ImGui::Begin("Object");
+        ImGui::Begin(winname.c_str());
+
+
+        if (ImGui::InputText("Obj Name", winbuffer, IM_ARRAYSIZE(winbuffer), ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            winname = winbuffer;
+        }
+
         //checkbox
         ImGui::Checkbox("Render?", &drawTriangle);
 
@@ -344,11 +360,12 @@ int main()
         //this fixes soo much lag
         if (customImg != LcustomImg)
         {
-            std::cout << "non custom image loaded"<<std::endl;
+           
             LcustomImg = customImg;
 
             if (!customImg)
             {
+                std::cout << "non custom image loaded" << std::endl;
                 //Coding Uniforms
                 GLuint uniIDx = glGetUniformLocation(shaderProgram.ID, "scalex");
                 GLuint uniIDy = glGetUniformLocation(shaderProgram.ID, "scaley");
@@ -366,15 +383,35 @@ int main()
             
 
         }
-       
-       
-        
-     
-
         RenderMenuBar();
-      
-
+       
+        //side bar
         ImGui::End();
+
+        int screenWidth, screenHeight;
+        glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
+
+        //sets window pos and hight
+        ImGui::SetNextWindowPos(ImVec2(screenWidth - 100,20), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(100, screenHeight), ImGuiCond_Always);
+
+        // Begin sidebar window
+        ImGui::Begin("*NOT WORKING* GameObjects", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+
+        // Example: Render buttons for different GameObjects
+        if (ImGui::Button("Object 1"))
+        {
+         
+        }
+
+        if (ImGui::Button("Object 2"))
+        {
+
+        }
+
+       
+
+        ImGui::End(); // End sidebar window
 
         //this causes errors if not added
         ImGui::Render();
@@ -399,9 +436,22 @@ int main()
         glfwPollEvents();
     }
 
-    //end the prosses before running...
-    //it causes a lot of problems
+ 
+   //save the file
+    std::vector<std::string> data = {};
 
+    //converts the float to string and at the same time converts it into a 32 bit list
+    for (int i = 0; i < 32; ++i) {
+        data.push_back(floatToString(vertices[i]));
+    }
+    //custom object render file CoRF
+    std::string fileName = ".CoRF";
+
+
+    saveToFile(data, fileName);
+
+    //end the prosses before running...
+ //it causes a lot of problems
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -417,4 +467,14 @@ int main()
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
+}
+
+
+
+
+//saveing
+std::string floatToString(GLfloat value) {
+    std::ostringstream ss;
+    ss << value;
+    return ss.str();
 }

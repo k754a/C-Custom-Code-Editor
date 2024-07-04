@@ -149,6 +149,7 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MenuBar.cpp" />
+    <ClCompile Include="save.cpp" />
     <ClCompile Include="shaderClass.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Menubar.h" />
+    <ClInclude Include="save.h" />
     <ClInclude Include="shaderclass.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VAO.h" />

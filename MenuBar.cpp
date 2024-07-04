@@ -9,8 +9,12 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 
+bool close = false;
+
+
 void RenderMenuBar()
 {
+
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -20,7 +24,7 @@ void RenderMenuBar()
             ImGui::Separator();
             if (ImGui::MenuItem("Exit"))
             {
-                
+                close = true;
             }
             ImGui::EndMenu();
         }
