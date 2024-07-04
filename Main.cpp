@@ -35,6 +35,12 @@
 #include <sstream>
 
 
+//tostring
+#include <string>
+
+
+
+
 
 
 //we use glfloat instead of std::float because glfloat does not change per system or across devices.
@@ -216,6 +222,7 @@ int main()
         bool slider = false;
         bool customImg = false;
         bool LcustomImg = false;
+        bool Devmode = false;
 
     //floats
         float x = 1.0f;
@@ -383,6 +390,20 @@ int main()
             
 
         }
+
+        //devmode
+        ImGui::Checkbox("Developer mode", &Devmode);
+
+        if (Devmode)
+        {
+            ImGui::Text("Dev mode!");
+
+            ImGui::Text("Fps: %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        }
+        
+           
+        
+     
         RenderMenuBar();
        
         //side bar
@@ -440,6 +461,9 @@ int main()
    //save the file
     std::vector<std::string> data = {};
 
+
+    data = {winname, "//size", std::to_string(x), std::to_string(y), "//devmode Y/N",  std::to_string(Devmode), "//custom Img Y/N", std::to_string(customImg), "//path? if Y", inputPath};
+
     //converts the float to string and at the same time converts it into a 32 bit list
     for (int i = 0; i < 32; ++i) {
         data.push_back(floatToString(vertices[i]));
@@ -448,7 +472,7 @@ int main()
     std::string fileName = ".CoRF";
 
 
-    saveToFile(data, fileName);
+    saveToFile(data, winname+fileName);
 
     //end the prosses before running...
  //it causes a lot of problems
