@@ -1,7 +1,7 @@
 ﻿  Main.cpp
 C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(133,1): warning C4010: single-line comment contains line-continuation character
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(293,42): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(427,52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(428,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(487,47): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(296,42): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(434,52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(435,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(498,47): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
   Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe

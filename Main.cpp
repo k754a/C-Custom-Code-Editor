@@ -237,12 +237,15 @@ int main()
         //max amount of words
         static std::string inputPath = "example.png";
         static std::string newButtonName = "object";
-        static char buffer[256] = "";
-        static char winbuffer[30] = "";
+        static char buffer[256] = "obj";
+        static char winbuffer[30] = "obj";
+        static std::string currentselectedname = "obj";
 
     //more buttons
 
        std::vector<std::string> buttonNames;
+       float  selectedButton;
+
 
 
 
@@ -303,12 +306,16 @@ int main()
 
 
         //needs to be diffrent names
-        ImGui::Begin(newButtonName.c_str());
+        ImGui::Begin(currentselectedname.c_str());
 
 
         if (ImGui::InputText("Obj Name", winbuffer, IM_ARRAYSIZE(winbuffer), ImGuiInputTextFlags_EnterReturnsTrue))
         {
             newButtonName = winbuffer;
+            buttonNames.push_back(winbuffer);
+
+            //clear last input
+          
         }
 
         //checkbox
@@ -430,16 +437,20 @@ int main()
         // Begin sidebar window
         ImGui::Begin("gameobjects", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-        for (const auto& name : buttonNames) {
-            if (ImGui::Button(name.c_str())) {
-                newButtonName = name;
+        for (size_t i = 0; i < buttonNames.size(); ++i) {
+            if (ImGui::Button(buttonNames[i].c_str())) {
+             
+                selectedButton = static_cast<float>(i); // Store the index as a float
+                currentselectedname = buttonNames[i];
+                std::cout << "Button pressed: " << selectedButton << std::endl;
+                memset(winbuffer, 0, sizeof(winbuffer));
+            
             }
         }
 
-        if (ImGui::Button("New")) {
-            newButtonName = "Obj " + std::to_string(buttonNames.size() + 1);
-            buttonNames.push_back(newButtonName);
-        }
+        
+     
+    
 
        
 
