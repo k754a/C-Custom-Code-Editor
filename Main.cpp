@@ -104,6 +104,11 @@ int main()
     
 
 
+
+    //prevent resize on window
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+
     //create the window :)
     //takes in 5 values high, width, name, fullscree y/n, not very important rn;
     GLFWwindow* window = glfwCreateWindow(800, 800, "PixeLite", NULL, NULL);
@@ -231,9 +236,15 @@ int main()
     //only make it end if the window is closed.
         //max amount of words
         static std::string inputPath = "example.png";
-        static std::string winname = "object";
+        static std::string newButtonName = "object";
         static char buffer[256] = "";
         static char winbuffer[30] = "";
+
+    //more buttons
+
+       std::vector<std::string> buttonNames;
+
+
 
     while (!glfwWindowShouldClose(window)) //way more simple than python.
     {
@@ -254,7 +265,7 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-
+    
 
         //draw
        
@@ -292,12 +303,12 @@ int main()
 
 
         //needs to be diffrent names
-        ImGui::Begin(winname.c_str());
+        ImGui::Begin(newButtonName.c_str());
 
 
         if (ImGui::InputText("Obj Name", winbuffer, IM_ARRAYSIZE(winbuffer), ImGuiInputTextFlags_EnterReturnsTrue))
         {
-            winname = winbuffer;
+            newButtonName = winbuffer;
         }
 
         //checkbox
@@ -417,17 +428,17 @@ int main()
         ImGui::SetNextWindowSize(ImVec2(100, screenHeight), ImGuiCond_Always);
 
         // Begin sidebar window
-        ImGui::Begin("*NOT WORKING* GameObjects", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+        ImGui::Begin("gameobjects", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-        // Example: Render buttons for different GameObjects
-        if (ImGui::Button("Object 1"))
-        {
-         
+        for (const auto& name : buttonNames) {
+            if (ImGui::Button(name.c_str())) {
+                newButtonName = name;
+            }
         }
 
-        if (ImGui::Button("Object 2"))
-        {
-
+        if (ImGui::Button("New")) {
+            newButtonName = "Obj " + std::to_string(buttonNames.size() + 1);
+            buttonNames.push_back(newButtonName);
         }
 
        
@@ -462,17 +473,24 @@ int main()
     std::vector<std::string> data = {};
 
 
-    data = {winname, "//size", std::to_string(x), std::to_string(y), "//devmode Y/N",  std::to_string(Devmode), "//custom Img Y/N", std::to_string(customImg), "//path? if Y", inputPath};
+    data = {newButtonName, "//size", std::to_string(x), std::to_string(y), "//devmode Y/N",  std::to_string(Devmode), "//custom Img Y/N", std::to_string(customImg), "//path? if Y", inputPath, "//verts"};
 
     //converts the float to string and at the same time converts it into a 32 bit list
     for (int i = 0; i < 32; ++i) {
-        data.push_back(floatToString(vertices[i]));
+        data.push_back(floatToString(vertices[i])); 
+    }
+    data.emplace_back("//indices");
+    
+
+    //get len of indices std::end(indices)-std::begin(indices);
+    for (int i = 0; i < std::end(indices) - std::begin(indices); ++i) {
+        data.push_back(floatToString(indices[i]));
     }
     //custom object render file CoRF
     std::string fileName = ".CoRF";
 
 
-    saveToFile(data, winname+fileName);
+    saveToFile(data, newButtonName +fileName);
 
     //end the prosses before running...
  //it causes a lot of problems
