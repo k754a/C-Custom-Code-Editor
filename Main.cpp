@@ -233,6 +233,10 @@ int main()
         float x = 1.0f;
         float y = 1.0f;
 
+        float currentbuttonindex = 0;//this is for changing button name!
+
+        int al = 0;
+
     //only make it end if the window is closed.
         //max amount of words
         static std::string inputPath = "example.png";
@@ -243,7 +247,8 @@ int main()
 
     //more buttons
 
-       std::vector<std::string> buttonNames;
+        std::vector<std::string> buttonNames = {
+        "example"};
        float  selectedButton;
 
 
@@ -306,14 +311,21 @@ int main()
 
 
         //needs to be diffrent names
-        ImGui::Begin(currentselectedname.c_str());
+     
+        ImGui::Begin(buttonNames[currentbuttonindex].c_str());
 
 
         if (ImGui::InputText("Obj Name", winbuffer, IM_ARRAYSIZE(winbuffer), ImGuiInputTextFlags_EnterReturnsTrue))
         {
-            newButtonName = winbuffer;
-            buttonNames.push_back(winbuffer);
+            if (strlen(winbuffer) > 0 && std::find(buttonNames.begin(), buttonNames.end(), winbuffer) == buttonNames.end())//this is to test if it has no characters or the same name twice.
+            {
+                buttonNames[currentbuttonindex] = winbuffer;
+            }
+           
+        
 
+  
+     
             //clear last input
           
         }
@@ -440,15 +452,32 @@ int main()
         for (size_t i = 0; i < buttonNames.size(); ++i) {
             if (ImGui::Button(buttonNames[i].c_str())) {
              
-                selectedButton = static_cast<float>(i); // Store the index as a float
-                currentselectedname = buttonNames[i];
-                std::cout << "Button pressed: " << selectedButton << std::endl;
+            
+              
+                currentbuttonindex = i;
+                std::cout << "button index: " << currentbuttonindex << " pressed " << std::endl;
+             
                 memset(winbuffer, 0, sizeof(winbuffer));
             
             }
         }
 
-        
+
+
+        if (ImGui::Button("New"))
+        {
+          
+
+
+           
+
+            buttonNames.push_back("obj " + std::to_string(al));
+            std::cout << "setting new created obj to: " << end(buttonNames) - begin(buttonNames) << std::endl;
+            currentbuttonindex = end(buttonNames) - begin(buttonNames) - 1;//gets the size of buttonnames, so for a new created it set it to the new one
+            
+            al++;
+
+        }
      
     
 

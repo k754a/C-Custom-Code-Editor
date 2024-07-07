@@ -1,7 +1,12 @@
 ﻿  Main.cpp
 C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(133,1): warning C4010: single-line comment contains line-continuation character
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(296,42): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(434,52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(435,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(498,47): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(301,42): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(315,34): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(322,29): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(446,52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(447,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(457,38): warning C4244: '=': conversion from 'size_t' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(476,72): warning C4244: '=': conversion from '__int64' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(527,47): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(252,15): warning C4101: 'selectedButton': unreferenced local variable
   Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe
