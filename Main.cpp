@@ -238,6 +238,7 @@ int main()
         bool customImg = false;
         bool LcustomImg = false;
         bool Devmode = false;
+        bool CConfig = false;
 
     //floats
         float x = 1.0f;
@@ -254,7 +255,8 @@ int main()
         static std::string inputPath = "example.png";
         static std::string newButtonName = "object";
         static char buffer[256] = "obj";
-        static char winbuffer[30] = "obj";
+        static char winbuffer[30] = "";
+        static char CBuffer[600] = "";
         static std::string currentselectedname = "obj";
 
     //more buttons
@@ -335,6 +337,33 @@ int main()
             }
            
         
+            std::vector<std::string> nbs = { buttonNames[currentbuttonindex] + "" };
+
+            //convert to string nbs
+            std::string cts_nbs;
+
+            for (const auto& str : nbs) {
+                cts_nbs += str;
+            }
+
+
+
+
+
+
+
+
+            data = { buttonNames[currentbuttonindex], "//size", std::to_string(x), std::to_string(y), "//devmode Y/N",  std::to_string(Devmode), "//custom Img Y/N", std::to_string(customImg), "//path? if Y", inputPath, "//verts" };
+
+            //converts the float to string and at the same time converts it into a 32 bit list
+            for (int i = 0; i < 32; ++i) {
+                data.push_back(floatToString(vertices[i]));
+            }
+            data.emplace_back("//indices");
+
+
+
+            saveToFile(data, cts_nbs + fileName);
 
   
      
@@ -342,6 +371,9 @@ int main()
       
           
         }
+
+
+     
 
         //checkbox
         ImGui::Checkbox("Render?", &drawTriangle);
@@ -430,6 +462,35 @@ int main()
 
           
             }
+
+            std::vector<std::string> nbs = { buttonNames[currentbuttonindex] + "" };
+
+            //convert to string nbs
+            std::string cts_nbs;
+
+            for (const auto& str : nbs) {
+                cts_nbs += str;
+            }
+
+
+
+
+
+
+
+
+            data = { buttonNames[currentbuttonindex], "//size", std::to_string(x), std::to_string(y), "//devmode Y/N",  std::to_string(Devmode), "//custom Img Y/N", std::to_string(customImg), "//path? if Y", inputPath, "//verts" };
+
+            //converts the float to string and at the same time converts it into a 32 bit list
+            for (int i = 0; i < 32; ++i) {
+                data.push_back(floatToString(vertices[i]));
+            }
+            data.emplace_back("//indices");
+
+
+
+            saveToFile(data, cts_nbs + fileName);
+
             
 
         }
@@ -442,7 +503,53 @@ int main()
             ImGui::Text("Dev mode!");
 
             ImGui::Text("Fps: %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+
+            //lets do a manual confing load!
+            ImGui::Checkbox("Custom Config File", &CConfig);
+
+            if (CConfig)
+            {
+                if (ImGui::InputText("Config Path", CBuffer, IM_ARRAYSIZE(CBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
+                {
+                    if (strstr(CBuffer, ".CoRF") != nullptr) {//see if it contains a CoRF file
+                        //first read files
+                       
+                        std::ifstream MyReadFile(CBuffer);
+                        if (MyReadFile.is_open()) {
+                            std::string line;
+
+                            std::cout << "LOADING FILE" << std::endl;
+
+
+                            if (std::getline(MyReadFile, line)) {
+                                buttonNames[currentbuttonindex] = line;
+
+                                while (std::getline(MyReadFile, line)) {
+                                    // Output the text from the file
+                                    std::cout << line << std::endl;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            std::cout << "ERROR -- COULD NOT READ FILE :( --" << std::endl;
+                            std::cout << "did you input the path wrong? does the file exist?" << std::endl;
+                        }
+                     
+
+                    }
+                    else {
+                        std::cout << "Does not contain .CoRF" << std::endl;
+                    }
+                }
+            }
+          
+
         }
+
+      
+       
         
            
         
@@ -519,34 +626,7 @@ int main()
         }
      
     
-        std::vector<std::string> nbs = { buttonNames[currentbuttonindex] + "" };
-
-        //convert to string nbs
-        std::string cts_nbs;
-
-        for (const auto& str : nbs) {
-            cts_nbs += str;
-        }
-
-
-
-
-
-
-      
-
-        data = { buttonNames[currentbuttonindex], "//size", std::to_string(x), std::to_string(y), "//devmode Y/N",  std::to_string(Devmode), "//custom Img Y/N", std::to_string(customImg), "//path? if Y", inputPath, "//verts" };
-
-        //converts the float to string and at the same time converts it into a 32 bit list
-        for (int i = 0; i < 32; ++i) {
-            data.push_back(floatToString(vertices[i]));
-        }
-        data.emplace_back("//indices");
        
-
-
-        saveToFile(data, cts_nbs + fileName);
-
 
 
         ImGui::End(); // End sidebar window

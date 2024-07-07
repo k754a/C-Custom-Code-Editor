@@ -1,19 +1,22 @@
 ﻿  Main.cpp
 C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(143,1): warning C4010: single-line comment contains line-continuation character
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(313,42): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(327,34): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(334,29): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(459,52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(460,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(470,38): warning C4244: '=': conversion from 'size_t' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(475,45): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(476,75): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(492,72): warning C4244: '=': conversion from '__int64' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(497,41): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(498,71): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(503,58): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(522,54): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(538,30): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(587,47): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(264,15): warning C4101: 'selectedButton': unreferenced local variable
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(315,42): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(329,34): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(336,29): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(340,58): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(356,34): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(466,58): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(482,34): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(526,45): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(566,52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(567,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(577,38): warning C4244: '=': conversion from 'size_t' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(582,45): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(583,75): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(599,72): warning C4244: '=': conversion from '__int64' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(604,41): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(605,71): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(610,58): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(667,47): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(266,15): warning C4101: 'selectedButton': unreferenced local variable
   Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe
