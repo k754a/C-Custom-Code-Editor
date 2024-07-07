@@ -121,7 +121,7 @@ int main()
 
     //create the window :)
     //takes in 5 values high, width, name, fullscree y/n, not very important rn;
-    GLFWwindow* window = glfwCreateWindow(800, 800, "PixeLite", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 800, "R Engine", NULL, NULL);
 
     //error detection
     if (window == NULL)
@@ -331,8 +331,23 @@ int main()
 
         if (ImGui::InputText("Obj Name", winbuffer, IM_ARRAYSIZE(winbuffer), ImGuiInputTextFlags_EnterReturnsTrue))
         {
+
+            //cleanup
+
+           
             if (strlen(winbuffer) > 0 && std::find(buttonNames.begin(), buttonNames.end(), winbuffer) == buttonNames.end())//this is to test if it has no characters or the same name twice.
             {
+                std::string filePath = "saves/" + buttonNames[currentbuttonindex] + ".CoRF";
+           
+                const char* fileToRemove = filePath.c_str();
+
+                // Attempt to remove the file
+                if (std::remove(fileToRemove) != 0) {
+                    std::cerr << "Error deleting file: " << fileToRemove << std::endl;
+                }
+                else {
+                    std::cout << "File successfully deleted: " << fileToRemove << std::endl;
+                }
                 buttonNames[currentbuttonindex] = winbuffer;
             }
            
@@ -353,7 +368,7 @@ int main()
 
 
 
-            data = { buttonNames[currentbuttonindex], "//size", std::to_string(x), std::to_string(y), "//devmode Y/N",  std::to_string(Devmode), "//custom Img Y/N", std::to_string(customImg), "//path? if Y", inputPath, "//verts" };
+            data = { buttonNames[currentbuttonindex],  std::to_string(x), std::to_string(y),   std::to_string(Devmode), std::to_string(customImg),  inputPath };
 
             //converts the float to string and at the same time converts it into a 32 bit list
             for (int i = 0; i < 32; ++i) {
@@ -479,7 +494,7 @@ int main()
 
 
 
-            data = { buttonNames[currentbuttonindex], "//size", std::to_string(x), std::to_string(y), "//devmode Y/N",  std::to_string(Devmode), "//custom Img Y/N", std::to_string(customImg), "//path? if Y", inputPath, "//verts" };
+            data = { buttonNames[currentbuttonindex], std::to_string(x), std::to_string(y),   std::to_string(Devmode), std::to_string(customImg), inputPath, };
 
             //converts the float to string and at the same time converts it into a 32 bit list
             for (int i = 0; i < 32; ++i) {
@@ -521,6 +536,25 @@ int main()
 
                             std::cout << "LOADING FILE" << std::endl;
 
+                            for (int i = 1; i < 4; i++)
+                            {
+                                if (std::getline(MyReadFile, line)) {
+                                    //nessisary to prevent crash
+                                    INT32_C(x);
+                                    INT32_C(y);
+                                 
+                                    if (i == 2)
+                                    {
+                                        x = std::stof(line);
+                                    }
+                                    if (i == 3)
+                                    {
+                                        y = std::stof(line);
+                                    }
+                                        std::cout << "Line " << (i) <<"<< i value" << ": " << line << std::endl;
+                                    
+                                }
+                            }
 
                             if (std::getline(MyReadFile, line)) {
                                 buttonNames[currentbuttonindex] = line;
