@@ -450,6 +450,37 @@ int main()
                 glClearColor(0.9f, 0.12f, 1.17f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
                 glfwSwapBuffers(window);
+
+
+                std::vector<std::string> nbs = { buttonNames[currentbuttonindex] + "" };
+
+                //convert to string nbs
+                std::string cts_nbs;
+
+                for (const auto& str : nbs) {
+                    cts_nbs += str;
+                }
+
+
+
+
+
+
+
+
+                data = { buttonNames[currentbuttonindex],  std::to_string(x), std::to_string(y),   std::to_string(Devmode), std::to_string(customImg),  inputPath };
+
+                //converts the float to string and at the same time converts it into a 32 bit list
+                for (int i = 0; i < 32; ++i) {
+                    data.push_back(floatToString(vertices[i]));
+                }
+                data.emplace_back("//indices");
+
+
+
+                saveToFile(data, cts_nbs + fileName);
+
+
             }
         }
        
@@ -535,14 +566,18 @@ int main()
                             std::string line;
 
                             std::cout << "LOADING FILE" << std::endl;
-
-                            for (int i = 1; i < 4; i++)
+                            //custom image
+                            bool ci = false;
+                            for (int i = 1; i < 7; i++)
                             {
                                 if (std::getline(MyReadFile, line)) {
                                     //nessisary to prevent crash
                                     INT32_C(x);
                                     INT32_C(y);
-                                 
+                                    if(i == 1)
+                                    {
+                                        buttonNames[currentbuttonindex] = line;
+                                    }
                                     if (i == 2)
                                     {
                                         x = std::stof(line);
@@ -551,19 +586,55 @@ int main()
                                     {
                                         y = std::stof(line);
                                     }
+                                    if(i == 5)
+                                    {
+                                        if (line == "1")
+                                        {
+                                            ci = true;
+                                        }
+                                    }
+                                    if (i == 6)
+                                    {
+                                        if (ci = true)
+                                        {
+                                            std::cout << "loading " << line << std::endl;
+
+                                            //load img
+
+                                            GLuint uniIDx = glGetUniformLocation(shaderProgram.ID, "scalex");
+                                            GLuint uniIDy = glGetUniformLocation(shaderProgram.ID, "scaley");
+
+                                            glUniform1f(uniIDx, 1.0f);
+                                            glUniform1f(uniIDy, 1.0f);
+
+
+
+
+                                            inputPath = line;
+                                            texture = Texture(inputPath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+                                            texture.texUnit(shaderProgram, "tex0", 0);
+                                            texture.Bind();
+
+
+
+
+                                            glClearColor(0.9f, 0.12f, 1.17f, 1.0f);
+                                            glClear(GL_COLOR_BUFFER_BIT);
+                                            glfwSwapBuffers(window);
+
+                                        }
+                                    }
                                         std::cout << "Line " << (i) <<"<< i value" << ": " << line << std::endl;
                                     
                                 }
                             }
 
-                            if (std::getline(MyReadFile, line)) {
-                                buttonNames[currentbuttonindex] = line;
-
+                         
                                 while (std::getline(MyReadFile, line)) {
                                     // Output the text from the file
                                     std::cout << line << std::endl;
                                 }
-                            }
+                            
                         }
                         else
                         {
