@@ -1,13 +1,14 @@
-test
+obj 0
 //size
 1.000000
 1.000000
 //devmode Y/N
-1
+0
 //custom Img Y/N
-1
+0
 //path? if Y
 example.png
+//verts
 -0.5
 -0.5
 0
@@ -40,3 +41,4 @@ example.png
 1
 1
 0
+//indices

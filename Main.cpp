@@ -42,7 +42,17 @@
 
 
 
+//custom saving file name !!important!!
+// 
 
+std::string fileName = ".CoRF";
+
+
+
+
+
+
+// 
 //we use glfloat instead of std::float because glfloat does not change per system or across devices.
     //unlike c# for a float[] you use an = sign
 
@@ -237,6 +247,8 @@ int main()
 
         int al = 0;
 
+        std::vector<std::string> data = {};
+
     //only make it end if the window is closed.
         //max amount of words
         static std::string inputPath = "example.png";
@@ -327,6 +339,7 @@ int main()
   
      
             //clear last input
+      
           
         }
 
@@ -458,13 +471,16 @@ int main()
                 std::cout << "button index: " << currentbuttonindex << " pressed " << std::endl;
              
                 memset(winbuffer, 0, sizeof(winbuffer));
+
+                size_t length = buttonNames[currentbuttonindex].size();
+                strncpy_s(winbuffer, IM_ARRAYSIZE(winbuffer), buttonNames[currentbuttonindex].c_str(), length);
             
             }
         }
 
 
 
-        if (ImGui::Button("New"))
+        if (ImGui::Button("-New-"))
         {
           
 
@@ -477,11 +493,61 @@ int main()
             
             al++;
 
+            //this is a more personal quality addtion
+            size_t length = buttonNames[currentbuttonindex].size();
+            strncpy_s(winbuffer, IM_ARRAYSIZE(winbuffer), buttonNames[currentbuttonindex].c_str(), length);
+
+
+            //unforutnely it does not like button names :( have to convert
+            //new button save!
+            std::vector<std::string> nbs = { buttonNames[currentbuttonindex] + "" };
+
+            //convert to string nbs
+            std::string cts_nbs;
+
+            for (const auto& str : nbs) {
+                cts_nbs += str;
+            }
+
+
+
+
+
+
+            saveToFile(nbs, cts_nbs + fileName);
+
         }
      
     
+        std::vector<std::string> nbs = { buttonNames[currentbuttonindex] + "" };
 
+        //convert to string nbs
+        std::string cts_nbs;
+
+        for (const auto& str : nbs) {
+            cts_nbs += str;
+        }
+
+
+
+
+
+
+      
+
+        data = { buttonNames[currentbuttonindex], "//size", std::to_string(x), std::to_string(y), "//devmode Y/N",  std::to_string(Devmode), "//custom Img Y/N", std::to_string(customImg), "//path? if Y", inputPath, "//verts" };
+
+        //converts the float to string and at the same time converts it into a 32 bit list
+        for (int i = 0; i < 32; ++i) {
+            data.push_back(floatToString(vertices[i]));
+        }
+        data.emplace_back("//indices");
        
+
+
+        saveToFile(data, cts_nbs + fileName);
+
+
 
         ImGui::End(); // End sidebar window
 
@@ -510,16 +576,10 @@ int main()
 
  
    //save the file
-    std::vector<std::string> data = {};
+    
 
 
-    data = {newButtonName, "//size", std::to_string(x), std::to_string(y), "//devmode Y/N",  std::to_string(Devmode), "//custom Img Y/N", std::to_string(customImg), "//path? if Y", inputPath, "//verts"};
-
-    //converts the float to string and at the same time converts it into a 32 bit list
-    for (int i = 0; i < 32; ++i) {
-        data.push_back(floatToString(vertices[i])); 
-    }
-    data.emplace_back("//indices");
+   
     
 
     //get len of indices std::end(indices)-std::begin(indices);
@@ -527,7 +587,7 @@ int main()
         data.push_back(floatToString(indices[i]));
     }
     //custom object render file CoRF
-    std::string fileName = ".CoRF";
+    
 
 
     saveToFile(data, newButtonName +fileName);

@@ -1,11 +1,11 @@
-object
+obj 4
 //size
 1.000000
 1.000000
 //devmode Y/N
 0
 //custom Img Y/N
-0
+1
 //path? if Y
 example.png
 //verts
