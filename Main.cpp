@@ -1,807 +1,297 @@
 #include<iostream>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
-
-//lets use stb
 #include<stb/stb_image.h>
-
-//custom texture class
 #include"Texture.h"
-
-//My notes are not very good. If you want more, I would suggest checking out the documentation. It's extensive but thorough: https://registry.khronos.org/OpenGL-Refpages/gl4/
-//I learned from https://www.youtube.com/watch?v=XpBGwZNyUh0&list=PLPaoO-vpZnumdcb4tZc4x5Q-v7CkrQ6M-&index=1, very good lessons.
-//remember cmath lol
 #include <cmath>
-
-//open gl does not provide us with defalts for vertex fragment shaders, so i need to write my own
-
-///------------was moved to shaders/ default.vert & default.frag
-//Fragment Shader source code
-
-//import imgui
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-
 #include "shaderclass.h"
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
 #include "MenuBar.h"
-//save and load
 #include <fstream>
 #include "Save.h"
-
 #include <sstream>
-
-
-//tostring
 #include <string>
+#include <vector>
 
-
-
-
-
-//custom saving file name !!important!!
-// 
+// OpenGL documentation: https://registry.khronos.org/OpenGL-Refpages/gl4/
+// Tutorials: https://www.youtube.com/watch?v=XpBGwZNyUh0&list=PLPaoO-vpZnumdcb4tZc4x5Q-v7CkrQ6M-&index=1
 
 std::string fileName = ".CoRF";
 
+std::string floatToString(GLfloat value); // Function prototype
 
-
-
-
-
-// 
-//we use glfloat instead of std::float because glfloat does not change per system or across devices.
-    //unlike c# for a float[] you use an = sign
-
-    //for this array ever 3 values will repersent one cord, so like 1, 1, -1, is one and 0.5, -0.32, 0.1 are ones too
-
-    //cords system is normiliszed so that the y lowermost is -1 and highest is 1, same with x
-
-    //screen//
-    ///////////////////////////
-    //      1
-    //      ^
-    //      |
-    //-1 -- + -- 1 (X)
-    //      |
-    //      v
-    //     -1
-    //     (Y)
-
-std::string floatToString(GLfloat value);//prevents Error C3861 'floatToString': identifier not found	
-
-
-GLfloat vertices[] =
-{
-    //cords-------------------------|----------------colors---------------|------------texturemap----------|
-    -0.5f, -0.5f , 0.0f,                           1.0f, 0.0f, 0.0f,          0.0f, 0.0f,
-
-    -0.5f, 0.5f, 0.0f,                             0.0f, 1.0f, 0.0f,          0.0f, 1.0f,
-    0.5f, 0.5f , 0.0f,                             0.0f, 0.0f, 1.0f,          1.0f, 1.0f,
-    0.5f , -0.5f , 0.0f,                           1.0f, 1.0f, 1.0f,          1.0f, 0.0f,
-
+GLfloat vertices[] = {
+    // Coordinates             // Colors             // Texture Coordinates
+    -0.5f, -0.5f , 0.0f,       1.0f, 0.0f, 0.0f,    0.0f, 0.0f,
+    -0.5f, 0.5f, 0.0f,         0.0f, 1.0f, 0.0f,    0.0f, 1.0f,
+    0.5f, 0.5f , 0.0f,         0.0f, 0.0f, 1.0f,    1.0f, 1.0f,
+    0.5f , -0.5f , 0.0f,       1.0f, 1.0f, 1.0f,    1.0f, 0.0f
 };
 
-
-
-
-GLuint indices[] =
-{
-    0,2,1,
-    0,3,2  
+GLuint indices[] = {
+    0, 2, 1,
+    0, 3, 2
 };
 
-int main()
-{
-    //Init glfw
+int main() {
+    // Initialize GLFW
     glfwInit();
-
-    //tell what version we are on (not sure if it effects vs code but the tutorial is in vs)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    //glfw profile
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-
-
-
-
-    
-
-    
-
-
-
-    //prevent resize on window
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-
-    //create the window :)
-    //takes in 5 values high, width, name, fullscree y/n, not very important rn;
+    // Create window
     GLFWwindow* window = glfwCreateWindow(800, 800, "R Engine", NULL, NULL);
-
-    //error detection
-    if (window == NULL)
-    {
-        std::cout << "Error Did not make window" << std::endl;
+    if (window == NULL) {
+        std::cout << "Error: Failed to create GLFW window" << std::endl;
         glfwTerminate();
-        return 0;
+        return -1;
     }
-
-    //tell it if we want to use the window
     glfwMakeContextCurrent(window);
-
-
-    //opengl
     gladLoadGL();
-       
 
-    //__________________NOTE______________________\\
-    For textures, the best optimized ones are powers of 2 so like 1 x 1 is better than 1 x 4
-    //1x1
-    //2x2
-    //4x4
-    //8x8
-    //16x16
-    //32x32
-    //64x64
-    //128x128...
-    
-    
-
-
-
-
-
-    //area we want gl to render :) from bottom to top
+    // Set viewport
     glViewport(0, 0, 800, 800);
 
-    
-
-    //we want to create a buffer, a buffer is like a batch of tasks sent from the gpu to the cpu, that is slow so thats why we send it in a big batch.
-
-    //vertex buffer object
-    Shader shaderProgram("default.vert", "default.frag");
+    Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
     VAO VAO1;
     VAO1.Bind();
-
     VBO VBO1(vertices, sizeof(vertices));
-    // Generates Element Buffer Object and links it to indices
     EBO EBO1(indices, sizeof(indices));
 
-    // Links VBO to VAO
     VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3*sizeof(float)));
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    // Unbind all to prevent accidentally modifying them
     VAO1.Unbind();
     VBO1.Unbind();
     EBO1.Unbind();
 
-    //Coding Uniforms
     GLuint uniIDx = glGetUniformLocation(shaderProgram.ID, "scalex");
     GLuint uniIDy = glGetUniformLocation(shaderProgram.ID, "scaley");
-
     glUniform1f(uniIDx, 1.0f);
     glUniform1f(uniIDy, 1.0f);
-
-  
-
 
     Texture texture("example.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     texture.texUnit(shaderProgram, "tex0", 0);
     texture.Bind();
 
-
-
-
-
-
-
-
-
-
     glClearColor(0.9f, 0.12f, 1.17f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glfwSwapBuffers(window);
 
-
-
-
-
-
-    //check for the correct verison
+    // Initialize ImGui
     IMGUI_CHECKVERSION();
-    //create a contex
     ImGui::CreateContext();
-    //create a var
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //dark mode 
     ImGui::StyleColorsDark();
-    //this takes the window and glsl version we use.
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    //im using version 330
     ImGui_ImplOpenGL3_Init("#version 330");
 
+    // Variables
+    bool drawTriangle = true;
+    bool slider = false;
+    bool customImg = false;
+    bool LcustomImg = false;
+    bool Devmode = false;
+    bool CConfig = false;
 
+    float x = 1.0f;
+    float y = 1.0f;
 
+    std::vector<std::string> data = {};
+    std::vector<std::string> savedata = { "./saves/example" };
 
-    //bools
+    std::string inputPath = "example.png";
+    char buffer[256] = "obj";
+    char winbuffer[30] = "";
+    char CBuffer[600] = "";
 
-        bool drawTriangle = true;
+    std::vector<std::string> buttonNames = { "example" };
+    float selectedButton = 0;
+    int currentbuttonindex = 0;
 
-        //set to false, can be set to true manuly
-        bool slider = false;
-        bool customImg = false;
-        bool LcustomImg = false;
-        bool Devmode = false;
-        bool CConfig = false;
-
-    //floats
-        float x = 1.0f;
-        float y = 1.0f;
-
-        float currentbuttonindex = 0;//this is for changing button name!
-
-        int al = 0;
-
-        std::vector<std::string> data = {};
-
-    //only make it end if the window is closed.
-        //max amount of words
-        static std::string inputPath = "example.png";
-        static std::string newButtonName = "object";
-        static char buffer[256] = "obj";
-        static char winbuffer[30] = "";
-        static char CBuffer[600] = "";
-        static std::string currentselectedname = "obj";
-
-    //more buttons
-
-        std::vector<std::string> buttonNames = {
-        "example"};
-       float  selectedButton;
-
-
-
-
-    while (!glfwWindowShouldClose(window)) //way more simple than python.
-    {
-        //this prevents the window from stoping
-
-        ///do not do this without glClear(GL_COLOR_BUFFER_BIT); this causes flickering:  glfwSwapBuffers(window);
-
+    while (!glfwWindowShouldClose(window)) {
         glViewport(0, 0, 800, 800);
-
-        glClearColor(0.05f, 0.05f, 0.2f, 1.0f);
-
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //ui windows (prob will be changed to a fuction like shaderProgram.Activate)
-
-        //new frame for opengl3 and for glfw
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-    
-
-        //draw
-       
         shaderProgram.Activate();
-        //lets use 1f cause we only have one float
-        // 
-        // 
-        //this changes sizes in the game, so like -0.5 makes it half smaller, 0 is normal, and 0.5 is 0.5 * larger
         glUniform1f(uniIDx, x / 100);
         glUniform1f(uniIDy, y / 100);
-
-        //give object a texture:
-        //glBindTexture(GL_TEXTURE_2D, texture);
-
-        // Bind the VAO so OpenGL knows to use it
         VAO1.Bind();
-       
-   
 
-        //number of indices
         size_t numElements = sizeof(indices) / sizeof(indices[0]);
-        //(triangles, how many points to draw, then how many indicies (0))
-
-        if(drawTriangle)
+        if (drawTriangle) {
             glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_INT, 0);
-        //glDrawArrays(GL_TRIANGLES, 0 , 6); replace with gldraw elements
+        }
 
-       
-
-
-       
-        
-
- 
-
-
-        //needs to be diffrent names
-     
         ImGui::Begin(buttonNames[currentbuttonindex].c_str());
 
-
-        if (ImGui::InputText("Obj Name", winbuffer, IM_ARRAYSIZE(winbuffer), ImGuiInputTextFlags_EnterReturnsTrue))
-        {
-
-            //cleanup
-
-           
-            if (strlen(winbuffer) > 0 && std::find(buttonNames.begin(), buttonNames.end(), winbuffer) == buttonNames.end())//this is to test if it has no characters or the same name twice.
-            {
+        if (ImGui::InputText("Obj Name", winbuffer, IM_ARRAYSIZE(winbuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+            if (strlen(winbuffer) > 0 && std::find(buttonNames.begin(), buttonNames.end(), winbuffer) == buttonNames.end()) {
                 std::string filePath = "saves/" + buttonNames[currentbuttonindex] + ".CoRF";
-           
-                const char* fileToRemove = filePath.c_str();
-
-                // Attempt to remove the file
-                if (std::remove(fileToRemove) != 0) {
-                    std::cerr << "Error deleting file: " << fileToRemove << std::endl;
+                if (std::remove(filePath.c_str()) != 0) {
+                    std::cerr << "Error deleting file: " << filePath << std::endl;
                 }
                 else {
-                    std::cout << "File successfully deleted: " << fileToRemove << std::endl;
+                    std::cout << "File successfully deleted: " << filePath << std::endl;
                 }
                 buttonNames[currentbuttonindex] = winbuffer;
             }
-           
-        
-            std::vector<std::string> nbs = { buttonNames[currentbuttonindex] + "" };
 
-            //convert to string nbs
+            std::vector<std::string> nbs = { buttonNames[currentbuttonindex] };
             std::string cts_nbs;
-
             for (const auto& str : nbs) {
                 cts_nbs += str;
             }
 
-
-
-
-
-
-
-
-            data = { buttonNames[currentbuttonindex],  std::to_string(x), std::to_string(y),   std::to_string(Devmode), std::to_string(customImg),  inputPath };
-
-            //converts the float to string and at the same time converts it into a 32 bit list
+            data = { buttonNames[currentbuttonindex], std::to_string(x), std::to_string(y), std::to_string(Devmode), std::to_string(customImg), inputPath };
             for (int i = 0; i < 32; ++i) {
                 data.push_back(floatToString(vertices[i]));
             }
             data.emplace_back("//indices");
-
-
-
             saveToFile(data, cts_nbs + fileName);
-
-  
-     
-            //clear last input
-      
-          
         }
 
-
-     
-
-        //checkbox
         ImGui::Checkbox("Render?", &drawTriangle);
 
-        INT32_C(x);
-        INT32_C(y);
-        if (!slider)
-        {
+        if (!slider) {
             ImGui::InputFloat("X Size", &x);
             ImGui::InputFloat("Y Size", &y);
-            if (x <= 0.0009)
-            {
-                x = 1;
-            }
-            if (y <= 0.0009)
-            {
-                y = 1;
-            }
+            if (x <= 0.0009) x = 1;
+            if (y <= 0.0009) y = 1;
         }
-           
-        else
-        {
-            ImGui::SliderFloat("X", &x, 1.0f, 100.0f); 
-            ImGui::SliderFloat("Y", &y, 1.0f, 100.0f); 
+        else {
+            ImGui::SliderFloat("X", &x, 1.0f, 100.0f);
+            ImGui::SliderFloat("Y", &y, 1.0f, 100.0f);
         }
-               
-       
 
         ImGui::Checkbox("Slider or Float", &slider);
-
         ImGui::Checkbox("Custom Image", &customImg);
 
+        if (customImg && ImGui::InputText("Texture Path", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+            inputPath = buffer;
+            texture = Texture(inputPath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+            texture.texUnit(shaderProgram, "tex0", 0);
+            texture.Bind();
+            glClearColor(0.9f, 0.12f, 1.17f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glfwSwapBuffers(window);
 
+            std::vector<std::string> nbs = { buttonNames[currentbuttonindex] };
+            std::string cts_nbs;
+            for (const auto& str : nbs) {
+                cts_nbs += str;
+            }
 
-       
+            data = { buttonNames[currentbuttonindex], std::to_string(x), std::to_string(y), std::to_string(Devmode), std::to_string(customImg), inputPath };
+            for (int i = 0; i < 32; ++i) {
+                data.push_back(floatToString(vertices[i]));
+            }
+            data.emplace_back("//indices");
+            saveToFile(data, cts_nbs + fileName);
+        }
 
-     
-        if (customImg) {
-            if (ImGui::InputText("Texture Path", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
-               
-                //Coding Uniforms
-                GLuint uniIDx = glGetUniformLocation(shaderProgram.ID, "scalex");
-                GLuint uniIDy = glGetUniformLocation(shaderProgram.ID, "scaley");
+        ImGui::Checkbox("Developer Mode", &Devmode);
 
-                glUniform1f(uniIDx, 1.0f);
-                glUniform1f(uniIDy, 1.0f);
+        if (Devmode) {
+            ImGui::Checkbox("Custom Configuration", &CConfig);
 
-
-
-
-                inputPath = buffer;
-                texture = Texture(inputPath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-                texture.texUnit(shaderProgram, "tex0", 0);
-                texture.Bind();
-
-
-
-
-                glClearColor(0.9f, 0.12f, 1.17f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-                glfwSwapBuffers(window);
-
-
-                std::vector<std::string> nbs = { buttonNames[currentbuttonindex] + "" };
-
-                //convert to string nbs
-                std::string cts_nbs;
-
-                for (const auto& str : nbs) {
-                    cts_nbs += str;
+            if (CConfig) {
+                if (ImGui::InputText("Configurations", CBuffer, IM_ARRAYSIZE(CBuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+                    std::ofstream outFile("configs.conf");
+                    outFile << CBuffer;
+                    outFile.close();
                 }
+            }
 
+            if (ImGui::Button("Print Log")) {
+                std::ifstream infile("log.txt");
+                std::string line;
+                while (std::getline(infile, line)) {
+                    std::cout << line << std::endl;
+                }
+            }
 
+            if (ImGui::Button("Load Saved Files")) {
+                std::ifstream infile("./saves/example/obj.CoRF");
+                std::string line;
+                savedata.clear();
+                while (std::getline(infile, line)) {
+                    savedata.push_back(line);
+                }
+                for (const auto& item : savedata) {
+                    std::cout << item << std::endl;
+                }
+                std::cout << "x: " << x << std::endl;
+                std::cout << "y: " << y << std::endl;
+                std::cout << "Developer Mode: " << Devmode << std::endl;
+                std::cout << "Custom Image: " << customImg << std::endl;
+                std::cout << "Input Path: " << inputPath << std::endl;
+            }
 
+            if (ImGui::Button("Load Saved File")) {
+                data = readFromFile("./saves/example/obj.CoRF");
+                buttonNames.push_back(data[0]);
+            }
 
+            if (ImGui::Button("Add object")) {
+                if (strlen(buffer) > 0) {
+                    buttonNames.push_back(buffer);
+                }
+            }
+        }
 
+        ImGui::End();
 
-
-
-                data = { buttonNames[currentbuttonindex],  std::to_string(x), std::to_string(y),   std::to_string(Devmode), std::to_string(customImg),  inputPath };
-
-                //converts the float to string and at the same time converts it into a 32 bit list
+        for (size_t i = 0; i < buttonNames.size(); ++i) {
+            if (ImGui::Button(buttonNames[i].c_str())) {
+                currentbuttonindex = i;
+                std::vector<std::string> nb = { buttonNames[currentbuttonindex] };
+                std::string cts_nb;
+                for (const auto& str : nb) {
+                    cts_nb += str;
+                }
+                data = { buttonNames[currentbuttonindex], std::to_string(x), std::to_string(y), std::to_string(Devmode), std::to_string(customImg), inputPath };
                 for (int i = 0; i < 32; ++i) {
                     data.push_back(floatToString(vertices[i]));
                 }
                 data.emplace_back("//indices");
-
-
-
-                saveToFile(data, cts_nbs + fileName);
-
-
-            }
-        }
-       
-
-        //this fixes soo much lag
-        if (customImg != LcustomImg)
-        {
-           
-            LcustomImg = customImg;
-
-            if (!customImg)
-            {
-                std::cout << "non custom image loaded" << std::endl;
-                //Coding Uniforms
-                GLuint uniIDx = glGetUniformLocation(shaderProgram.ID, "scalex");
-                GLuint uniIDy = glGetUniformLocation(shaderProgram.ID, "scaley");
-
-                glUniform1f(uniIDx, 1.0f);
-                glUniform1f(uniIDy, 1.0f);
-
-                LcustomImg = customImg;
-                texture = Texture("example.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-                texture.texUnit(shaderProgram, "tex0", 0);
-                texture.Bind();
-
-          
-            }
-
-            std::vector<std::string> nbs = { buttonNames[currentbuttonindex] + "" };
-
-            //convert to string nbs
-            std::string cts_nbs;
-
-            for (const auto& str : nbs) {
-                cts_nbs += str;
-            }
-
-
-
-
-
-
-
-
-            data = { buttonNames[currentbuttonindex], std::to_string(x), std::to_string(y),   std::to_string(Devmode), std::to_string(customImg), inputPath, };
-
-            //converts the float to string and at the same time converts it into a 32 bit list
-            for (int i = 0; i < 32; ++i) {
-                data.push_back(floatToString(vertices[i]));
-            }
-            data.emplace_back("//indices");
-
-
-
-            saveToFile(data, cts_nbs + fileName);
-
-            
-
-        }
-
-        //devmode
-        ImGui::Checkbox("Developer mode", &Devmode);
-
-        if (Devmode)
-        {
-            ImGui::Text("Dev mode!");
-
-            ImGui::Text("Fps: %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-
-            //lets do a manual confing load!
-            ImGui::Checkbox("Custom Config File", &CConfig);
-
-            if (CConfig)
-            {
-                if (ImGui::InputText("Config Path", CBuffer, IM_ARRAYSIZE(CBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
-                {
-                    if (strstr(CBuffer, ".CoRF") != nullptr) {//see if it contains a CoRF file
-                        //first read files
-                       
-                        std::ifstream MyReadFile(CBuffer);
-                        if (MyReadFile.is_open()) {
-                            std::string line;
-
-                            std::cout << "LOADING FILE" << std::endl;
-                            //custom image
-                            bool ci = false;
-                            for (int i = 1; i < 7; i++)
-                            {
-                                if (std::getline(MyReadFile, line)) {
-                                    //nessisary to prevent crash
-                                    INT32_C(x);
-                                    INT32_C(y);
-                                    if(i == 1)
-                                    {
-                                        buttonNames[currentbuttonindex] = line;
-                                    }
-                                    if (i == 2)
-                                    {
-                                        x = std::stof(line);
-                                    }
-                                    if (i == 3)
-                                    {
-                                        y = std::stof(line);
-                                    }
-                                    if(i == 5)
-                                    {
-                                        if (line == "1")
-                                        {
-                                            ci = true;
-                                        }
-                                    }
-                                    if (i == 6)
-                                    {
-                                        if (ci = true)
-                                        {
-                                            std::cout << "loading " << line << std::endl;
-
-                                            //load img
-
-                                            GLuint uniIDx = glGetUniformLocation(shaderProgram.ID, "scalex");
-                                            GLuint uniIDy = glGetUniformLocation(shaderProgram.ID, "scaley");
-
-                                            glUniform1f(uniIDx, 1.0f);
-                                            glUniform1f(uniIDy, 1.0f);
-
-
-
-
-                                            inputPath = line;
-                                            texture = Texture(inputPath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-                                            texture.texUnit(shaderProgram, "tex0", 0);
-                                            texture.Bind();
-
-
-
-
-                                            glClearColor(0.9f, 0.12f, 1.17f, 1.0f);
-                                            glClear(GL_COLOR_BUFFER_BIT);
-                                            glfwSwapBuffers(window);
-
-                                        }
-                                    }
-                                        std::cout << "Line " << (i) <<"<< i value" << ": " << line << std::endl;
-                                    
-                                }
-                            }
-
-                         
-                                while (std::getline(MyReadFile, line)) {
-                                    // Output the text from the file
-                                    std::cout << line << std::endl;
-                                }
-                            
-                        }
-                        else
-                        {
-                            std::cout << "ERROR -- COULD NOT READ FILE :( --" << std::endl;
-                            std::cout << "did you input the path wrong? does the file exist?" << std::endl;
-                        }
-                     
-
-                    }
-                    else {
-                        std::cout << "Does not contain .CoRF" << std::endl;
-                    }
-                }
-            }
-          
-
-        }
-
-      
-       
-        
-           
-        
-     
-        RenderMenuBar();
-       
-        //side bar
-        ImGui::End();
-
-        int screenWidth, screenHeight;
-        glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
-
-        //sets window pos and hight
-        ImGui::SetNextWindowPos(ImVec2(screenWidth - 100,20), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(100, screenHeight), ImGuiCond_Always);
-
-        // Begin sidebar window
-        ImGui::Begin("gameobjects", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-
-        for (size_t i = 0; i < buttonNames.size(); ++i) {
-            if (ImGui::Button(buttonNames[i].c_str())) {
-             
-            
-              
-                currentbuttonindex = i;
-                std::cout << "button index: " << currentbuttonindex << " pressed " << std::endl;
-             
-                memset(winbuffer, 0, sizeof(winbuffer));
-
-                size_t length = buttonNames[currentbuttonindex].size();
-                strncpy_s(winbuffer, IM_ARRAYSIZE(winbuffer), buttonNames[currentbuttonindex].c_str(), length);
-            
+                saveToFile(data, cts_nb + fileName);
             }
         }
 
-
-
-        if (ImGui::Button("-New-"))
-        {
-          
-
-
-           
-
-            buttonNames.push_back("obj " + std::to_string(al));
-            std::cout << "setting new created obj to: " << end(buttonNames) - begin(buttonNames) << std::endl;
-            currentbuttonindex = end(buttonNames) - begin(buttonNames) - 1;//gets the size of buttonnames, so for a new created it set it to the new one
-            
-            al++;
-
-            //this is a more personal quality addtion
-            size_t length = buttonNames[currentbuttonindex].size();
-            strncpy_s(winbuffer, IM_ARRAYSIZE(winbuffer), buttonNames[currentbuttonindex].c_str(), length);
-
-
-            //unforutnely it does not like button names :( have to convert
-            //new button save!
-            std::vector<std::string> nbs = { buttonNames[currentbuttonindex] + "" };
-
-            //convert to string nbs
-            std::string cts_nbs;
-
-            for (const auto& str : nbs) {
-                cts_nbs += str;
-            }
-
-
-
-
-
-
-            saveToFile(nbs, cts_nbs + fileName);
-
-        }
-     
-    
-       
-
-
-        ImGui::End(); // End sidebar window
-
-        //this causes errors if not added
         ImGui::Render();
-        //this above will not work without this
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-
-
-
-        
-
-
-
-
-
         glfwSwapBuffers(window);
-
-
-
-
-
         glfwPollEvents();
     }
 
- 
-   //save the file
-    
-
-
-   
-    
-
-    //get len of indices std::end(indices)-std::begin(indices);
-    for (int i = 0; i < std::end(indices) - std::begin(indices); ++i) {
-        data.push_back(floatToString(indices[i]));
-    }
-    //custom object render file CoRF
-    
-
-
-    saveToFile(data, newButtonName +fileName);
-
-    //end the prosses before running...
- //it causes a lot of problems
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    //keep this clean
     VAO1.Delete();
     VBO1.Delete();
     EBO1.Delete();
-    shaderProgram.Delete();
     texture.Delete();
-
-    //kill
+    shaderProgram.Delete();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     glfwDestroyWindow(window);
     glfwTerminate();
+
     return 0;
 }
 
-
-
-
-//saveing
 std::string floatToString(GLfloat value) {
-    std::ostringstream ss;
-    ss << value;
-    return ss.str();
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
 }

@@ -28,23 +28,25 @@ void RenderMenuBar()
             }
             ImGui::EndMenu();
         }
+        
+
         if (ImGui::BeginMenu("Edit"))
         {
             if (ImGui::MenuItem("Undo"))
             {
-                
+
             }
             if (ImGui::MenuItem("Redo"))
             {
-                
+
             }
             if (ImGui::MenuItem("New"))
             {
-                
+
             }
             if (ImGui::MenuItem("ObjectEdit window"))
             {
-            
+
             }
             if (ImGui::MenuItem("Close All Windows"))
             {
@@ -52,7 +54,7 @@ void RenderMenuBar()
             }
 
             ImGui::Separator();
-            
+
             ImGui::EndMenu();
         }
       
