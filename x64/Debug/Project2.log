@@ -1,5 +1,2 @@
-﻿  Main.cpp
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(134,42): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(243,24): error C3861: 'readFromFile': identifier not found
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(243,17): error C2593: 'operator =' is ambiguous
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(258,38): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+﻿Main.obj : error LNK2019: unresolved external symbol __imp_glewInit referenced in function main
+C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe : fatal error LNK1120: 1 unresolved externals
