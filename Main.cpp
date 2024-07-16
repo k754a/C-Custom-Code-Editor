@@ -7,7 +7,7 @@
 #include"imgui.h"
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
-
+#include"FontAwesome5.h"
 
 //global var
 
@@ -41,6 +41,30 @@ void initImgui() {
     //version of GLSL
     ImGui_ImplOpenGL3_Init("#version 330");
 
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    // round
+    style.WindowRounding = 10;
+
+    // change the wins background color!
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f); // gray color
+
+    // rouding and padding
+    style.FrameRounding = 4.0f;
+    style.FramePadding = ImVec2(4, 2);
+
+    //this gets the background color of the window, and then sets it so that the top bar does not change color!
+    ImVec4 backgroundColor = style.Colors[ImGuiCol_WindowBg];
+    style.Colors[ImGuiCol_TitleBgActive] = backgroundColor;
+
+
+
+    //lets change the font!
+    io.Fonts->AddFontFromFileTTF("Fonts/Inter-Regular.ttf", 16.0f);
+    
+
+   
 }
 
 
@@ -54,7 +78,7 @@ int main() {
    
     
     //generate a window
-    window = glfwCreateWindow(800, 800, "Simple Window", NULL, NULL);
+    window = glfwCreateWindow(800, 800, "Test win", NULL, NULL);
     if (window == NULL) {
         //if we cant create a window
         std::cout << "Failed to create GLFW window" << std::endl;
