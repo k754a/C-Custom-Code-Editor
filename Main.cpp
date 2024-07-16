@@ -62,6 +62,8 @@ void initImgui() {
 
     //lets change the font!
     io.Fonts->AddFontFromFileTTF("Fonts/Inter-Regular.ttf", 16.0f);
+
+
     
 
    
@@ -118,9 +120,11 @@ int main() {
         ImGui::NewFrame();
 
 
-
+    
         //lets create the win
-        ImGui::Begin("Testwin");
+        ImGui::Begin("Window Title", nullptr,ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+        ImGui::SetWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
+
         ImGui::Text("render");
         ImGui::End();
 
