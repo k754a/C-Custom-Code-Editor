@@ -1,5 +1,2 @@
-﻿  Main.cpp
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(130,61): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(138,75): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(140,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+﻿  headbar.cpp
   Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe

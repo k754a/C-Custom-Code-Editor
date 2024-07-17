@@ -7,7 +7,9 @@
 #include"imgui.h"
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
-#include"FontAwesome5.h"
+
+//menubar
+#include"headbar.h"
 
 //global var
 
@@ -124,8 +126,8 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-
-    
+        //from headbar.h
+        Renderbar();
         //lets create the win
         ImGui::SetNextWindowSize(ImVec2(windowWidth * 0.5f, windowHeight));
         ImGui::SetNextWindowPos(ImVec2(200.1f, 0));
