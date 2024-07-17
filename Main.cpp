@@ -19,7 +19,7 @@ void initGLFW() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 }
 
 
@@ -69,6 +69,7 @@ void initImgui() {
    
 }
 
+char buffer[99999^9999];//never run out
 
 
 int main() {
@@ -104,11 +105,15 @@ int main() {
     //set the size
     glViewport(0, 0, 800, 800);
 
+    int windowWidth, windowHeight;
+   
    
     while (!glfwWindowShouldClose(window)) {
         //render imgui
    
-      
+        glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
+        glViewport(0, 0, windowWidth, windowHeight);
+
         // Clear the screen
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f); 
         glClear(GL_COLOR_BUFFER_BIT);
@@ -122,11 +127,21 @@ int main() {
 
     
         //lets create the win
-        ImGui::Begin("Window Title", nullptr,ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-        ImGui::SetWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(windowWidth * 0.5f, windowHeight * 0.5f));
+        ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+     
+        ImGui::InputTextMultiline("##CodeEditor", buffer, IM_ARRAYSIZE(buffer), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
 
-        ImGui::Text("render");
+
         ImGui::End();
+        ImGui::SetNextWindowSize(ImVec2(200, windowHeight));
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::Begin("Inspect", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+        ImGui::End();
+
+
+
+
 
         //render
 
