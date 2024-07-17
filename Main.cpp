@@ -102,7 +102,8 @@ int main() {
 
     initImgui();
 
-
+    static float editorHeightPercent = 0.7f;
+    static float terminalHeightPercent = 0.2f;
 
     //set the size
     glViewport(0, 0, 800, 800);
@@ -129,21 +130,37 @@ int main() {
         //from headbar.h
         Renderbar();
         //lets create the win
-        ImGui::SetNextWindowSize(ImVec2(windowWidth * 0.5f, windowHeight));
-        ImGui::SetNextWindowPos(ImVec2(200.1f, 0));
-        ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-     
+
+        float windowHeight = ImGui::GetIO().DisplaySize.y;
+        float windowWidth = ImGui::GetIO().DisplaySize.x;
+
+        // Calculate the heights
+        float terminalHeight = windowHeight * terminalHeightPercent;
+        float editorHeight = windowHeight - terminalHeight - 20; // Adjust for any top margin
+
+        // Editor window
+        ImGui::SetNextWindowSize(ImVec2(windowWidth * 0.5f, editorHeight));
+        ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
+        ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
         ImGui::InputTextMultiline("##CodeEditor", buffer, IM_ARRAYSIZE(buffer), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
-
-
         ImGui::End();
-        ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(FLT_MAX, windowHeight));
 
-        ImGui::SetNextWindowSize(ImVec2(200, windowHeight));
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        // Inspector window
+        ImGui::SetNextWindowSize(ImVec2(200, windowHeight - terminalHeight - 20));
+        ImGui::SetNextWindowPos(ImVec2(0, 20)); // Lock top position
         ImGui::Begin("Inspect", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
         ImGui::End();
 
+        // Terminal window
+        ImGui::SetNextWindowSize(ImVec2(windowWidth, terminalHeight));
+        ImGui::SetNextWindowPos(ImVec2(0, windowHeight - terminalHeight));
+        ImGui::Begin("Terminal", nullptr, ImGuiWindowFlags_NoCollapse);
+
+        // Update terminal height if it has been resized
+        terminalHeight = ImGui::GetWindowHeight();
+        terminalHeightPercent = terminalHeight / windowHeight;
+
+        ImGui::End();
 
 
 
