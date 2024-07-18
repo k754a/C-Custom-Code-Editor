@@ -118,7 +118,7 @@ int main() {
     glViewport(0, 0, windowWidth, windowHeight);
 
         // Clear the screen
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f); 
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         //Ui win
@@ -136,12 +136,13 @@ int main() {
 
         // Calculate the heights
         float terminalHeight = windowHeight * terminalHeightPercent;
-        float editorHeight = windowHeight - terminalHeight - 20; // Adjust for any top margin
+        float editorHeight = windowHeight - terminalHeight - 20; 
+        float editorWidth = windowWidth;
 
         // Editor window
-        ImGui::SetNextWindowSize(ImVec2(windowWidth * 0.5f, editorHeight));
+        ImGui::SetNextWindowSize(ImVec2(editorWidth, editorHeight));
         ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
-        ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+        ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse );
         ImGui::InputTextMultiline("##CodeEditor", buffer, IM_ARRAYSIZE(buffer), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
         ImGui::End();
 

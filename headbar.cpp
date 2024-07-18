@@ -1,5 +1,73 @@
-#include"headbar.h"
+#include "headbar.h"
+#include <windows.h>
+#include <shlobj.h> 
+#include <iostream>
+#include <string>
 
+void ListFilesRecursively(const std::wstring& directory)
+{
+    std::wstring searchPath = directory + L"\\*";
+
+    WIN32_FIND_DATA findFileData;
+    HANDLE hFind = FindFirstFile(searchPath.c_str(), &findFileData);
+
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
+            if (wcscmp(findFileData.cFileName, L".") != 0 && wcscmp(findFileData.cFileName, L"..") != 0)
+            {
+                if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+                {
+                    //load folder
+                 
+                    std::wstring subdir = directory + L"\\" + findFileData.cFileName;
+                    ListFilesRecursively(subdir);
+                }
+                else
+                {
+                    //load files
+                    
+                    std::wcout << directory + L"\\" + findFileData.cFileName << std::endl;
+                }
+            }
+        } while (FindNextFile(hFind, &findFileData) != 0);
+
+        FindClose(hFind);
+    }
+    else
+    {
+        std::cout << "Error : "<< directory.c_str() << std::endl;
+    }
+}
+
+void OpenFile()
+{
+    BROWSEINFO bi = { 0 };
+    bi.lpszTitle = L"Select a folder";
+    LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
+
+    if (pidl != nullptr)
+    {
+        wchar_t szDir[MAX_PATH];
+        if (SHGetPathFromIDList(pidl, szDir))
+        {
+            std::wcout << L"Selected folder: " << szDir << std::endl;
+
+            ListFilesRecursively(szDir);
+        }
+        else
+        {
+            std::cerr << "Error getting folder path" << std::endl;
+        }
+
+        CoTaskMemFree(pidl);
+    }
+    else
+    {
+        std::cerr << "Folder selection canceled" << std::endl;
+    }
+}
 
 void Renderbar()
 {
@@ -7,44 +75,44 @@ void Renderbar()
     {
         if (ImGui::BeginMenu("File"))
         {
-
+            ImGui::Separator();
+            if (ImGui::MenuItem("Open Directory"))
+            {
+                OpenFile();
+            }
             ImGui::Separator();
             if (ImGui::MenuItem("Exit"))
             {
-               
+                // Handle exit
             }
             ImGui::EndMenu();
         }
-
 
         if (ImGui::BeginMenu("Edit"))
         {
             if (ImGui::MenuItem("Undo"))
             {
-
+                // Handle undo
             }
             if (ImGui::MenuItem("Redo"))
             {
-
+                // Handle redo
             }
             if (ImGui::MenuItem("New"))
             {
-
+                // Handle new
             }
-            if (ImGui::MenuItem("ObjectEdit window"))
+            if (ImGui::MenuItem("Object Edit window"))
             {
-
+                // Handle object edit window
             }
             if (ImGui::MenuItem("Close All Windows"))
             {
-
+                // Handle close all windows
             }
-
             ImGui::Separator();
-
             ImGui::EndMenu();
         }
-
 
         ImGui::EndMainMenuBar();
     }
