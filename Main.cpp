@@ -147,10 +147,7 @@ int main() {
         ImGui::End();
 
         // Inspector window
-        ImGui::SetNextWindowSize(ImVec2(200, windowHeight - terminalHeight - 20));
-        ImGui::SetNextWindowPos(ImVec2(0, 20)); // Lock top position
-        ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
-        ImGui::End();
+        
 
         // Terminal window
         ImGui::SetNextWindowSize(ImVec2(windowWidth, terminalHeight));
