@@ -1,17 +1,6 @@
 #include "headbar.h"
-#include <windows.h>
-#include <shlobj.h> 
-#include <iostream>
-#include <string>
-#include <locale>
-#include <codecvt>
-
-#include <vector>
-//savefile
-// 
-#include <fstream>
-#include <direct.h> // For mkdir
-
+#include "libraries.h"
+#include "Settings.h" // Include the header file
 //make it gloabl
 //file strct
 struct FileNode {
@@ -127,7 +116,6 @@ void DisplayFile(const FileNode& node) {
     }
 }
 
-auto settings = false;//auto sets it to a bool
 static float terminalHeightPercent = 0.2f;
 void Renderbar()
 {
@@ -198,58 +186,8 @@ void Renderbar()
         //this is for the settings window
         if (settings)
         {
-          
-            //quality of life will make it so you can turn it off
-
-         
-            ImVec4 bgcolor = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
-            bgcolor.w = 0.5f; // color value
-
-            // set the window transparnet
-            ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = bgcolor;
-
-            //window with a close button: 
-            // 
-            //thanks stack! https://shorturl.at/dIPMf
-            if (ImGui::Begin("Settings", &settings,  ImGuiWindowFlags_NoCollapse))
-            {
-
-                if (ImGui::BeginTabBar("SettingsTabBar"))
-                {
-                    // Create the first tab
-                    if (ImGui::BeginTabItem("Editor"))
-                    {
-                        ImGui::Text("NULL");
-                        ImGui::EndTabItem();
-                    }
-
-                    // Create the second tab
-                    if (ImGui::BeginTabItem("Project"))
-                    {
-                        ImGui::Text("NULL");
-                        ImGui::EndTabItem();
-                    }
-
-                    if (ImGui::BeginTabItem("Debug"))
-                    {
-                        ImGui::Text("NULL");
-                        ImGui::EndTabItem();
-                    }
-
-                    if (ImGui::BeginTabItem("Documentation"))
-                    {
-                        ImGui::Text("NULL");
-                        ImGui::EndTabItem();
-                    }
-
-                    // End the tab bar
-                    ImGui::EndTabBar();
-                }
-               
-            }
-
-          
-            ImGui::End();
+           
+            Settingsrender();
         }
         ImGui::EndMainMenuBar();
     }
