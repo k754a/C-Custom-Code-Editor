@@ -3,9 +3,12 @@
 #include <shlobj.h> 
 #include <iostream>
 #include <string>
+//make it gloabl
 
-void ListFilesRecursively(const std::wstring& directory)
+std::wstring save = L"";
+void ListFilesRecursively(const std::wstring& directory, int depth = 0)
 {
+ 
     std::wstring searchPath = directory + L"\\*";
 
     WIN32_FIND_DATA findFileData;
@@ -19,16 +22,31 @@ void ListFilesRecursively(const std::wstring& directory)
             {
                 if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
                 {
-                    //load folder
-                 
+                    // Load folder
+                    std::wstring prefix(depth * 2, L' ');
+                    prefix += L"        |";
+                    std::wcout << prefix << std::endl;
+                    save.append(prefix);
+
+                    prefix += L"+>";
+                    std::wcout << prefix << findFileData.cFileName << std::endl;
+                    save.append(prefix).append(findFileData.cFileName);
+
                     std::wstring subdir = directory + L"\\" + findFileData.cFileName;
-                    ListFilesRecursively(subdir);
+                  
+                    ListFilesRecursively(subdir, depth + 1);
                 }
                 else
                 {
-                    //load files
-                    
-                    std::wcout << directory + L"\\" + findFileData.cFileName << std::endl;
+                    // Load files
+                    std::wstring prefix(depth * 2, L' ');
+                    prefix += L"    |";
+                    std::wcout << prefix << std::endl;
+                    save.append(prefix);
+
+                    prefix += L"+>";
+                    std::wcout << prefix << findFileData.cFileName << std::endl;
+                    save.append(prefix).append(findFileData.cFileName);
                 }
             }
         } while (FindNextFile(hFind, &findFileData) != 0);
@@ -37,7 +55,7 @@ void ListFilesRecursively(const std::wstring& directory)
     }
     else
     {
-        std::cout << "Error : "<< directory.c_str() << std::endl;
+        std::wcerr << "Error: " << directory.c_str() << std::endl;
     }
 }
 
@@ -55,19 +73,26 @@ void OpenFile()
             std::wcout << L"Selected folder: " << szDir << std::endl;
 
             ListFilesRecursively(szDir);
+            std::wcout << L"output:" << save << std::endl;
+
+            std::wcout << L"Loaded!" <<std::endl;
+           
         }
         else
         {
-            std::cerr << "Error getting folder path" << std::endl;
+            std::wcerr << "Error getting folder path" << std::endl;
         }
 
         CoTaskMemFree(pidl);
     }
     else
     {
-        std::cerr << "Folder selection canceled" << std::endl;
+        std::wcerr << "Folder selection canceled" << std::endl;
     }
 }
+
+
+
 
 void Renderbar()
 {
@@ -79,6 +104,8 @@ void Renderbar()
             if (ImGui::MenuItem("Open Directory"))
             {
                 OpenFile();
+
+                
             }
             ImGui::Separator();
             if (ImGui::MenuItem("Exit"))

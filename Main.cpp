@@ -142,14 +142,14 @@ int main() {
         // Editor window
         ImGui::SetNextWindowSize(ImVec2(editorWidth, editorHeight));
         ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
-        ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse );
+        ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
         ImGui::InputTextMultiline("##CodeEditor", buffer, IM_ARRAYSIZE(buffer), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
         ImGui::End();
 
         // Inspector window
         ImGui::SetNextWindowSize(ImVec2(200, windowHeight - terminalHeight - 20));
         ImGui::SetNextWindowPos(ImVec2(0, 20)); // Lock top position
-        ImGui::Begin("Inspect", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+        ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
         ImGui::End();
 
         // Terminal window
