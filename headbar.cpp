@@ -127,14 +127,14 @@ void DisplayFile(const FileNode& node) {
     }
 }
 
-
+auto settings = false;//auto sets it to a bool
 static float terminalHeightPercent = 0.2f;
 void Renderbar()
 {
     float windowHeight = ImGui::GetIO().DisplaySize.y;
     float windowWidth = ImGui::GetIO().DisplaySize.x;
     
-
+    ///fixed Explorer not resizing to terminal 
     float terminalHeight = windowHeight * terminalHeightPercent;
     ///load main 
     ImGui::SetNextWindowSize(ImVec2(200, windowHeight - terminalHeight - 20));
@@ -154,6 +154,7 @@ void Renderbar()
             ImGui::Separator();
             if (ImGui::MenuItem("Open Directory"))
             {
+               
                 OpenFile();
 
                 
@@ -168,7 +169,12 @@ void Renderbar()
 
         if (ImGui::BeginMenu("Edit"))
         {
-            if (ImGui::MenuItem("Undo"))
+            if (ImGui::MenuItem("Settings"))
+            {
+               
+                settings = true;
+            }
+            /*if (ImGui::MenuItem("Undo"))
             {
                 // Handle undo
             }
@@ -179,11 +185,8 @@ void Renderbar()
             if (ImGui::MenuItem("New"))
             {
                 // Handle new
-            }
-            if (ImGui::MenuItem("Object Edit window"))
-            {
-                // Handle object edit window
-            }
+            }*/
+           
             if (ImGui::MenuItem("Close All Windows"))
             {
                 // Handle close all windows
@@ -192,6 +195,62 @@ void Renderbar()
             ImGui::EndMenu();
         }
 
+        //this is for the settings window
+        if (settings)
+        {
+          
+            //quality of life will make it so you can turn it off
+
+         
+            ImVec4 bgcolor = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
+            bgcolor.w = 0.5f; // color value
+
+            // set the window transparnet
+            ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = bgcolor;
+
+            //window with a close button: 
+            // 
+            //thanks stack! https://shorturl.at/dIPMf
+            if (ImGui::Begin("Settings", &settings,  ImGuiWindowFlags_NoCollapse))
+            {
+
+                if (ImGui::BeginTabBar("SettingsTabBar"))
+                {
+                    // Create the first tab
+                    if (ImGui::BeginTabItem("Editor"))
+                    {
+                        ImGui::Text("NULL");
+                        ImGui::EndTabItem();
+                    }
+
+                    // Create the second tab
+                    if (ImGui::BeginTabItem("Project"))
+                    {
+                        ImGui::Text("NULL");
+                        ImGui::EndTabItem();
+                    }
+
+                    if (ImGui::BeginTabItem("Debug"))
+                    {
+                        ImGui::Text("NULL");
+                        ImGui::EndTabItem();
+                    }
+
+                    if (ImGui::BeginTabItem("Documentation"))
+                    {
+                        ImGui::Text("NULL");
+                        ImGui::EndTabItem();
+                    }
+
+                    // End the tab bar
+                    ImGui::EndTabBar();
+                }
+               
+            }
+
+          
+            ImGui::End();
+        }
         ImGui::EndMainMenuBar();
     }
 }
