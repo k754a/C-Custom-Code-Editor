@@ -6,6 +6,7 @@
 struct FileNode {
     std::wstring name;
     bool isDirectory;
+    std::wstring path;
     std::vector<FileNode> children;
 };
 
@@ -14,6 +15,15 @@ std::vector<FileNode> fileTree;
 
 
 std::wstring save = L"";
+
+
+//this prevents a big error
+void PrintFileContent(const FileNode& node);
+void ListFilesRecursively(const std::wstring& directory, FileNode& node);
+void OpenFile();
+std::string CWstrTostr(const std::wstring& wstr);
+void DisplayFile(const FileNode& node);
+
 void ListFilesRecursively(const std::wstring& directory, FileNode& node) {
     std::wstring searchPath = directory + L"\\*";
 
@@ -25,6 +35,7 @@ void ListFilesRecursively(const std::wstring& directory, FileNode& node) {
             if (wcscmp(findFileData.cFileName, L".") != 0 && wcscmp(findFileData.cFileName, L"..") != 0) {
                 FileNode child;
                 child.name = findFileData.cFileName;
+                child.path = directory + L"\\" + findFileData.cFileName; 
                 child.isDirectory = (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
                 node.children.push_back(child);
 
@@ -112,7 +123,26 @@ void DisplayFile(const FileNode& node) {
         }
     }
     else {
-        ImGui::Text("%s", nodeName.c_str());
+        if (ImGui::Selectable(nodeName.c_str())) {
+            //this is for button press
+            PrintFileContent(node);
+        }
+    }
+}
+
+void PrintFileContent(const FileNode& node) {
+    std::ifstream fileStream(CWstrTostr(node.path));
+    if (fileStream.is_open()) {
+        std::string line;
+        while (std::getline(fileStream, line)) {
+            std::cout << line << std::endl;
+        }
+        fileStream.close();
+    }
+    else {
+        std::cerr << "ERROR: file_not_found, error 101 " << CWstrTostr(node.path) << std::endl;
+        std::cerr << "Cannot find the selected file, sorry! " << CWstrTostr(node.path) << std::endl;
+        std::cerr << "Quick Fix: DID YOU CHECK THAT THE FILE STILL EXISTS?, HAS IT BEEN MOVED " << CWstrTostr(node.path) << std::endl;
     }
 }
 

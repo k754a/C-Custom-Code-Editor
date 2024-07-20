@@ -63,6 +63,7 @@ void Settingsrender()
                     {
                         if (std::remove(".\\Psettings\\CfilePath.FUNCT")) {
                             std::cout << "File deleted successfully.\n";
+                            settings = false;
                         }
                         else {
                             std::cout << "File does not exist.\n";
