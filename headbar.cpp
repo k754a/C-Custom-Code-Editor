@@ -18,7 +18,7 @@ std::wstring save = L"";
 
 
 //this prevents a big error
-void PrintFileContent(const FileNode& node);
+void PrintFileContent(const FileNode& node, const std::string& CURRENT);
 void ListFilesRecursively(const std::wstring& directory, FileNode& node);
 void OpenFile();
 std::string CWstrTostr(const std::wstring& wstr);
@@ -125,25 +125,59 @@ void DisplayFile(const FileNode& node) {
     else {
         if (ImGui::Selectable(nodeName.c_str())) {
             //this is for button press
-            PrintFileContent(node);
+            std::string CURRENT = "CURRENT";
+            PrintFileContent(node, CURRENT);
         }
     }
 }
 
-void PrintFileContent(const FileNode& node) {
+void PrintFileContent(const FileNode& node, const std::string& CURRENT) {
     std::ifstream fileStream(CWstrTostr(node.path));
     if (fileStream.is_open()) {
+        std::ofstream outFile(CURRENT);
         std::string line;
-        while (std::getline(fileStream, line)) {
-            std::cout << line << std::endl;
+        if (outFile.is_open()) {
+            std::string line;
+            while (std::getline(fileStream, line)) {
+                outFile << line << std::endl;
+                std::cout << line << std::endl;
+            }
         }
+        else {
+            std::ofstream CF("CURRENT");
+            std::cerr << "FILE WAS UNFOUND, CREATED NEW ONE, SUCCSESS!" << CWstrTostr(node.path) << std::endl;
+            if (CF.is_open()) {
+                std::string line;
+             
+                std::cerr << "SAVING FILE..." << CWstrTostr(node.path) << std::endl;
+                while (std::getline(fileStream, line)) {
+                    CF << line << std::endl;
+                }
+                CF.close();
+            
+             
+                std::cerr << "SAVED, CURRENT FILE LOADED!" << CWstrTostr(node.path) << std::endl;
+            }
+            else {
+                std::cerr << "ERROR: CURRENT_102_ERROR_FNOTC , error 102 " << CWstrTostr(node.path) << std::endl;
+                std::cerr << "Could not generate file save :(, sorry! " << CWstrTostr(node.path) << std::endl;
+                std::cerr << "Quick Fix: IS THE DIRECTORY WRITABLE? DOES IT HAVE PROPER PERMISSION TO EDIT?" << CWstrTostr(node.path) << std::endl;
+            }
+
+            fileStream.close();
+
+
+        }
+        outFile.close();
         fileStream.close();
     }
+        
     else {
         std::cerr << "ERROR: file_not_found, error 101 " << CWstrTostr(node.path) << std::endl;
         std::cerr << "Cannot find the selected file, sorry! " << CWstrTostr(node.path) << std::endl;
         std::cerr << "Quick Fix: DID YOU CHECK THAT THE FILE STILL EXISTS?, HAS IT BEEN MOVED " << CWstrTostr(node.path) << std::endl;
     }
+   
 }
 
 static float terminalHeightPercent = 0.2f;
