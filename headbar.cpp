@@ -13,8 +13,16 @@ struct FileNode {
 //filenode
 std::vector<FileNode> fileTree;
 
-
 std::wstring save = L"";
+//new stuff
+
+std::stringstream buffer;
+std::ifstream file("CURRENT");
+std::string content;
+static char bufferContent[999999999];
+std::string CURRENT = "CURRENT";
+std::ofstream outFile(CURRENT);
+
 
 
 //this prevents a big error
@@ -124,8 +132,6 @@ void DisplayFile(const FileNode& node) {
     }
     else {
         if (ImGui::Selectable(nodeName.c_str())) {
-            //this is for button press
-            std::string CURRENT = "CURRENT";
             PrintFileContent(node, CURRENT);
         }
     }
@@ -134,125 +140,80 @@ void DisplayFile(const FileNode& node) {
 void PrintFileContent(const FileNode& node, const std::string& CURRENT) {
     std::ifstream fileStream(CWstrTostr(node.path));
     if (fileStream.is_open()) {
-        std::ofstream outFile(CURRENT);
         std::string line;
-        if (outFile.is_open()) {
-            std::string line;
-            while (std::getline(fileStream, line)) {
-                outFile << line << std::endl;
-                std::cout << line << std::endl;
-            }
+        content.clear();
+        buffer.str("");
+        buffer.clear();
+
+        while (std::getline(fileStream, line)) {
+            buffer << line << '\n';
         }
-        else {
-            std::ofstream CF("CURRENT");
-            std::cerr << "FILE WAS UNFOUND, CREATED NEW ONE, SUCCSESS!" << CWstrTostr(node.path) << std::endl;
-            if (CF.is_open()) {
-                std::string line;
-             
-                std::cerr << "SAVING FILE..." << CWstrTostr(node.path) << std::endl;
-                while (std::getline(fileStream, line)) {
-                    CF << line << std::endl;
-                }
-                CF.close();
-            
-             
-                std::cerr << "SAVED, CURRENT FILE LOADED!" << CWstrTostr(node.path) << std::endl;
-            }
-            else {
-                std::cerr << "ERROR: CURRENT_102_ERROR_FNOTC , error 102 " << CWstrTostr(node.path) << std::endl;
-                std::cerr << "Could not generate file save :(, sorry! " << CWstrTostr(node.path) << std::endl;
-                std::cerr << "Quick Fix: IS THE DIRECTORY WRITABLE? DOES IT HAVE PROPER PERMISSION TO EDIT?" << CWstrTostr(node.path) << std::endl;
-            }
 
-            fileStream.close();
+        content = buffer.str();
+        strncpy(bufferContent, content.c_str(), sizeof(bufferContent));
+        bufferContent[sizeof(bufferContent) - 1] = '\0';  // Ensure null-termination
 
-
-        }
-        outFile.close();
         fileStream.close();
     }
-        
     else {
         std::cerr << "ERROR: file_not_found, error 101 " << CWstrTostr(node.path) << std::endl;
         std::cerr << "Cannot find the selected file, sorry! " << CWstrTostr(node.path) << std::endl;
-        std::cerr << "Quick Fix: DID YOU CHECK THAT THE FILE STILL EXISTS?, HAS IT BEEN MOVED " << CWstrTostr(node.path) << std::endl;
     }
-   
 }
 
 static float terminalHeightPercent = 0.2f;
-void Renderbar()
-{
+void Renderbar() {
     float windowHeight = ImGui::GetIO().DisplaySize.y;
     float windowWidth = ImGui::GetIO().DisplaySize.x;
-    
-    ///fixed Explorer not resizing to terminal 
     float terminalHeight = windowHeight * terminalHeightPercent;
-    ///load main 
+    float editorHeight = windowHeight - terminalHeight - 20;
+    float editorWidth = windowWidth;
+
     ImGui::SetNextWindowSize(ImVec2(200, windowHeight - terminalHeight - 20));
     ImGui::SetNextWindowPos(ImVec2(0, 20)); // Lock top position
     ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
-
-    //prevent errors with no files
     for (const auto& node : fileTree) {
         DisplayFile(node);
     }
     ImGui::End();
 
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("File"))
-        {
-            ImGui::Separator();
-            if (ImGui::MenuItem("Open Directory"))
-            {
-               
-                OpenFile();
+    ImGui::SetNextWindowSize(ImVec2(windowWidth, terminalHeight));
+    ImGui::SetNextWindowPos(ImVec2(0, windowHeight - terminalHeight));
+    ImGui::Begin("Terminal", nullptr, ImGuiWindowFlags_NoCollapse);
+    // Terminal code here...
+    ImGui::End();
 
-                
+    ImGui::SetNextWindowSize(ImVec2(editorWidth, editorHeight));
+    ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
+    ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+    ImGui::InputTextMultiline("##CodeEditor", bufferContent, IM_ARRAYSIZE(bufferContent), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
+  
+
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            ImGui::Separator();
+            if (ImGui::MenuItem("Open Directory")) {
+                OpenFile();
             }
             ImGui::Separator();
-            if (ImGui::MenuItem("Exit"))
-            {
+            if (ImGui::MenuItem("Exit")) {
                 // Handle exit
             }
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Edit"))
-        {
-            if (ImGui::MenuItem("Settings"))
-            {
-               
+        if (ImGui::BeginMenu("Edit")) {
+            if (ImGui::MenuItem("Settings")) {
                 settings = true;
             }
-            /*if (ImGui::MenuItem("Undo"))
-            {
-                // Handle undo
-            }
-            if (ImGui::MenuItem("Redo"))
-            {
-                // Handle redo
-            }
-            if (ImGui::MenuItem("New"))
-            {
-                // Handle new
-            }*/
-           
-            if (ImGui::MenuItem("Close All Windows"))
-            {
-                //close open tabs and settings
+            if (ImGui::MenuItem("Close All Windows")) {
                 settings = false;
-
             }
             ImGui::Separator();
             ImGui::EndMenu();
         }
 
-        //this is for the settings window
-        if (settings)
-        {
-           
+        if (settings) {
             Settingsrender();
         }
         ImGui::EndMainMenuBar();

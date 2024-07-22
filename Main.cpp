@@ -121,50 +121,16 @@ int main() {
         Renderbar();
         //lets create the win
 
-        float windowHeight = ImGui::GetIO().DisplaySize.y;
-        float windowWidth = ImGui::GetIO().DisplaySize.x;
+  
 
-        // Calculate the heights
-        float terminalHeight = windowHeight * terminalHeightPercent;
-        float editorHeight = windowHeight - terminalHeight - 20; 
-        float editorWidth = windowWidth;
 
-        std::ifstream file("CURRENT");
-        if (!file.is_open()) {
-            std::cerr << "Failed to open file: " << "CURRENT" << std::endl;
-            std::cerr << "ERROR 102 " << "CURRENT file unfound :(((" << std::endl;
-            std::cerr << "Does it exist? if not Create a file called CURRENT, with no file identifier" << std::endl;
-            return 0;
-        }
-
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        file.close();
-
-        std::string content = buffer.str();
-
-        static char bufferContent[10000];
-        strncpy(bufferContent, content.c_str(), sizeof(bufferContent));
-        bufferContent[sizeof(bufferContent) - 1] = '\0';  // Ensure null-termination
-
-        // Editor window
-        ImGui::SetNextWindowSize(ImVec2(editorWidth, editorHeight));
-        ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
-        ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
-        ImGui::InputTextMultiline("##CodeEditor", bufferContent, IM_ARRAYSIZE(bufferContent), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
-        ImGui::End();
+       
 
         // Inspector window
         
 
         // Terminal window
-        ImGui::SetNextWindowSize(ImVec2(windowWidth, terminalHeight));
-        ImGui::SetNextWindowPos(ImVec2(0, windowHeight - terminalHeight));
-        ImGui::Begin("Terminal", nullptr, ImGuiWindowFlags_NoCollapse);
-
-        // Update terminal height if it has been resized
-        terminalHeight = ImGui::GetWindowHeight();
-        terminalHeightPercent = terminalHeight / windowHeight;
+      
 
         ImGui::End();
 
