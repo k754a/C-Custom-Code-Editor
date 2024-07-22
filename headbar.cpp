@@ -241,7 +241,9 @@ void Renderbar()
            
             if (ImGui::MenuItem("Close All Windows"))
             {
-                // Handle close all windows
+                //close open tabs and settings
+                settings = false;
+
             }
             ImGui::Separator();
             ImGui::EndMenu();

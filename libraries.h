@@ -1,5 +1,7 @@
 #ifndef libraries_H
 #define libraries_H
+
+#define _CRT_SECURE_NO_WARNINGS
 //this stores all the libares i need for easy implementation
 #include "headbar.h"
 #include <windows.h>
@@ -23,6 +25,12 @@
 
 //for file editing
 #include <filesystem>
+
+
+#include <sstream>
+
+
+
 //menubar
 
 

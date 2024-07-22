@@ -61,7 +61,7 @@ void initImgui() {
    
 }
 
-char buffer[99999^9999];//never run out
+// buffer[99999^9999];//never run out
 
 
 int main() {
@@ -129,11 +129,29 @@ int main() {
         float editorHeight = windowHeight - terminalHeight - 20; 
         float editorWidth = windowWidth;
 
+        std::ifstream file("CURRENT");
+        if (!file.is_open()) {
+            std::cerr << "Failed to open file: " << "CURRENT" << std::endl;
+            std::cerr << "ERROR 102 " << "CURRENT file unfound :(((" << std::endl;
+            std::cerr << "Does it exist? if not Create a file called CURRENT, with no file identifier" << std::endl;
+            return 0;
+        }
+
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        file.close();
+
+        std::string content = buffer.str();
+
+        static char bufferContent[10000];
+        strncpy(bufferContent, content.c_str(), sizeof(bufferContent));
+        bufferContent[sizeof(bufferContent) - 1] = '\0';  // Ensure null-termination
+
         // Editor window
         ImGui::SetNextWindowSize(ImVec2(editorWidth, editorHeight));
         ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
         ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
-        ImGui::InputTextMultiline("##CodeEditor", buffer, IM_ARRAYSIZE(buffer), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
+        ImGui::InputTextMultiline("##CodeEditor", bufferContent, IM_ARRAYSIZE(bufferContent), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
         ImGui::End();
 
         // Inspector window
