@@ -19,7 +19,7 @@ std::wstring save = L"";
 std::stringstream buffer;
 std::ifstream file("CURRENT");
 std::string content;
-static char bufferContent[999999999];
+static char bufferContent[999999999 * 10];
 std::string CURRENT = "CURRENT";
 std::ofstream outFile(CURRENT);
 
@@ -208,6 +208,30 @@ void Renderbar() {
             }
             if (ImGui::MenuItem("Close All Windows")) {
                 settings = false;
+                buffer.str("");
+                buffer.clear();
+                strncpy(bufferContent, content.c_str(), sizeof(bufferContent));
+                bufferContent[sizeof(bufferContent) - 1] = '\0';  // Ensure null-termination
+
+                std::ifstream fileStream(CURRENT);
+                if (fileStream.is_open()) {
+                    std::string line;
+                    content.clear();
+                    buffer.str("");
+                    buffer.clear();
+
+                    while (std::getline(fileStream, line)) {
+                        buffer << line << '\n';
+                    }
+
+                    content = buffer.str();
+                    strncpy(bufferContent, content.c_str(), sizeof(bufferContent));
+                    bufferContent[sizeof(bufferContent) - 1] = '\0';  // Ensure null-termination
+
+                    fileStream.close();
+                }
+               
+
             }
             ImGui::Separator();
             ImGui::EndMenu();
