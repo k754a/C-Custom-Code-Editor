@@ -10,22 +10,13 @@ struct FileNode {
     std::vector<FileNode> children;
 };
 
-//filenode
 std::vector<FileNode> fileTree;
-
 std::wstring save = L"";
-//new stuff
-
-std::stringstream buffer;
-std::ifstream file("CURRENT");
 std::string content;
-static char bufferContent[999999999 * 10];
+std::vector<char> bufferContent;
+
 std::string CURRENT = "CURRENT";
-std::ofstream outFile(CURRENT);
 
-
-
-//this prevents a big error
 void PrintFileContent(const FileNode& node, const std::string& CURRENT);
 void ListFilesRecursively(const std::wstring& directory, FileNode& node);
 void OpenFile();
@@ -34,7 +25,6 @@ void DisplayFile(const FileNode& node);
 
 void ListFilesRecursively(const std::wstring& directory, FileNode& node) {
     std::wstring searchPath = directory + L"\\*";
-
     WIN32_FIND_DATA findFileData;
     HANDLE hFind = FindFirstFile(searchPath.c_str(), &findFileData);
 
@@ -43,7 +33,7 @@ void ListFilesRecursively(const std::wstring& directory, FileNode& node) {
             if (wcscmp(findFileData.cFileName, L".") != 0 && wcscmp(findFileData.cFileName, L"..") != 0) {
                 FileNode child;
                 child.name = findFileData.cFileName;
-                child.path = directory + L"\\" + findFileData.cFileName; 
+                child.path = directory + L"\\" + findFileData.cFileName;
                 child.isDirectory = (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
                 node.children.push_back(child);
 
@@ -60,61 +50,47 @@ void ListFilesRecursively(const std::wstring& directory, FileNode& node) {
         std::wcerr << L"Error: " << directory.c_str() << std::endl;
     }
 }
-//display file
 
-
-void OpenFile()
-{
+void OpenFile() {
     BROWSEINFO bi = { 0 };
     bi.lpszTitle = L"Select a folder";
     LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
 
-    if (pidl != nullptr)
-    {
+    if (pidl != nullptr) {
         wchar_t szDir[MAX_PATH];
-        if (SHGetPathFromIDList(pidl, szDir))
-        {
+        if (SHGetPathFromIDList(pidl, szDir)) {
             std::wcout << L"Selected folder: " << szDir << std::endl;
-            //get path and files in the path!
+            // Get path and files in the path
             FileNode root;
             root.name = szDir;
             root.isDirectory = true;
             ListFilesRecursively(szDir, root);
             fileTree.push_back(root);
-            std::wcout << L"output:" << save << std::endl;
-
-            std::wcout << L"Loaded!" <<std::endl;
+            std::wcout << L"Output: " << save << std::endl;
+            std::wcout << L"Loaded!" << std::endl;
 
             std::string savefolder = "Psettings";
             std::string fileP = savefolder + "/CfilePath.FUNCT";
-            //make a folder
-            _mkdir("Psettings");//this is not what im spost to do, but oops lol
-            //create save file
+            // Make a folder
+            _mkdir("Psettings");
+            // Create save file
             std::ofstream Savefile(fileP);
-            //write it it
-            
-           std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-           std::string narrow_string = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(save);
-
+            // Write to it
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+            std::string narrow_string = converter.to_bytes(save);
             Savefile << narrow_string;
-
             Savefile.close();
-           
         }
-        else
-        {
+        else {
             std::wcerr << "Error getting folder path" << std::endl;
         }
-
         CoTaskMemFree(pidl);
     }
-    else
-    {
+    else {
         std::wcerr << "Folder selection canceled" << std::endl;
     }
 }
 
-//this is so much simpler than copying and pasting
 std::string CWstrTostr(const std::wstring& wstr) {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     return converter.to_bytes(wstr);
@@ -140,19 +116,11 @@ void DisplayFile(const FileNode& node) {
 void PrintFileContent(const FileNode& node, const std::string& CURRENT) {
     std::ifstream fileStream(CWstrTostr(node.path));
     if (fileStream.is_open()) {
-        std::string line;
-        content.clear();
-        buffer.str("");
-        buffer.clear();
-
-        while (std::getline(fileStream, line)) {
-            buffer << line << '\n';
-        }
-
+        std::stringstream buffer;
+        buffer << fileStream.rdbuf();
         content = buffer.str();
-        strncpy(bufferContent, content.c_str(), sizeof(bufferContent));
-        bufferContent[sizeof(bufferContent) - 1] = '\0';  // Ensure null-termination
-
+        bufferContent.assign(content.begin(), content.end());
+        bufferContent.push_back('\0');  // Ensure null-termination
         fileStream.close();
     }
     else {
@@ -186,8 +154,14 @@ void Renderbar() {
     ImGui::SetNextWindowSize(ImVec2(editorWidth, editorHeight));
     ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
     ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
-    ImGui::InputTextMultiline("##CodeEditor", bufferContent, IM_ARRAYSIZE(bufferContent), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
-  
+
+    if (!bufferContent.empty()) {
+        ImGui::InputTextMultiline("##CodeEditor", bufferContent.data(), bufferContent.size() ^ 20, ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
+    }
+    else {
+        ImGui::Text("Please Open A file...");
+        ImGui::Text("");
+    }
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
@@ -208,30 +182,24 @@ void Renderbar() {
             }
             if (ImGui::MenuItem("Close All Windows")) {
                 settings = false;
-                buffer.str("");
-                buffer.clear();
-                strncpy(bufferContent, content.c_str(), sizeof(bufferContent));
-                bufferContent[sizeof(bufferContent) - 1] = '\0';  // Ensure null-termination
+                bufferContent.clear();
+                content.clear();
 
                 std::ifstream fileStream(CURRENT);
                 if (fileStream.is_open()) {
                     std::string line;
-                    content.clear();
-                    buffer.str("");
-                    buffer.clear();
+                    std::stringstream buffer;
 
                     while (std::getline(fileStream, line)) {
                         buffer << line << '\n';
                     }
 
                     content = buffer.str();
-                    strncpy(bufferContent, content.c_str(), sizeof(bufferContent));
-                    bufferContent[sizeof(bufferContent) - 1] = '\0';  // Ensure null-termination
+                    bufferContent.assign(content.begin(), content.end());
+                    bufferContent.push_back('\0');  // Ensure null-termination
 
                     fileStream.close();
                 }
-               
-
             }
             ImGui::Separator();
             ImGui::EndMenu();
@@ -243,6 +211,14 @@ void Renderbar() {
         ImGui::EndMainMenuBar();
     }
 }
+
+
+
+
+
+
+
+
 
 
 
