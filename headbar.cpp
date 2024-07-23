@@ -118,9 +118,11 @@ void PrintFileContent(const FileNode& node, const std::string& CURRENT) {
     if (fileStream.is_open()) {
         std::stringstream buffer;
         buffer << fileStream.rdbuf();
+  
         content = buffer.str();
-        bufferContent.assign(content.begin(), content.end());
-        bufferContent.push_back('\0');  // Ensure null-termination
+        bufferContent.resize(content.size() + content.size()+1); // this should alow infint size :)q
+        std::copy(content.begin(), content.end(), bufferContent.begin());
+        bufferContent.back() = '\0';  
         fileStream.close();
     }
     else {
@@ -150,13 +152,28 @@ void Renderbar() {
     ImGui::Begin("Terminal", nullptr, ImGuiWindowFlags_NoCollapse);
     // Terminal code here...
     ImGui::End();
-
-    ImGui::SetNextWindowSize(ImVec2(editorWidth, editorHeight));
-    ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
+    bufferContent.resize(content.size() + bufferContent.size() );
+    ImGui::SetNextWindowSize(ImVec2(editorWidth -200, editorHeight));
+    ImGui::SetNextWindowPos(ImVec2(200.1f,20)); // Lock top position
     ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
     if (!bufferContent.empty()) {
-        ImGui::InputTextMultiline("##CodeEditor", bufferContent.data(), bufferContent.size() ^ 20, ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
+        ImVec2 textSize = ImGui::CalcTextSize(bufferContent.data(), bufferContent.data() + bufferContent.size(), true);
+        float textHeight = textSize.y;
+        float textWidth = textSize.x;
+
+        // Set the size based on the text size
+        ImVec2 windowSize = ImVec2(std::max(textWidth, editorWidth - 200), textHeight + 50); // Add some padding
+        ImGui::SetNextWindowSize(windowSize);
+        ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
+
+        ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+
+        if (!bufferContent.empty()) {
+            ImGui::InputTextMultiline("##CodeEditor", bufferContent.data(), bufferContent.size(), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
+        }
+
+        ImGui::End();
     }
     else {
         ImGui::Text("Please Open A file...");
@@ -194,9 +211,9 @@ void Renderbar() {
                         buffer << line << '\n';
                     }
 
-                    content = buffer.str();
-                    bufferContent.assign(content.begin(), content.end());
-                    bufferContent.push_back('\0');  // Ensure null-termination
+                    bufferContent.resize(content.size() + bufferContent.size()+1); // +1 for null terminator
+                    std::copy(content.begin(), content.end(), bufferContent.begin());
+                    bufferContent.back() = '\0';
 
                     fileStream.close();
                 }
