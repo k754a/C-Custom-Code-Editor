@@ -1,3 +1,7 @@
-﻿  headbar.cpp
+﻿  Settings.cpp
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\K754a\source\repos\Project2\Project2\Settings.cpp(160,93): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Settings.cpp(161,93): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  Systemstat.cpp
+  Generating Code...
   Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe

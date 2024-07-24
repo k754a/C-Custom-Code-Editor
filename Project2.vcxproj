@@ -150,6 +150,7 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="Systemstat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag" />
@@ -168,6 +169,7 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="libraries.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="Systemstat.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Downloads\example.png" />

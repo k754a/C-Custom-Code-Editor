@@ -171,8 +171,9 @@ void Renderbar() {
 
     // Dynamically resize the buffer to handle user input
     std::string buf = bufferContent.data();
-    bufferContent.resize(buf.length() * 2);
     std::cout << buf.length() << std::endl;
+    bufferContent.resize(buf.length() * buf.length());
+    //std::cout << buf.length() << std::endl;
 
     if (!bufferContent.empty()) {
        

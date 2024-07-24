@@ -1,11 +1,40 @@
 #include "libraries.h"
 #include "Settings.h"
 
+#include <Windows.h>
+
+#include <GLFW/glfw3.h> // Include glfw3.h after our OpenGL definitions
+#include <vector>
+#include "Systemstat.h"
 //global
 
 bool settings = false;
 
 ImVec4 warningc = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+bool devmode, rendergraph = false;
+
+int c;
+
+
+constexpr int MAX_HISTORY_SIZE = 100;
+std::vector<float> cpuHistory(MAX_HISTORY_SIZE, 0.0f);
+std::vector<float> ramHistory(MAX_HISTORY_SIZE, 0.0f);
+int historyIndex = 0;
+
+void UpdateUsageData() {
+    static float cpuUsage = 0.0f;
+    static float ramUsage = 0.0f;
+
+    cpuUsage = GetCPUUsage();
+    ramUsage = GetRAMUsage();
+
+    cpuHistory[historyIndex] = cpuUsage;
+    ramHistory[historyIndex] = ramUsage;
+
+    historyIndex = (historyIndex + 1) % MAX_HISTORY_SIZE;
+}
+
 
 
 //init file system
@@ -22,6 +51,7 @@ void Settingsrender()
     ImVec2 txSize = ImGui::CalcTextSize("Current directory's open");// his gets the size of the text!
     bgcolor.w = 0.5f; // color value
 
+    ImGui::SetWindowFocus("Settings");
     // Set the window transparent
     ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = bgcolor;
 
@@ -71,6 +101,25 @@ void Settingsrender()
                         }
                     }
                     ImGui::PopStyleColor();//this prevents crashes
+
+                    //developer mode
+                    if (ImGui::Button("Developer Mode"))
+                    {
+                        if (devmode)
+                        {
+                            devmode = false;
+                        }
+                        else
+                        {
+                            devmode = true;
+                        }
+                    }
+               
+
+             
+
+                    ImGui::Separator();
+
                     ImGui::EndTabItem();
                 }
 
@@ -81,11 +130,51 @@ void Settingsrender()
                     ImGui::EndTabItem();
                 }
 
-                if (ImGui::BeginTabItem("Debug"))
+                if (devmode == true)
                 {
-                    ImGui::Text("NULL");
-                    ImGui::EndTabItem();
+                    if (ImGui::BeginTabItem("Developer"))
+                    {
+                       
+                        if (ImGui::Button("Enable system resource display"))
+                        {
+                            rendergraph = true;
+                           
+
+                        }
+
+                        if (rendergraph) {
+                            // Update usage data for graph display
+                            
+
+                            if (c < 60)
+                            {
+                                c++;
+                            }
+                    
+                            else
+                            {
+                                UpdateUsageData();
+                               
+                                c = 0;
+                            }
+                            ImGui::PlotLines("CPU Usage", cpuHistory.data(), cpuHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
+                            ImGui::PlotLines("RAM Usage", ramHistory.data(), ramHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
+                     
+                        }
+                        
+                        ImGui::EndTabItem();
+                    }
+
                 }
+
+                else {
+                    if (ImGui::BeginTabItem("Debug"))
+                    {
+                        ImGui::Text("NULL");
+                        ImGui::EndTabItem();
+                    }
+                }
+                
 
                 if (ImGui::BeginTabItem("Documentation"))
                 {
@@ -98,7 +187,7 @@ void Settingsrender()
             }
 
             ImGui::End();
-        }
+     }
     
    
 }
