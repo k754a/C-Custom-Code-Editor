@@ -153,32 +153,40 @@ void Renderbar() {
     // Terminal code here...
     ImGui::End();
     bufferContent.resize(content.size() + bufferContent.size() );
-    ImGui::SetNextWindowSize(ImVec2(editorWidth -200, editorHeight));
+    ImGui::SetNextWindowSize(ImVec2(editorWidth + 10, editorHeight));
     ImGui::SetNextWindowPos(ImVec2(200.1f,20)); // Lock top position
     ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+    std::string line;
+    std::stringstream fileBuffer;
+
+    // Convert fileBuffer to std::vector<char>
+    std::string newContent = fileBuffer.str();
+    std::vector<char> newContentVec(newContent.begin(), newContent.end());
+
+    // Append new content to bufferContent
+    bufferContent.insert(bufferContent.end(), newContentVec.begin(), newContentVec.end());
+
+    // Ensure there's a null-terminator at the end
+    bufferContent.push_back('\0');
+
+    // Dynamically resize the buffer to handle user input
+    std::string buf = bufferContent.data();
+    bufferContent.resize(buf.length() * 2);
+    std::cout << buf.length() << std::endl;
 
     if (!bufferContent.empty()) {
-        ImVec2 textSize = ImGui::CalcTextSize(bufferContent.data(), bufferContent.data() + bufferContent.size(), true);
-        float textHeight = textSize.y;
-        float textWidth = textSize.x;
+       
+        // Render the text editor
+        ImGui::InputTextMultiline("##CodeEditor", bufferContent.data(), bufferContent.size(), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
 
-        // Set the size based on the text size
-        ImVec2 windowSize = ImVec2(std::max(textWidth, editorWidth - 200), textHeight + 50); // Add some padding
-        ImGui::SetNextWindowSize(windowSize);
-        ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
-
-        ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
-
-        if (!bufferContent.empty()) {
-            ImGui::InputTextMultiline("##CodeEditor", bufferContent.data(), bufferContent.size(), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
-        }
-
-        ImGui::End();
+        // Shrink the buffer to fit the actual content
+        //bufferContent.shrink_to_fit();
     }
     else {
         ImGui::Text("Please Open A file...");
-        ImGui::Text("");
     }
+
+
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {

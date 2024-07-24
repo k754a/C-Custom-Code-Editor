@@ -1,11 +1,3 @@
 ﻿  headbar.cpp
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(166,41): error C2589: '(': illegal token on right side of '::'
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(166,36): error C2144: syntax error: 'unknown-type' should be preceded by ')'
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(166,36): error C2144: syntax error: 'unknown-type' should be preceded by ';'
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(166,41): error C2143: syntax error: missing ')' before '>'
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(166,41): error C2371: 'textWidth': redefinition; different basic types
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(166,41): error C2143: syntax error: missing ';' before '>'
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(166,41): error C2059: syntax error: '>'
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(166,41): error C2059: syntax error: ')'
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(166,91): error C2059: syntax error: ')'
+  Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe
