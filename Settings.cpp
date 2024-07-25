@@ -16,7 +16,7 @@ bool devmode, rendergraph = false;
 
 int c;
 
-
+bool winfpsread = false;
 constexpr int MAX_HISTORY_SIZE = 100;
 std::vector<float> cpuHistory(MAX_HISTORY_SIZE, 0.0f);
 std::vector<float> ramHistory(MAX_HISTORY_SIZE, 0.0f);
@@ -159,9 +159,30 @@ void Settingsrender()
                             }
                             ImGui::PlotLines("CPU Usage", cpuHistory.data(), cpuHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
                             ImGui::PlotLines("RAM Usage", ramHistory.data(), ramHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
+
+                         
+                            
+
                      
                         }
-                        
+                        if (!winfpsread)
+                        {
+                            if (ImGui::Button("Enable Window FPS reader"))
+                            {
+                                //yay :)
+                                winfpsread = !winfpsread;
+                            }
+                        }
+                        else
+                        {
+
+                            if (ImGui::Button("Disable Window FPS reader"))
+                            {
+                                winfpsread = !winfpsread;
+                            }
+
+                        }
+
                         ImGui::EndTabItem();
                     }
 

@@ -1,6 +1,11 @@
 #include "headbar.h"
 #include "libraries.h"
 #include "Settings.h" // Include the header file
+#include <thread> // For sleep_for
+#include <chrono> // For chrono::seconds
+
+
+
 //make it gloabl
 //file strct
 struct FileNode {
@@ -10,6 +15,8 @@ struct FileNode {
     std::vector<FileNode> children;
 };
 
+int fps;
+std::string fpsString;
 std::vector<FileNode> fileTree;
 std::wstring save = L"";
 std::string content;
@@ -22,6 +29,24 @@ void ListFilesRecursively(const std::wstring& directory, FileNode& node);
 void OpenFile();
 std::string CWstrTostr(const std::wstring& wstr);
 void DisplayFile(const FileNode& node);
+
+std::atomic<int> cout(0); // Use atomic to safely increment cout across threads
+
+void incrementCout() {
+    while (true) {
+       
+        if (cout < 2) {
+            std::cout << "count" << std::endl;
+            cout++;
+
+        }
+        
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+
+      
+    }
+}
+
 
 void ListFilesRecursively(const std::wstring& directory, FileNode& node) {
     std::wstring searchPath = directory + L"\\*";
@@ -233,7 +258,50 @@ void Renderbar() {
 
         if (settings) {
             Settingsrender();
+
         }
+
+        if (winfpsread) {
+            ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::CalcTextSize("Documentation").x - ImGui::GetStyle().ItemSpacing.x * 2);
+          
+      
+                // Wait for 1 second
+                //so thread is effecting everything, moveing!
+                std::thread incrementThread(incrementCout);
+
+                // Detach the thread to allow it to run independently
+                incrementThread.detach();
+
+                if (cout < 2) {
+                    std::cout << "count" << std::endl;
+                    cout++;
+
+                }
+                else
+                {
+                    fpsString = "FPS:" + std::to_string(fps);
+                    fps = ImGui::GetIO().Framerate;
+                    cout = 0;
+
+                }
+
+                if (ImGui::BeginMenu(fpsString.c_str())) {
+
+
+                    ImGui::EndMenu();
+
+                }
+              
+               
+            
+           
+           
+            
+           
+        }
+        
+
+
         ImGui::EndMainMenuBar();
     }
 }
