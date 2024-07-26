@@ -1,0 +1,17 @@
+
+
+
+ 
+    style.WindowRounding = 10;
+
+   
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f); // gray color
+
+  
+    style.FrameRounding = 4.0f;
+    style.FramePadding = ImVec2(4, 2);
+
+
+    ImVec4 backgroundColor = style.Colors[ImGuiCol_WindowBg];
+    style.Colors[ImGuiCol_TitleBgActive] = backgroundColor;QW

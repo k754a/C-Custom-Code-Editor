@@ -1,0 +1,17 @@
+
+
+
+    // round
+    style.WindowRounding = 10;
+
+    // change the wins background color!
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f); // gray color
+
+    // rouding and padding
+    style.FrameRounding = 4.0f;
+    style.FramePadding = ImVec2(4, 2);
+
+    //this gets the background color of the window, and then sets it so that the top bar does not change color!
+    ImVec4 backgroundColor = style.Colors[ImGuiCol_WindowBg];
+    style.Colors[ImGuiCol_TitleBgActive] = backgroundColor;
