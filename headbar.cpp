@@ -15,6 +15,8 @@ struct FileNode {
     std::vector<FileNode> children;
 };
 
+std::string currentFilePath; // C file path
+
 int fps;
 std::string fpsString;
 std::vector<FileNode> fileTree;
@@ -24,7 +26,7 @@ std::vector<char> bufferContent;
 
 std::string CURRENT = "CURRENT";
 
-void PrintFileContent(const FileNode& node, const std::string& CURRENT);
+void PrintFileContent(const FileNode& node);
 void ListFilesRecursively(const std::wstring& directory, FileNode& node);
 void OpenFile();
 std::string CWstrTostr(const std::wstring& wstr);
@@ -133,28 +135,32 @@ void DisplayFile(const FileNode& node) {
     }
     else {
         if (ImGui::Selectable(nodeName.c_str())) {
-            PrintFileContent(node, CURRENT);
+            PrintFileContent(node);
         }
     }
 }
 
-void PrintFileContent(const FileNode& node, const std::string& CURRENT) {
+void PrintFileContent(const FileNode& node) {
     std::ifstream fileStream(CWstrTostr(node.path));
     if (fileStream.is_open()) {
         std::stringstream buffer;
         buffer << fileStream.rdbuf();
-  
+
         content = buffer.str();
-        bufferContent.resize(content.size() + content.size()+1); // this should alow infint size :)q
+        bufferContent.resize(content.size() + content.size() + 1); 
         std::copy(content.begin(), content.end(), bufferContent.begin());
-        bufferContent.back() = '\0';  
+        bufferContent.back() = '\0';
         fileStream.close();
+
+        // Update the current file path
+        currentFilePath = CWstrTostr(node.path);
     }
     else {
         std::cerr << "ERROR: file_not_found, error 101 " << CWstrTostr(node.path) << std::endl;
         std::cerr << "Cannot find the selected file, sorry! " << CWstrTostr(node.path) << std::endl;
     }
 }
+
 
 static float terminalHeightPercent = 0.2f;
 void Renderbar() {
@@ -196,7 +202,7 @@ void Renderbar() {
 
     // Dynamically resize the buffer to handle user input
     std::string buf = bufferContent.data();
-    std::cout << buf.length() << std::endl;
+    //std::cout << buf.length() << std::endl;
     bufferContent.resize(buf.length() * buf.length());
     //std::cout << buf.length() << std::endl;
 
@@ -220,6 +226,21 @@ void Renderbar() {
             if (ImGui::MenuItem("Open Directory")) {
                 OpenFile();
             }
+
+            if (ImGui::MenuItem("Save")) {
+                std::ofstream outFile(currentFilePath, std::ios::binary); // Open the file in binary mode
+                if (outFile.is_open()) {
+                    // Write only the actual content size
+                    outFile.write(bufferContent.data(), std::strlen(bufferContent.data()));
+                    outFile.close();
+                    std::cout << "Buffer content saved to " << currentFilePath << std::endl;
+                }
+                else {
+                    std::cerr << "Error: Unable to open file " << currentFilePath << std::endl;
+                }
+            }
+
+
             ImGui::Separator();
             if (ImGui::MenuItem("Exit")) {
                 // Handle exit
