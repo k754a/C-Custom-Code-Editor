@@ -1,10 +1,10 @@
 ﻿  Main.cpp
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(32,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(35,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(38,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(41,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(58,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(61,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Main.cpp(93,29): warning C4244: '=': conversion from 'lua_Number' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\LuaFunct.h(34,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\LuaFunct.h(37,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\LuaFunct.h(40,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\LuaFunct.h(43,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\LuaFunct.h(60,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\LuaFunct.h(63,13): warning C4244: 'initializing': conversion from 'lua_Number' to 'float', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\LuaFunct.h(95,29): warning C4244: '=': conversion from 'lua_Number' to 'float', possible loss of data
   Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe

@@ -1,0 +1,82 @@
+--Unimportant start at  -- set the rounding of window corners --
+
+
+--DO NOT EDIT THIS DOCUMENT, THIS IS A BACKUP, IF YOU SOMEHOW BROKE THE OTHER ONE, MAKE A COPY AND CALL IT "CStyle.Style"
+
+-------------------------------------------------------------------------
+
+-- get style
+getStyle()
+
+-- pull vec 2 style
+if not ImVec2 then
+    function ImVec2(x, y)
+        return {x = x, y = y}
+    end
+end
+
+-- pull vec 4 style
+if not ImVec4 then
+    function ImVec4(x, y, z, w)
+        return {x = x, y = y, z = z, w = w}
+    end
+end
+
+-- Make sure the style table exists
+if not style then
+    print("Error: style table is null")
+end
+
+-- Make sure color table exists
+local colors = style.Colors
+if not colors then
+    colors = {}
+    style.Colors = colors
+end
+
+
+-------------------------------------------------------------------------
+
+--Ok to edit :)
+
+
+-- Set the rounding of window corners
+style.WindowRounding = 10.0
+
+
+
+
+
+-- Set the window background color to gray
+if ImGuiCol.WindowBg == nil then
+    print("Error: ImGuiCol.WindowBg is nil")
+else
+    colors[ImGuiCol.WindowBg] = ImVec4(0.1, 0.1, 0.1, 1.0)
+end
+
+
+
+
+
+-- Set the frame rounding and padding
+style.FrameRounding = 4.0
+style.FramePadding = ImVec2(4, 2)
+
+
+
+
+
+-- Copy the window background color
+if colors[ImGuiCol.WindowBg] == nil then
+    print("Error: colors[ImGuiCol.WindowBg] is nil")
+else
+    local backgroundColor = colors[ImGuiCol.WindowBg]
+    colors[ImGuiCol.TitleBgActive] = backgroundColor
+end
+
+
+
+
+
+-- Update the style -DO NOT EDIT-
+setStyle()
