@@ -183,6 +183,12 @@ void Settingsrender()
 
                         }
 
+
+                        if (ImGui::Button("Open Style folder"))
+                        {
+                            ShellExecute(NULL, L"open", L"Style", NULL, NULL, SW_RESTORE);
+                        }
+
                         ImGui::EndTabItem();
                     }
 

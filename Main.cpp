@@ -46,77 +46,23 @@ void initImgui() {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
 
+    std::ifstream in("Style/CStyle.Style");
+
+    std::stringstream buffer;
+
+    //this grabs everything in 1 line
+    buffer << in.rdbuf();
+
+    //set string to the line
+    std::string contents = buffer.str();
+    in.close();
+
+    in.close();
+
     // Register ImGui functions
     registerImGuiFunctions(L);
 
-    const char* script = R"(
-
-    --Unimportant start at  -- set the rounding of window corners --
-
-
-    --
-    --DO NOT REMOVE THIS PART, THIS CAN CAUSE THE EDITOR TO NOT WORK AT ALL, IF YOU DO, THERE IS A BACKUP ON GITHUB OR ./Style/--BACKUP--
-    --
-    -------------------------------------------------------------------------
-
-    -- get style
-    getStyle()
-
-    -- pull vec 2 style
-    if not ImVec2 then
-        function ImVec2(x, y)
-            return {x = x, y = y}
-        end
-    end
-    
-    -- pull vec 4 style
-    if not ImVec4 then
-        function ImVec4(x, y, z, w)
-            return {x = x, y = y, z = z, w = w}
-        end
-    end
-
-    -- Make sure the style table exists
-    if not style then
-        print("Error: style table is null")
-    end
-
-    -- Make sure color table exists
-    local colors = style.Colors
-    if not colors then
-        colors = {}
-        style.Colors = colors
-    end
-    
-
-    -------------------------------------------------------------------------
-
-
-    -- Set the rounding of window corners
-    style.WindowRounding = 10.0
-
-    -- Set the window background color to gray
-    if ImGuiCol.WindowBg == nil then
-        print("Error: ImGuiCol.WindowBg is nil")
-    else
-        colors[ImGuiCol.WindowBg] = ImVec4(0.1, 0.1, 0.1, 1.0)
-    end
-
-    -- Set the frame rounding and padding
-    style.FrameRounding = 4.0
-    style.FramePadding = ImVec2(4, 2)
-
-    -- Copy the window background color
-    if colors[ImGuiCol.WindowBg] == nil then
-        print("Error: colors[ImGuiCol.WindowBg] is nil")
-    else
-        local backgroundColor = colors[ImGuiCol.WindowBg]
-        colors[ImGuiCol.TitleBgActive] = backgroundColor
-    end
-
-    -- Update the style
-    setStyle()
-)";
+    const char* script = contents.c_str();
 
     if (luaL_dostring(L, script) != LUA_OK) {
         std::cerr << "Error: " << lua_tostring(L, -1) << std::endl;
