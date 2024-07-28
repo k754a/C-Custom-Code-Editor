@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="getinfo.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="headbar.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -157,6 +158,7 @@
     <None Include="default.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="getinfo.h" />
     <ClInclude Include="headbar.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />

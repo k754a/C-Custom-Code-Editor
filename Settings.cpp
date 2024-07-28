@@ -6,7 +6,19 @@
 #include <GLFW/glfw3.h> // Include glfw3.h after our OpenGL definitions
 #include <vector>
 #include "Systemstat.h"
+#include <sysinfoapi.h>
+
+
 //global
+#include "getinfo.h"
+
+
+
+
+
+
+
+
 
 bool settings = false;
 
@@ -124,9 +136,10 @@ void Settingsrender()
                 }
 
                 // Create the second tab
-                if (ImGui::BeginTabItem("Project"))
+                if (ImGui::BeginTabItem("Current files"))
                 {
-                    ImGui::Text("NULL");
+                   
+
                     ImGui::EndTabItem();
                 }
 
@@ -197,7 +210,27 @@ void Settingsrender()
                 else {
                     if (ImGui::BeginTabItem("Debug"))
                     {
-                        ImGui::Text("NULL");
+                        ImGui::Text("Save statistics data? This is if you have an issue");
+                        if (ImGui::Button("Yes"))
+                        {
+                            std::ofstream outFile("DEBUGTEXT.LOG");
+
+                            outFile << "NOTE: This is not shared with anyone, if you have issues this could help if something is wrong" << std::endl;
+                            outFile << "Computer Name: " << getComputerName() << std::endl;
+                            outFile << "CPU Model: " << getCPUInfo() << std::endl;
+                            outFile << "RAM Info: " << getRAMInfo() << std::endl;
+                            outFile << "Storage Info: " << getStorageInfo() << std::endl;
+                            outFile << "cpu usage history" << cpuHistory.data() << std::endl;
+                            outFile << "ram usage history" << ramHistory.data() << std::endl; 
+                            outFile << "cpu usage size" << cpuHistory.size() << std::endl;
+                            outFile << "ram usage size" << ramHistory.size() << std::endl;
+                            // Close the file
+                            outFile.close();
+
+                            std::cout << "File created and written successfully." << std::endl;
+
+                          
+                        }
                         ImGui::EndTabItem();
                     }
                 }
@@ -205,7 +238,22 @@ void Settingsrender()
 
                 if (ImGui::BeginTabItem("Documentation"))
                 {
-                    ImGui::Text("NULL");
+                    ImGui::Text("This is the link to my documentation down below!");
+                    const char* url = "https://k754a.github.io/Editor%20Documentation";
+                    ImGui::TextColored(ImVec4(0.0f, 0.0f, 1.0f, 1.0f), "Editor Documentation");
+                    if (ImGui::IsItemClicked())
+                    {
+                        // Convert const char* to std::wstring
+                        int len;
+                        int urlLength = strlen(url) + 1;
+                        len = MultiByteToWideChar(CP_ACP, 0, url, urlLength, NULL, 0);
+                        std::wstring wideUrl(len, L'\0');
+                        MultiByteToWideChar(CP_ACP, 0, url, urlLength, &wideUrl[0], len);
+
+                        ShellExecute(0, 0, wideUrl.c_str(), 0, 0, SW_SHOW);
+                    }
+
+
                     ImGui::EndTabItem();
                 }
 
