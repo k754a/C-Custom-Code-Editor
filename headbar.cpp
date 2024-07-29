@@ -2,7 +2,6 @@
 #include "libraries.h"
 #include "Settings.h" // Include the header file
 #include <thread> // For sleep_for
-#include <chrono> // For chrono::seconds
 
 
 
@@ -152,13 +151,53 @@ void PrintFileContent(const FileNode& node) {
         bufferContent.back() = '\0';
         fileStream.close();
 
-        // Update the current file path
+      
         currentFilePath = CWstrTostr(node.path);
     }
     else {
         std::cerr << "ERROR: file_not_found, error 101 " << CWstrTostr(node.path) << std::endl;
         std::cerr << "Cannot find the selected file, sorry! " << CWstrTostr(node.path) << std::endl;
     }
+}
+static char inputBuffer[256] = "";
+static std::vector<std::string> terminalOutput;
+
+void ExecuteCommand(const std::string& command) {
+  
+    if (command == "clear") {
+        terminalOutput.clear();
+    }
+    else {
+        terminalOutput.push_back("> " + command);
+        terminalOutput.push_back("Executed command: " + command);
+    }
+}
+
+void RenderTerminal(float windowWidth, float windowHeight, float terminalHeight) {
+    ImGui::SetNextWindowSize(ImVec2(windowWidth, terminalHeight));
+    ImGui::SetNextWindowPos(ImVec2(0, windowHeight - terminalHeight));
+    ImGui::Begin("Terminal", nullptr, ImGuiWindowFlags_NoCollapse);
+
+    
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetTextLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
+    for (const auto& line : terminalOutput) {
+        ImGui::TextUnformatted(line.c_str());
+    }
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
+        ImGui::SetScrollHereY(1.0f);
+    }
+    ImGui::EndChild();
+
+    if (ImGui::InputText("##Input", inputBuffer, IM_ARRAYSIZE(inputBuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+        
+        std::string command(inputBuffer);
+        ExecuteCommand(command);
+
+       
+        inputBuffer[0] = '\0';
+    }
+
+    ImGui::End();
 }
 
 
@@ -178,11 +217,15 @@ void Renderbar() {
     }
     ImGui::End();
 
-    ImGui::SetNextWindowSize(ImVec2(windowWidth, terminalHeight));
-    ImGui::SetNextWindowPos(ImVec2(0, windowHeight - terminalHeight));
-    ImGui::Begin("Terminal", nullptr, ImGuiWindowFlags_NoCollapse);
-    // Terminal code here...
-    ImGui::End();
+    RenderTerminal(windowWidth, windowHeight, terminalHeight);
+
+
+
+
+
+
+
+ 
     bufferContent.resize(content.size() + bufferContent.size() );
     ImGui::SetNextWindowSize(ImVec2(editorWidth + 10, editorHeight));
     ImGui::SetNextWindowPos(ImVec2(200.1f,20)); // Lock top position
@@ -240,6 +283,8 @@ void Renderbar() {
                 }
             }
 
+            
+
 
             ImGui::Separator();
             if (ImGui::MenuItem("Exit")) {
@@ -273,6 +318,15 @@ void Renderbar() {
                     fileStream.close();
                 }
             }
+            ImGui::Separator();
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Run")) {
+            if (ImGui::MenuItem("Run Script")) {
+                settings = true;
+            }
+           
             ImGui::Separator();
             ImGui::EndMenu();
         }

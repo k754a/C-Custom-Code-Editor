@@ -118,6 +118,9 @@
     <ClInclude Include="getinfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="imgui_console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Downloads\example.png">
