@@ -2,7 +2,7 @@
 #include "libraries.h"
 #include "Settings.h" // Include the header file
 #include <thread> // For sleep_for
-
+#include "Python/include/Python.h"
 
 
 
@@ -163,15 +163,28 @@ void PrintFileContent(const FileNode& node) {
 }
 static char inputBuffer[256] = "";
 static std::vector<std::string> terminalOutput;
+std::string pythonOutput;
+
+void RunTerm(const std::string& command) {
+    Py_Initialize();
+    PyObject* sys = PyImport_ImportModule("sys");
+    PyRun_SimpleString(command.c_str());
+    Py_Finalize();
+}
 
 void ExecuteCommand(const std::string& command) {
-  
     if (command == "clear") {
         terminalOutput.clear();
     }
+    else if (command.rfind("python ", 0) == 0) {
+        std::string pythonCommand = command.substr(7);
+        terminalOutput.push_back("> " + command);
+        RunTerm(pythonCommand);
+        terminalOutput.push_back("> " + pythonOutput);
+    }
     else {
         terminalOutput.push_back("> " + command);
-        terminalOutput.push_back("Executed command: " + command);
+        terminalOutput.push_back("ERROR: COMMAND UNKNOWN, error 104");
     }
 }
 
@@ -180,7 +193,6 @@ void RenderTerminal(float windowWidth, float windowHeight, float terminalHeight)
     ImGui::SetNextWindowPos(ImVec2(0, windowHeight - terminalHeight));
     ImGui::Begin("Terminal", nullptr, ImGuiWindowFlags_NoCollapse);
 
-    
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetTextLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
     for (const auto& line : terminalOutput) {
         ImGui::TextUnformatted(line.c_str());
@@ -191,17 +203,13 @@ void RenderTerminal(float windowWidth, float windowHeight, float terminalHeight)
     ImGui::EndChild();
 
     if (ImGui::InputText("##Input", inputBuffer, IM_ARRAYSIZE(inputBuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
-        
         std::string command(inputBuffer);
         ExecuteCommand(command);
-
-       
         inputBuffer[0] = '\0';
     }
 
     ImGui::End();
 }
-
 
 static float terminalHeightPercent = 0.2f;
 void Renderbar() {

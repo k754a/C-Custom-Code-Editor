@@ -13,7 +13,7 @@ extern "C" {
 #pragma comment(lib, "Lua/lua54.lib")
 #endif // _WIN32
 
-#include "Python/include/Python.h"
+
 
 
 
@@ -91,22 +91,7 @@ int main() {
 
     // Init ImGui
     initImgui();
-    Py_Initialize();
-
-    // Example: Execute a Python print statement
-    PyRun_SimpleString("print('Hello from Python!')");
-
-    // You can also use more complex Python code
-    const char* python_code = R"(
-import sys
-print('Python version:', sys.version)
-print('This is executed from within C++!')
-)";
-
-    PyRun_SimpleString(python_code);
-
-    // Finalize the Python interpreter
-    Py_Finalize();
+    
     static float editorHeightPercent = 0.7f;
     static float terminalHeightPercent = 0.2f;
 
