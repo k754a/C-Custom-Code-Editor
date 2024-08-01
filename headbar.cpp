@@ -5,7 +5,8 @@
 #include "Python/include/Python.h"
 
 #include <filesystem>
-
+#include <cstdio>  // For popen, pclose
+#include <memory>  // For std::unique_ptr
 
 //make it gloabl
 //file strct
@@ -167,14 +168,54 @@ std::string pythonOutput;
 bool pip = false;
 
 void RunTerm(const std::string& command) {
-    Py_Initialize();
-    PyObject* sys = PyImport_ImportModule("sys");
-    PyRun_SimpleString(command.c_str());
-    Py_Finalize();
+  
+    HANDLE hStdOutputRead, hStdOutputWrite;
+    HANDLE hStdInputRead, hStdInputWrite;
+    SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+
+    SetHandleInformation(hStdOutputRead, HANDLE_FLAG_INHERIT, 0);
+    SetHandleInformation(hStdInputWrite, HANDLE_FLAG_INHERIT, 0);
+
+    STARTUPINFO si = { sizeof(STARTUPINFO) };
+    si.dwFlags = STARTF_USESTDHANDLES;
+    si.hStdOutput = hStdOutputWrite;
+    si.hStdError = hStdOutputWrite;
+    si.hStdInput = hStdInputRead;
+
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&pi, sizeof(pi));
+
+
+    std::wstring wide_command(command.begin(), command.end());
+
+    if (!CreateProcessW(NULL, &wide_command[0], NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+        std::cerr << "ERROR: Could not create process, Error " << GetLastError() << std::endl;
+        CloseHandle(hStdOutputWrite);
+        CloseHandle(hStdInputRead);
+        return;
+    }
+
+    // Close handles to pipes that are no longer needed
+    CloseHandle(hStdOutputWrite);
+    CloseHandle(hStdInputRead);
+
+    // Read output from the process
+    char buffer[128];
+    DWORD bytesRead;
+    while (ReadFile(hStdOutputRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL) && bytesRead > 0) {
+        buffer[bytesRead] = '\0'; // Null-terminate the string
+        std::cout << buffer;    
+    }
+
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+  
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    CloseHandle(hStdOutputRead);
+    CloseHandle(hStdInputWrite);
 }
-
-
-
 
 
 void ExecuteCommand(const std::string& command) {
@@ -182,9 +223,9 @@ void ExecuteCommand(const std::string& command) {
         terminalOutput.clear();
     }
     else if (command.rfind("python ", 0) == 0) {
-        std::string pythonCommand = command.substr(7);
+        std::string pythonFilePath = command.substr(7); 
         terminalOutput.push_back("> " + command);
-        RunTerm(pythonCommand);
+        RunTerm(pythonFilePath);
         terminalOutput.push_back("> " + pythonOutput);
     }
     else if (command.rfind("Rpip", 0) == 0) {
