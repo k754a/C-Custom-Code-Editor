@@ -4,7 +4,7 @@
 #include <thread> // For sleep_for
 #include "Python/include/Python.h"
 
-
+#include <filesystem>
 
 
 //make it gloabl
@@ -164,6 +164,7 @@ void PrintFileContent(const FileNode& node) {
 static char inputBuffer[256] = "";
 static std::vector<std::string> terminalOutput;
 std::string pythonOutput;
+bool pip = false;
 
 void RunTerm(const std::string& command) {
     Py_Initialize();
@@ -171,6 +172,10 @@ void RunTerm(const std::string& command) {
     PyRun_SimpleString(command.c_str());
     Py_Finalize();
 }
+
+
+
+
 
 void ExecuteCommand(const std::string& command) {
     if (command == "clear") {
@@ -182,9 +187,55 @@ void ExecuteCommand(const std::string& command) {
         RunTerm(pythonCommand);
         terminalOutput.push_back("> " + pythonOutput);
     }
+    else if (command.rfind("Rpip", 0) == 0) {
+        if (!pip)
+        {
+            terminalOutput.push_back("Loaded " + command);
+            pip = true;
+        }
+        else
+        {
+            terminalOutput.push_back("UnLoaded " + command);
+            pip = false;
+        }
+      
+     
+       
+    }
+
     else {
-        terminalOutput.push_back("> " + command);
-        terminalOutput.push_back("ERROR: COMMAND UNKNOWN, error 104");
+        if (pip)
+        {
+          
+            std::string python_path = ".\\Python\\python.exe";
+
+        
+            std::string temp_file = "temp_output.txt";
+            std::string full_command = "\"" + python_path + "\" -m " + command + " > " + temp_file;
+           
+            int result = std::system(full_command.c_str());
+
+    
+            std::ifstream file(temp_file);
+            std::ostringstream oss;
+            oss << file.rdbuf();
+            std::string out = oss.str();
+
+            std::cout << out << std::endl;
+            terminalOutput.push_back(out);
+     
+            std::remove(temp_file.c_str());
+
+        
+            if (result != 0) {
+                std::cerr << "ERROR: COMMAND UNKNOWN, error 104" << result << std::endl;
+            }
+        }
+        else {
+            terminalOutput.push_back("> " + command);
+            terminalOutput.push_back("ERROR: COMMAND UNKNOWN, error 104");
+        }
+       
     }
 }
 
