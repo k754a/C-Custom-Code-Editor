@@ -71,12 +71,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\K754a\source\repos\Project2\Project2\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\K754a\source\repos\Project2\Project2\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\K754a\source\repos\Project2\Project2\Python\include;C:\Users\K754a\source\repos\Project2\Project2\pybind11-2.13.1\include;C:\Users\K754a\source\repos\Project2\Project2\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\K754a\source\repos\Project2\Project2\Python\libs;C:\Users\K754a\source\repos\Project2\Project2\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Users\K754a\source\repos\Project2\Project2\Libraries\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\K754a\source\repos\Project2\Project2\Libraries\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\K754a\source\repos\Project2\Project2\Python\include;C:\Users\K754a\source\repos\Project2\Project2\pybind11-2.13.1\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>C:\Users\K754a\source\repos\Project2\Project2\Python\libs;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -85,11 +89,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Users\K754a\source\repos\Project2\Project2\Python\include;C:\Users\K754a\source\repos\Project2\Project2\pybind11-2.13.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;python37.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -106,6 +111,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>python37.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
