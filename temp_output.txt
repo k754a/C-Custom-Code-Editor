@@ -1,4 +1,391 @@
-Collecting pygame
-  Downloading pygame-2.6.0-cp37-cp37m-win_amd64.whl (10.7 MB)
-Installing collected packages: pygame
-Successfully installed pygame-2.6.0
+                                        
+                                        
+                                        
+                                        
+                    O                   
+                   OOO                  
+                    O                   
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                     O                  
+                    OOO                 
+                     O                  
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                      O                 
+                     OOO                
+                      O                 
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                       O                
+                      OOO               
+                       O                
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                        O               
+                       OOO              
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                         O              
+                        OOO             
+                         O              
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                          O             
+                         OOO            
+                          O             
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                           O            
+                          OOO           
+                           O            
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                            O           
+                           OOO          
+                            O           
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                             O          
+                            OOO         
+                             O          
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                              O         
+                             OOO        
+                              O         
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                               O        
+                              OOO       
+                               O        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                O       
+                               OOO      
+                                O       
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                OOO     
+                                 O      
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                  O     
+                                 OOO    
+                                  O     
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                   O    
+                                  OOO   
+                                   O    
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                    O   
+                                   OOO  
+                                    O   
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                     O  
+                                    OOO 
+                                     O  
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                      O 
+                                     OOO
+                                      O 
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                       O
+                                      OO
+                                       O
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                      O 
+                                     OOO
+                                      O 
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                     O  
+                                    OOO 
+                                     O  
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                    O   
+                                   OOO  
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                   O    
+                                  OOO   
+                                   O    
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                  O     
+                                 OOO    
+                                  O     
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                 O      
+                                OOO     
+                                 O      
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                O       
+                               OOO      
+                                O       
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                               O        
+                              OOO       
+                               O        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                              O         
+                             OOO        
+                              O         
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                             O          
+                            OOO         
+                             O          
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                            O           
+                           OOO          
+                            O           
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                          OOO           
+                           O            
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                          O             
+                         OOO            
+                          O             
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                         O              
+                        OOO             
+                         O              
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                        O               
+                       OOO              
+                        O               
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                       O                
+                      OOO               
+                       O                
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                      O                 
+                     OOO                
+                      O                 
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                     O                  
+                    OOO                 
+                     O                  
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                    O                   
+                   OOO                  
+                    O                   
+                                        
+      

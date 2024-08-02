@@ -33,7 +33,7 @@ void OpenFile();
 std::string CWstrTostr(const std::wstring& wstr);
 void DisplayFile(const FileNode& node);
 
-std::atomic<int> cout(0); // Use atomic to safely increment cout across threads
+std::atomic<int> cout(0); 
 
 void incrementCout() {
     while (true) {
@@ -165,7 +165,7 @@ static char inputBuffer[256] = "";
 static std::vector<std::string> terminalOutput;
 std::string pythonOutput;
 bool pip = false;
-
+bool runC = true;
 
 
 std::string ReadFileToString(const std::string& filePath) {
@@ -180,11 +180,30 @@ std::string ReadFileToString(const std::string& filePath) {
     return buffer.str();
 }
 
-// Function to execute Python code from a string
+std::atomic<bool> isPythonRunning(false);
+
 void ExecutePythonCode(const std::string& code) {
-    Py_Initialize();
-    PyRun_SimpleString(code.c_str());
-    Py_Finalize();
+    if (isPythonRunning) return;
+    isPythonRunning = true;
+
+    if (runC)
+    {
+        std::thread pythonThread([code]() {
+            Py_Initialize();
+            std::ostringstream oss;
+            PyRun_SimpleString(code.c_str());
+           
+            Py_Finalize();
+
+        
+
+            isPythonRunning = false;
+            });
+
+        pythonThread.detach();
+    }
+   
+   
 }
 
 
@@ -201,68 +220,51 @@ void ExecuteCommand(const std::string& command) {
         terminalOutput.push_back("> " + pythonOutput);
     }
     else if (command.rfind("Rpip", 0) == 0) {
-        if (!pip)
-        {
+        if (!pip) {
             terminalOutput.push_back("Loaded " + command);
             pip = true;
         }
-        else
-        {
+        else {
             terminalOutput.push_back("UnLoaded " + command);
             pip = false;
         }
-
-        
-
+    }
+    else if (command.rfind("Kill", 0) == 0) {
+        runC = false;
     }
     else if (command.rfind("run", 0) == 0) {
-        std::string pythonCommand = command.substr(4); 
+        std::string pythonCommand = command.substr(4);
         terminalOutput.push_back("> " + command);
 
-      
         std::ifstream file(pythonCommand);
         if (file.is_open()) {
             std::stringstream buffer;
-            buffer << file.rdbuf(); 
+            buffer << file.rdbuf();
             std::string scriptContent = buffer.str();
-         
-            std::cout << "Script content:\n" << scriptContent << std::endl;
-
-            std::cout << "RUNNING..." << std::endl;
-
-            
-
-                ExecutePythonCode(scriptContent);
-                terminalOutput.push_back("> " + pythonOutput);
+            runC = true;
+            ExecutePythonCode(scriptContent);
+            terminalOutput.push_back("> " + pythonOutput);
         }
         else {
             std::cerr << "Failed to open file: " + pythonCommand << std::endl;
         }
     }
-
     else {
-        if (pip)
-        {
-
+        if (pip) {
             std::string python_path = ".\\Python\\python.exe";
-
-
             std::string temp_file = "temp_output.txt";
             std::string full_command = "\"" + python_path + "\" -m " + command + " > " + temp_file;
 
             int result = std::system(full_command.c_str());
-
 
             std::ifstream file(temp_file);
             std::ostringstream oss;
             oss << file.rdbuf();
             std::string out = oss.str();
 
-            std::cout << out << std::endl;
             terminalOutput.push_back(out);
 
             std::remove(temp_file.c_str());
-
 
             if (result != 0) {
                 std::cerr << "ERROR: COMMAND UNKNOWN, error 104" << result << std::endl;
@@ -272,9 +274,9 @@ void ExecuteCommand(const std::string& command) {
             terminalOutput.push_back("> " + command);
             terminalOutput.push_back("ERROR: COMMAND UNKNOWN, error 104");
         }
-
     }
 }
+
 
 void RenderTerminal(float windowWidth, float windowHeight, float terminalHeight) {
     ImGui::SetNextWindowSize(ImVec2(windowWidth, terminalHeight));
@@ -332,17 +334,17 @@ void Renderbar() {
     std::string line;
     std::stringstream fileBuffer;
 
-    // Convert fileBuffer to std::vector<char>
+   
     std::string newContent = fileBuffer.str();
     std::vector<char> newContentVec(newContent.begin(), newContent.end());
 
-    // Append new content to bufferContent
+  
     bufferContent.insert(bufferContent.end(), newContentVec.begin(), newContentVec.end());
 
-    // Ensure there's a null-terminator at the end
+  
     bufferContent.push_back('\0');
 
-    // Dynamically resize the buffer to handle user input
+  
     std::string buf = bufferContent.data();
     //std::cout << buf.length() << std::endl;
     bufferContent.resize(buf.length() * buf.length());

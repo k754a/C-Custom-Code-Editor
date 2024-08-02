@@ -1,4 +1,4 @@
 ﻿  headbar.cpp
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(457,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(459,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
   Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe
