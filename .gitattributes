@@ -1,5 +1,5 @@
 # Ignore Python files in language stats
-*.py linguist-vendored
+*.py linguist-generated
 
 # Auto detect text files and perform LF normalization
 * text=auto
