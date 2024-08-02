@@ -5,8 +5,7 @@
 #include "Python/include/Python.h"
 
 #include <filesystem>
-#include <cstdio>  // For popen, pclose
-#include <memory>  // For std::unique_ptr
+
 
 //make it gloabl
 //file strct
@@ -38,16 +37,16 @@ std::atomic<int> cout(0); // Use atomic to safely increment cout across threads
 
 void incrementCout() {
     while (true) {
-       
+
         if (cout < 2) {
             std::cout << "count" << std::endl;
             cout++;
 
         }
-        
+
         std::this_thread::sleep_for(std::chrono::seconds(5));
 
-      
+
     }
 }
 
@@ -149,12 +148,12 @@ void PrintFileContent(const FileNode& node) {
         buffer << fileStream.rdbuf();
 
         content = buffer.str();
-        bufferContent.resize(content.size() + content.size() + 1); 
+        bufferContent.resize(content.size() + content.size() + 1);
         std::copy(content.begin(), content.end(), bufferContent.begin());
         bufferContent.back() = '\0';
         fileStream.close();
 
-      
+
         currentFilePath = CWstrTostr(node.path);
     }
     else {
@@ -167,55 +166,28 @@ static std::vector<std::string> terminalOutput;
 std::string pythonOutput;
 bool pip = false;
 
-void RunTerm(const std::string& command) {
-  
-    HANDLE hStdOutputRead, hStdOutputWrite;
-    HANDLE hStdInputRead, hStdInputWrite;
-    SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
-
-    SetHandleInformation(hStdOutputRead, HANDLE_FLAG_INHERIT, 0);
-    SetHandleInformation(hStdInputWrite, HANDLE_FLAG_INHERIT, 0);
-
-    STARTUPINFO si = { sizeof(STARTUPINFO) };
-    si.dwFlags = STARTF_USESTDHANDLES;
-    si.hStdOutput = hStdOutputWrite;
-    si.hStdError = hStdOutputWrite;
-    si.hStdInput = hStdInputRead;
-
-    PROCESS_INFORMATION pi;
-    ZeroMemory(&pi, sizeof(pi));
 
 
-    std::wstring wide_command(command.begin(), command.end());
-
-    if (!CreateProcessW(NULL, &wide_command[0], NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
-        std::cerr << "ERROR: Could not create process, Error " << GetLastError() << std::endl;
-        CloseHandle(hStdOutputWrite);
-        CloseHandle(hStdInputRead);
-        return;
+std::string ReadFileToString(const std::string& filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << filePath << std::endl;
+        return "";
     }
 
-    // Close handles to pipes that are no longer needed
-    CloseHandle(hStdOutputWrite);
-    CloseHandle(hStdInputRead);
-
-    // Read output from the process
-    char buffer[128];
-    DWORD bytesRead;
-    while (ReadFile(hStdOutputRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL) && bytesRead > 0) {
-        buffer[bytesRead] = '\0'; // Null-terminate the string
-        std::cout << buffer;    
-    }
-
-
-    WaitForSingleObject(pi.hProcess, INFINITE);
-
-  
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-    CloseHandle(hStdOutputRead);
-    CloseHandle(hStdInputWrite);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
 }
+
+// Function to execute Python code from a string
+void ExecutePythonCode(const std::string& code) {
+    Py_Initialize();
+    PyRun_SimpleString(code.c_str());
+    Py_Finalize();
+}
+
+
 
 
 void ExecuteCommand(const std::string& command) {
@@ -223,9 +195,9 @@ void ExecuteCommand(const std::string& command) {
         terminalOutput.clear();
     }
     else if (command.rfind("python ", 0) == 0) {
-        std::string pythonFilePath = command.substr(7); 
+        std::string pythonCommand = command.substr(7);
         terminalOutput.push_back("> " + command);
-        RunTerm(pythonFilePath);
+        ExecutePythonCode(pythonCommand);
         terminalOutput.push_back("> " + pythonOutput);
     }
     else if (command.rfind("Rpip", 0) == 0) {
@@ -239,24 +211,48 @@ void ExecuteCommand(const std::string& command) {
             terminalOutput.push_back("UnLoaded " + command);
             pip = false;
         }
+
+        
+
+    }
+    else if (command.rfind("run", 0) == 0) {
+        std::string pythonCommand = command.substr(4); 
+        terminalOutput.push_back("> " + command);
+
       
-     
-       
+        std::ifstream file(pythonCommand);
+        if (file.is_open()) {
+            std::stringstream buffer;
+            buffer << file.rdbuf(); 
+            std::string scriptContent = buffer.str();
+         
+            std::cout << "Script content:\n" << scriptContent << std::endl;
+
+            std::cout << "RUNNING..." << std::endl;
+
+            
+
+                ExecutePythonCode(scriptContent);
+                terminalOutput.push_back("> " + pythonOutput);
+        }
+        else {
+            std::cerr << "Failed to open file: " + pythonCommand << std::endl;
+        }
     }
 
     else {
         if (pip)
         {
-          
+
             std::string python_path = ".\\Python\\python.exe";
 
-        
+
             std::string temp_file = "temp_output.txt";
             std::string full_command = "\"" + python_path + "\" -m " + command + " > " + temp_file;
-           
+
             int result = std::system(full_command.c_str());
 
-    
+
             std::ifstream file(temp_file);
             std::ostringstream oss;
             oss << file.rdbuf();
@@ -264,10 +260,10 @@ void ExecuteCommand(const std::string& command) {
 
             std::cout << out << std::endl;
             terminalOutput.push_back(out);
-     
+
             std::remove(temp_file.c_str());
 
-        
+
             if (result != 0) {
                 std::cerr << "ERROR: COMMAND UNKNOWN, error 104" << result << std::endl;
             }
@@ -276,7 +272,7 @@ void ExecuteCommand(const std::string& command) {
             terminalOutput.push_back("> " + command);
             terminalOutput.push_back("ERROR: COMMAND UNKNOWN, error 104");
         }
-       
+
     }
 }
 
@@ -294,11 +290,12 @@ void RenderTerminal(float windowWidth, float windowHeight, float terminalHeight)
     }
     ImGui::EndChild();
 
-    if (ImGui::InputText("##Input", inputBuffer, IM_ARRAYSIZE(inputBuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+    if (ImGui::InputText("Input", inputBuffer, sizeof(inputBuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
         std::string command(inputBuffer);
         ExecuteCommand(command);
-        inputBuffer[0] = '\0';
+        inputBuffer[0] = '\0'; // Clear the input buffer
     }
+
 
     ImGui::End();
 }
@@ -327,10 +324,10 @@ void Renderbar() {
 
 
 
- 
-    bufferContent.resize(content.size() + bufferContent.size() );
+
+    bufferContent.resize(content.size() + bufferContent.size());
     ImGui::SetNextWindowSize(ImVec2(editorWidth + 10, editorHeight));
-    ImGui::SetNextWindowPos(ImVec2(200.1f,20)); // Lock top position
+    ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
     ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
     std::string line;
     std::stringstream fileBuffer;
@@ -352,7 +349,7 @@ void Renderbar() {
     //std::cout << buf.length() << std::endl;
 
     if (!bufferContent.empty()) {
-       
+
         // Render the text editor
         ImGui::InputTextMultiline("##CodeEditor", bufferContent.data(), bufferContent.size(), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
 
@@ -385,7 +382,7 @@ void Renderbar() {
                 }
             }
 
-            
+
 
 
             ImGui::Separator();
@@ -413,7 +410,7 @@ void Renderbar() {
                         buffer << line << '\n';
                     }
 
-                    bufferContent.resize(content.size() + bufferContent.size()+1); // +1 for null terminator
+                    bufferContent.resize(content.size() + bufferContent.size() + 1); // +1 for null terminator
                     std::copy(content.begin(), content.end(), bufferContent.begin());
                     bufferContent.back() = '\0';
 
@@ -428,7 +425,7 @@ void Renderbar() {
             if (ImGui::MenuItem("Run Script")) {
                 settings = true;
             }
-           
+
             ImGui::Separator();
             ImGui::EndMenu();
         }
@@ -440,43 +437,43 @@ void Renderbar() {
 
         if (winfpsread) {
             ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::CalcTextSize("Documentation").x - ImGui::GetStyle().ItemSpacing.x * 2);
-          
-      
-                // Wait for 1 second
-                //so thread is effecting everything, moveing!
-                std::thread incrementThread(incrementCout);
-
-                // Detach the thread to allow it to run independently
-                incrementThread.detach();
-
-                if (cout < 2) {
-                    std::cout << "count" << std::endl;
-                    cout++;
-
-                }
-                else
-                {
-                    fpsString = "FPS:" + std::to_string(fps);
-                    fps = ImGui::GetIO().Framerate;
-                    cout = 0;
-
-                }
-
-                if (ImGui::BeginMenu(fpsString.c_str())) {
 
 
-                    ImGui::EndMenu();
+            // Wait for 1 second
+            //so thread is effecting everything, moveing!
+            std::thread incrementThread(incrementCout);
 
-                }
-              
-               
-            
-           
-           
-            
-           
+            // Detach the thread to allow it to run independently
+            incrementThread.detach();
+
+            if (cout < 2) {
+                std::cout << "count" << std::endl;
+                cout++;
+
+            }
+            else
+            {
+                fpsString = "FPS:" + std::to_string(fps);
+                fps = ImGui::GetIO().Framerate;
+                cout = 0;
+
+            }
+
+            if (ImGui::BeginMenu(fpsString.c_str())) {
+
+
+                ImGui::EndMenu();
+
+            }
+
+
+
+
+
+
+
         }
-        
+
 
 
         ImGui::EndMainMenuBar();
@@ -495,6 +492,5 @@ void Renderbar() {
 
 
 //this would be wayyyy more cleaner if i could just leave all the funct on the bottom, but nope :(
-
 
 
