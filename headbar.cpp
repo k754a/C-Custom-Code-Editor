@@ -4,6 +4,7 @@
 #include <thread> // For sleep_for
 #include "Python/include/Python.h"
 
+#include <mutex>
 #include <filesystem>
 
 
@@ -32,6 +33,7 @@ void ListFilesRecursively(const std::wstring& directory, FileNode& node);
 void OpenFile();
 std::string CWstrTostr(const std::wstring& wstr);
 void DisplayFile(const FileNode& node);
+void ExecutePythonCode(const std::string& code, const std::string& outputFileName);
 
 std::atomic<int> cout(0); 
 
@@ -182,51 +184,51 @@ std::string ReadFileToString(const std::string& filePath) {
 
 std::atomic<bool> isPythonRunning(false);
 
-void ExecutePythonCode(const std::string& code) {
-    if (isPythonRunning) return;
-    isPythonRunning = true;
 
-    std::thread pythonThread([code]() {
-        Py_Initialize();
+//was assitsted by ai, just cuase i could not figure it out :(
+void ExecutePythonCode(const std::string& code, const std::string& outputFileName) {
+  //this saves code to a temp file
+    const std::string tempFileName = "temp_script.py";
+    std::ofstream tempFile(tempFileName);
+    if (!tempFile.is_open()) {
+        std::cerr << "Failed to open temporary Python file" << std::endl;
+        return;
+    }
+    tempFile << code;
+    tempFile.close();
 
-        PyObject* pName = PyUnicode_DecodeFSDefault("__main__");
-        PyObject* pModule = PyImport_Import(pName);
-        Py_DECREF(pName);
+    // executes it
+    const std::string command = "python " + tempFileName + " > " + outputFileName + " 2>&1";
 
-        if (pModule) {
-            PyObject* pDict = PyModule_GetDict(pModule);
-            PyObject* pCodeObject = Py_CompileString(code.c_str(), "<string>", Py_file_input);
+    // Execute the command
+    int result = std::system(command.c_str());
+    if (result != 0) {
+        std::cerr << "Python script execution failed with error code " << result << std::endl;
+    }
 
-            if (pCodeObject) {
-                PyObject* pValue = PyEval_EvalCode(pCodeObject, pDict, pDict);
-                Py_DECREF(pCodeObject);
 
-                if (pValue) {
-                    pythonOutput = PyUnicode_AsUTF8(pValue);
-                    Py_DECREF(pValue);
-                }
-                else {
-                    PyErr_Print();
-                    pythonOutput = "Error executing code";
-                }
-            }
-            else {
-                PyErr_Print();
-                pythonOutput = "Error compiling code";
-            }
-            Py_DECREF(pModule);
+    terminalOutput.push_back("");
+    // Read the output file
+    std::ifstream outputFile(outputFileName);
+    if (outputFile.is_open()) {
+        std::string line;
+        while (std::getline(outputFile, line)) {
+            std::cout << line << std::endl;
+            terminalOutput.push_back(line);
         }
-        else {
-            PyErr_Print();
-            pythonOutput = "Failed to load module";
-        }
+        outputFile.close();
+    } else {
+        std::cerr << "Failed to open output file" << std::endl;
+    }
 
-        Py_Finalize();
-        isPythonRunning = false;
-        });
-
-    pythonThread.detach();
+    terminalOutput.push_back("");
+    // Clean up temporary files
+    if (std::remove(tempFileName.c_str()) != 0) {
+        std::cerr << "Failed to remove temporary file" << std::endl;
+    }
 }
+
+
 
 
 
@@ -238,7 +240,7 @@ void ExecuteCommand(const std::string& command) {
     else if (command.rfind("python ", 0) == 0) {
         std::string pythonCommand = command.substr(7);
         terminalOutput.push_back("> " + command);
-        ExecutePythonCode(pythonCommand);
+        ExecutePythonCode(pythonCommand, "output.txt");
         terminalOutput.push_back("> " + pythonOutput);
     }
     else if (command.rfind("Rpip", 0) == 0) {
@@ -269,8 +271,8 @@ void ExecuteCommand(const std::string& command) {
                 buffer << file.rdbuf();
                 std::string scriptContent = buffer.str();
                 runC = true;
-                ExecutePythonCode(scriptContent);
-                terminalOutput.push_back("> " + pythonOutput);
+                ExecutePythonCode(scriptContent, "output.txt");
+                //terminalOutput.push_back("> " + pythonOutput);
             }
             else {
                 std::cerr << "Failed to open file: " + pythonCommand << std::endl;

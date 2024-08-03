@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\Users\K754a\source\repos\Project2\Project2\Python\include;C:\Users\K754a\source\repos\Project2\Project2\pybind11-2.13.1\include;C:\Users\K754a\source\repos\Project2\Project2\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\K754a\source\repos\Project2\Project2\Python\libs;C:\Users\K754a\source\repos\Project2\Project2\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\K754a\source\repos\Project2\Project2\Python\Lib;C:\Users\K754a\source\repos\Project2\Project2\Python\libs;C:\Users\K754a\source\repos\Project2\Project2\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Users\K754a\source\repos\Project2\Project2\Libraries\include;$(IncludePath)</IncludePath>
