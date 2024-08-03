@@ -75,7 +75,7 @@ int main() {
     initGLFW();
 
     // Generate a window
-    window = glfwCreateWindow(800, 800, "Test win", NULL, NULL);
+    window = glfwCreateWindow(800, 800, "K754a's Editor", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();

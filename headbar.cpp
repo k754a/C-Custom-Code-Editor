@@ -186,24 +186,46 @@ void ExecutePythonCode(const std::string& code) {
     if (isPythonRunning) return;
     isPythonRunning = true;
 
-    if (runC)
-    {
-        std::thread pythonThread([code]() {
-            Py_Initialize();
-            std::ostringstream oss;
-            PyRun_SimpleString(code.c_str());
-           
-            Py_Finalize();
+    std::thread pythonThread([code]() {
+        Py_Initialize();
 
-        
+        PyObject* pName = PyUnicode_DecodeFSDefault("__main__");
+        PyObject* pModule = PyImport_Import(pName);
+        Py_DECREF(pName);
 
-            isPythonRunning = false;
-            });
+        if (pModule) {
+            PyObject* pDict = PyModule_GetDict(pModule);
+            PyObject* pCodeObject = Py_CompileString(code.c_str(), "<string>", Py_file_input);
 
-        pythonThread.detach();
-    }
-   
-   
+            if (pCodeObject) {
+                PyObject* pValue = PyEval_EvalCode(pCodeObject, pDict, pDict);
+                Py_DECREF(pCodeObject);
+
+                if (pValue) {
+                    pythonOutput = PyUnicode_AsUTF8(pValue);
+                    Py_DECREF(pValue);
+                }
+                else {
+                    PyErr_Print();
+                    pythonOutput = "Error executing code";
+                }
+            }
+            else {
+                PyErr_Print();
+                pythonOutput = "Error compiling code";
+            }
+            Py_DECREF(pModule);
+        }
+        else {
+            PyErr_Print();
+            pythonOutput = "Failed to load module";
+        }
+
+        Py_Finalize();
+        isPythonRunning = false;
+        });
+
+    pythonThread.detach();
 }
 
 
@@ -234,20 +256,28 @@ void ExecuteCommand(const std::string& command) {
     }
     else if (command.rfind("run", 0) == 0) {
         std::string pythonCommand = command.substr(4);
-        terminalOutput.push_back("> " + command);
-
-        std::ifstream file(pythonCommand);
-        if (file.is_open()) {
-            std::stringstream buffer;
-            buffer << file.rdbuf();
-            std::string scriptContent = buffer.str();
-            runC = true;
-            ExecutePythonCode(scriptContent);
-            terminalOutput.push_back("> " + pythonOutput);
+        if (pythonCommand.length() < 1)
+        {
+            terminalOutput.push_back("Not valid " + command);
         }
         else {
-            std::cerr << "Failed to open file: " + pythonCommand << std::endl;
+            terminalOutput.push_back("> " + command);
+
+            std::ifstream file(pythonCommand);
+            if (file.is_open()) {
+                std::stringstream buffer;
+                buffer << file.rdbuf();
+                std::string scriptContent = buffer.str();
+                runC = true;
+                ExecutePythonCode(scriptContent);
+                terminalOutput.push_back("> " + pythonOutput);
+            }
+            else {
+                std::cerr << "Failed to open file: " + pythonCommand << std::endl;
+            }
         }
+            
+      
     }
     else {
         if (pip) {

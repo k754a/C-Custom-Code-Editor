@@ -1,4 +1,6 @@
 ﻿  headbar.cpp
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
-C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(459,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-  Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe
+C:\Users\K754a\source\repos\Project2\Project2\headbar.cpp(489,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+headbar.obj : error LNK2019: unresolved external symbol __imp__Py_NegativeRefcount referenced in function "public: __cdecl `void __cdecl ExecutePythonCode(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)'::`2'::<lambda_1>::operator()(void)const " (??R<lambda_1>@?1??ExecutePythonCode@@YAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z@QEBA@XZ)
+headbar.obj : error LNK2019: unresolved external symbol __imp__Py_RefTotal referenced in function "public: __cdecl `void __cdecl ExecutePythonCode(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)'::`2'::<lambda_1>::operator()(void)const " (??R<lambda_1>@?1??ExecutePythonCode@@YAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z@QEBA@XZ)
+C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe : fatal error LNK1120: 2 unresolved externals
