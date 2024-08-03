@@ -11,6 +11,9 @@ What we do have:
 -pip
 
 
+very basic editor documentation, adding more soon :)
+
+https://k754a.github.io/Editor%20Documentation
 
 A guide for installation will be out soon.
 
