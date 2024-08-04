@@ -283,23 +283,29 @@ void ExecuteCommand(const std::string& command) {
     }
     else {
         if (pip) {
-            std::string python_path = ".\\Python\\python.exe";
-            std::string temp_file = "temp_output.txt";
-            std::string full_command = "\"" + python_path + "\" -m " + command + " > " + temp_file;
+            std::string python_path = ".\\Python\\python.exe"; // Adjust this path if necessary
+            std::string temp_file = "output.txt"; // Save to the same file as Python output
+            std::string full_command = "\"" + python_path + "\" -m " + command + " > " + temp_file + " 2>&1";
 
             int result = std::system(full_command.c_str());
 
-            std::ifstream file(temp_file);
-            std::ostringstream oss;
-            oss << file.rdbuf();
-            std::string out = oss.str();
-
-            terminalOutput.push_back(out);
-
-            std::remove(temp_file.c_str());
-
             if (result != 0) {
-                std::cerr << "ERROR: COMMAND UNKNOWN, error 104" << result << std::endl;
+                std::cerr << "ERROR: COMMAND UNKNOWN, error 104, code: " << result << std::endl;
+                terminalOutput.push_back("ERROR: COMMAND UNKNOWN, error 104");
+                return;
+            }
+
+            // Read the output file
+            std::ifstream file(temp_file);
+            if (file.is_open()) {
+                std::ostringstream oss;
+                oss << file.rdbuf();
+                std::string out = oss.str();
+                terminalOutput.push_back(out);
+                file.close();
+            }
+            else {
+                std::cerr << "Failed to open output file" << std::endl;
             }
         }
         else {
