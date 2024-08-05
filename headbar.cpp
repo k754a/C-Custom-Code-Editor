@@ -215,17 +215,17 @@ void Renderbar() {
     std::string line;
     std::stringstream fileBuffer;
 
-   
+
     std::string newContent = fileBuffer.str();
     std::vector<char> newContentVec(newContent.begin(), newContent.end());
 
-  
+
     bufferContent.insert(bufferContent.end(), newContentVec.begin(), newContentVec.end());
 
-  
+
     bufferContent.push_back('\0');
 
-  
+
     std::string buf = bufferContent.data();
     //std::cout << buf.length() << std::endl;
     bufferContent.resize(buf.length() * buf.length());
@@ -252,10 +252,23 @@ void Renderbar() {
                 OpenFile();
             }
 
+           
+            if (ImGui::MenuItem("Run")) {  // Run button with ">" label
+                std::string saveFilePath = "output.txt"; // Define your file path here
+                std::ofstream outFile(saveFilePath);
+                if (outFile.is_open()) {
+                    outFile.write(bufferContent.data(), std::strlen(bufferContent.data()));
+                    outFile.close();
+                    std::cout << "Buffer content saved to " << saveFilePath << std::endl;
+                }
+                else {
+                    std::cerr << "Error: Unable to open file " << saveFilePath << std::endl;
+                }
+            }
+
             if (ImGui::MenuItem("Save")) {
                 std::ofstream outFile(currentFilePath, std::ios::binary); // Open the file in binary mode
                 if (outFile.is_open()) {
-                    // Write only the actual content size
                     outFile.write(bufferContent.data(), std::strlen(bufferContent.data()));
                     outFile.close();
                     std::cout << "Buffer content saved to " << currentFilePath << std::endl;
@@ -265,15 +278,14 @@ void Renderbar() {
                 }
             }
 
-
-
-
             ImGui::Separator();
             if (ImGui::MenuItem("Exit")) {
                 // Handle exit
             }
             ImGui::EndMenu();
         }
+
+        
 
         if (ImGui::BeginMenu("Edit")) {
             if (ImGui::MenuItem("Settings")) {
@@ -315,60 +327,33 @@ void Renderbar() {
 
         if (settings) {
             Settingsrender();
-
         }
 
         if (winfpsread) {
             ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::CalcTextSize("Documentation").x - ImGui::GetStyle().ItemSpacing.x * 2);
 
-
-            // Wait for 1 second
-            //so thread is effecting everything, moveing!
             std::thread incrementThread(incrementCout);
-
-            // Detach the thread to allow it to run independently
             incrementThread.detach();
 
             if (cout < 2) {
                 std::cout << "count" << std::endl;
                 cout++;
-
             }
-            else
-            {
+            else {
                 fpsString = "FPS:" + std::to_string(fps);
                 fps = ImGui::GetIO().Framerate;
                 cout = 0;
-
             }
 
             if (ImGui::BeginMenu(fpsString.c_str())) {
-
-
                 ImGui::EndMenu();
-
             }
-
-
-
-
-
-
-
         }
-
-
 
         ImGui::EndMainMenuBar();
     }
+
 }
-
-
-
-
-
-
-
 
 
 

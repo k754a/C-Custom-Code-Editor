@@ -1,4 +1,0 @@
-  File "C:\Users\K754a\source\repos\Project2\Project2\temp_script.py", line 1
-    run etst
-        ^^^^
-SyntaxError: invalid syntax
