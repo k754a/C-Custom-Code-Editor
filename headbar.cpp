@@ -178,11 +178,39 @@ std::string ReadFileToString(const std::string& filePath) {
 
 static float terminalHeightPercent = 0.2f;
 
+
 std::string wchar_to_string(const wchar_t* wstr) {
     int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL);
     std::string str(size_needed, 0);
     WideCharToMultiByte(CP_UTF8, 0, wstr, -1, &str[0], size_needed, NULL, NULL);
     return str;
+}
+
+std::string double_path_separators(const std::string& path) {
+    std::string result;
+    for (char ch : path) {
+        if (ch == '/' || ch == '\\') {
+            result += ch;
+            result += ch; // Add the separator twice
+        }
+        else {
+            result += ch;
+        }
+    }
+    return result;
+}
+
+std::string readFileContents(const std::string& saveFilePath) {
+    std::ifstream file(saveFilePath);
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open file " << saveFilePath << std::endl;
+        return "";
+    }
+
+    std::string contents((std::istreambuf_iterator<char>(file)),
+        std::istreambuf_iterator<char>());
+    file.close();
+    return contents;
 }
 
 void Renderbar() {
@@ -235,20 +263,19 @@ void Renderbar() {
                 OpenFile();
             }
 
-            if (ImGui::MenuItem("Run")) {
-                std::string saveFilePath = "output.txt";
-                std::ofstream outFile(saveFilePath);
+           
+
+            if (ImGui::MenuItem("Save")) {
+                std::ofstream outFile(currentFilePath, std::ios::binary); // Open the file in binary mode
                 if (outFile.is_open()) {
                     outFile.write(bufferContent.data(), std::strlen(bufferContent.data()));
                     outFile.close();
-                    std::cout << "Buffer content saved to " << saveFilePath << std::endl;
+                    std::cout << "Buffer content saved to " << currentFilePath << std::endl;
                 }
                 else {
-                    std::cerr << "Error: Unable to open file " << saveFilePath << std::endl;
+                    std::cerr << "Error: Unable to open file " << currentFilePath << std::endl;
                 }
             }
-
-           
 
             ImGui::Separator();
             if (ImGui::MenuItem("Exit")) {
@@ -286,25 +313,47 @@ void Renderbar() {
             ImGui::EndMenu();
         }
 
-
         if (ImGui::BeginMenu("Run")) {
             if (ImGui::MenuItem("Run Script")) {
-
+                std::string doubled_path;
                 wchar_t path[MAX_PATH];
                 if (GetModuleFileName(NULL, path, MAX_PATH)) {
                     std::string path_str = wchar_to_string(path);
-                    std::cout << "Executable Path: " << path_str << std::endl;
+
+                    int count = 0;
+                    for (int i = path_str.size() - 1; i >= 0; --i) {
+                        if (path_str[i] == '\\' || path_str[i] == '/') {
+                            count++;
+                            if (count == 3) {
+                                path_str = path_str.substr(0, i);
+                                break;
+                            }
+                        }
+                    }
+
+                    doubled_path = path_str;
+
+                    std::cout << "Modified Path: " << doubled_path << std::endl;
                 }
                 else {
                     std::cerr << "Error retrieving path" << std::endl;
+                    ImGui::EndMenu();
+                    return;
                 }
 
-                std::string saveFilePath = "script.py";
+                std::string saveFilePath = doubled_path + "\\script.py";
 
-                // Save buffer content to .py file
+                // Clean buffer content by removing null bytes
+                std::string cleanBufferContent;
+                for (char ch : bufferContent) {
+                    if (ch != '\0') {
+                        cleanBufferContent.push_back(ch);
+                    }
+                }
+
                 std::ofstream outFile(saveFilePath);
                 if (outFile.is_open()) {
-                    outFile.write(bufferContent.data(), bufferContent.size());
+                    outFile.write(cleanBufferContent.data(), cleanBufferContent.size());
                     outFile.close();
                     std::cout << "Buffer content saved to " << saveFilePath << std::endl;
                 }
@@ -314,13 +363,11 @@ void Renderbar() {
                     return;
                 }
 
+                std::string fileContents = readFileContents(saveFilePath);
+
                 // Execute the saved Python file
-                ExecuteCommand("python " + saveFilePath);
+                ExecutePythonCode(fileContents, "output.txt");
             }
-
-            
-            
-
             ImGui::Separator();
             ImGui::EndMenu();
         }
@@ -353,5 +400,8 @@ void Renderbar() {
         ImGui::EndMainMenuBar();
     }
 }
+
+
+
 
 //this would be wayyyy more cleaner if i could just leave all the funct on the bottom, but nope :(

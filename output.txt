@@ -1,5 +1,2 @@
-Traceback (most recent call last):
-  File "C:\Users\K754a\source\repos\Project2\Project2\temp_script.py", line 1, in <module>
-    script.py
-    ^^^^^^
-NameError: name 'script' is not defined
+This is the first test with running a script!
+It can edit and run aswell!
