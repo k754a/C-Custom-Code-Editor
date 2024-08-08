@@ -103,11 +103,27 @@ void OpenFile() {
             _mkdir("Psettings");
             // Create save file
             std::ofstream Savefile(fileP);
-            // Write to it
-            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-            std::string narrow_string = converter.to_bytes(save);
+
+            // Use a unique name for the converter
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> fileConverter;
+            std::string narrow_string = fileConverter.to_bytes(save);
             Savefile << narrow_string;
             Savefile.close();
+
+            // Start a local server to serve the HTML file and its dependencies
+            std::string command = "python -m http.server --directory \"" + CWstrTostr(szDir) + "\" 8000";
+            std::thread serverThread([command]() {
+                system(command.c_str());
+                });
+            serverThread.detach();
+
+            // Open the HTML file in the default browser
+            std::string htmlFilePath = "http://localhost:8000/index.html"; // Assuming the main HTML file is index.html
+
+            // Another unique converter
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> htmlConverter;
+            std::wstring wideHtmlFilePath = htmlConverter.from_bytes(htmlFilePath);
+            ShellExecute(0, 0, wideHtmlFilePath.c_str(), 0, 0, SW_SHOW);
         }
         else {
             std::wcerr << "Error getting folder path" << std::endl;
@@ -120,7 +136,7 @@ void OpenFile() {
 }
 
 std::string CWstrTostr(const std::wstring& wstr) {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter; // Only one converter here
     return converter.to_bytes(wstr);
 }
 
@@ -178,7 +194,6 @@ std::string ReadFileToString(const std::string& filePath) {
 
 static float terminalHeightPercent = 0.2f;
 
-
 std::string wchar_to_string(const wchar_t* wstr) {
     int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL);
     std::string str(size_needed, 0);
@@ -212,6 +227,7 @@ std::string readFileContents(const std::string& saveFilePath) {
     file.close();
     return contents;
 }
+
 
 void Renderbar() {
     float windowHeight = ImGui::GetIO().DisplaySize.y;
@@ -315,62 +331,75 @@ void Renderbar() {
 
         if (ImGui::BeginMenu("Run")) {
             if (ImGui::MenuItem("Run Script")) {
-                std::string doubled_path;
-                wchar_t path[MAX_PATH];
-                if (GetModuleFileName(NULL, path, MAX_PATH)) {
-                    std::string path_str = wchar_to_string(path);
+                if (currentFilePath.size() >= 3 && currentFilePath.substr(currentFilePath.size() - 3) == ".py") {
+                    std::string doubled_path;
+                    wchar_t path[MAX_PATH];
+                    if (GetModuleFileName(NULL, path, MAX_PATH)) {
+                        std::string path_str = wchar_to_string(path);
 
-                    int count = 0;
-                    for (int i = path_str.size() - 1; i >= 0; --i) {
-                        if (path_str[i] == '\\' || path_str[i] == '/') {
-                            count++;
-                            if (count == 3) {
-                                path_str = path_str.substr(0, i);
-                                break;
+                        int count = 0;
+                        for (int i = path_str.size() - 1; i >= 0; --i) {
+                            if (path_str[i] == '\\' || path_str[i] == '/') {
+                                count++;
+                                if (count == 3) {
+                                    path_str = path_str.substr(0, i);
+                                    break;
+                                }
                             }
+                        }
+
+                        doubled_path = path_str;
+
+                        std::cout << "Modified Path: " << doubled_path << std::endl;
+                    }
+                    else {
+                        std::cerr << "Error retrieving path" << std::endl;
+                        ImGui::EndMenu();
+                        return;
+                    }
+
+                    std::string saveFilePath = doubled_path + "\\script.py";
+
+                    // Clean buffer content by removing null bytes
+                    std::string cleanBufferContent;
+                    for (char ch : bufferContent) {
+                        if (ch != '\0') {
+                            cleanBufferContent.push_back(ch);
                         }
                     }
 
-                    doubled_path = path_str;
-
-                    std::cout << "Modified Path: " << doubled_path << std::endl;
-                }
-                else {
-                    std::cerr << "Error retrieving path" << std::endl;
-                    ImGui::EndMenu();
-                    return;
-                }
-
-                std::string saveFilePath = doubled_path + "\\script.py";
-
-                // Clean buffer content by removing null bytes
-                std::string cleanBufferContent;
-                for (char ch : bufferContent) {
-                    if (ch != '\0') {
-                        cleanBufferContent.push_back(ch);
+                    std::ofstream outFile(saveFilePath);
+                    if (outFile.is_open()) {
+                        outFile.write(cleanBufferContent.data(), cleanBufferContent.size());
+                        outFile.close();
+                        std::cout << "Buffer content saved to " << saveFilePath << std::endl;
                     }
-                }
+                    else {
+                        std::cerr << "Error: Unable to open file " << saveFilePath << std::endl;
+                        ImGui::EndMenu();
+                        return;
+                    }
 
-                std::ofstream outFile(saveFilePath);
-                if (outFile.is_open()) {
-                    outFile.write(cleanBufferContent.data(), cleanBufferContent.size());
-                    outFile.close();
-                    std::cout << "Buffer content saved to " << saveFilePath << std::endl;
+                    std::string fileContents = readFileContents(saveFilePath);
+
+                    // Execute the saved Python file
+                    ExecutePythonCode(fileContents, "output.txt");
+                }
+                else if (currentFilePath.size() >= 5 && currentFilePath.substr(currentFilePath.size() - 5) == ".html") {
+                    // Run the HTML file
+                    std::string command = "start " + currentFilePath;
+                    system(command.c_str());
                 }
                 else {
-                    std::cerr << "Error: Unable to open file " << saveFilePath << std::endl;
-                    ImGui::EndMenu();
-                    return;
+                    std::cerr << "Error: This is not a .py or .html file" << std::endl;
                 }
-
-                std::string fileContents = readFileContents(saveFilePath);
-
-                // Execute the saved Python file
-                ExecutePythonCode(fileContents, "output.txt");
             }
             ImGui::Separator();
             ImGui::EndMenu();
         }
+
+        
+
 
         if (settings) {
             Settingsrender();
