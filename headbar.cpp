@@ -8,6 +8,8 @@
 #include <filesystem>
 #include "Terminal.h"
 
+
+//**I Used some copilot AI for loading html directorys**\\
 // Global variables and structures
 struct FileNode {
     std::wstring name;
@@ -111,11 +113,19 @@ void OpenFile() {
             Savefile.close();
 
             // Start a local server to serve the HTML file and its dependencies
-            std::string command = "python -m http.server --directory \"" + CWstrTostr(szDir) + "\" 8000";
-            std::thread serverThread([command]() {
-                system(command.c_str());
-                });
-            serverThread.detach();
+            std::wstring command = L"python -m http.server --directory \"" + std::wstring(szDir) + L"\" 8000";
+            std::vector<wchar_t> cmd(command.begin(), command.end());
+            cmd.push_back(0); // Null-terminate the command
+
+            STARTUPINFO si = { sizeof(si) };
+            PROCESS_INFORMATION pi;
+            if (!CreateProcess(NULL, cmd.data(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+                std::wcerr << L"Failed to start local server" << std::endl;
+            }
+            else {
+                CloseHandle(pi.hProcess);
+                CloseHandle(pi.hThread);
+            }
 
             // Open the HTML file in the default browser
             std::string htmlFilePath = "http://localhost:8000/index.html"; // Assuming the main HTML file is index.html
@@ -134,6 +144,7 @@ void OpenFile() {
         std::wcerr << "Folder selection canceled" << std::endl;
     }
 }
+
 
 std::string CWstrTostr(const std::wstring& wstr) {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter; // Only one converter here
@@ -163,9 +174,10 @@ void PrintFileContent(const FileNode& node) {
         std::streamsize fileSize = fileStream.tellg();
         fileStream.seekg(0, std::ios::beg);
 
-        bufferContent.resize(fileSize);
+        bufferContent.resize(fileSize + 1); // Increase buffer size by 1 for null terminator
         if (fileStream.read(bufferContent.data(), fileSize)) {
-            content.assign(bufferContent.begin(), bufferContent.end());
+            bufferContent[fileSize] = '\0'; // Add null terminator at the end
+            content.assign(bufferContent.data(), fileSize);
             currentFilePath = CWstrTostr(node.path);
         }
         else {
@@ -179,6 +191,7 @@ void PrintFileContent(const FileNode& node) {
         std::cerr << "Cannot find the selected file, sorry! " << CWstrTostr(node.path) << std::endl;
     }
 }
+
 
 std::string ReadFileToString(const std::string& filePath) {
     std::ifstream file(filePath);
@@ -292,6 +305,7 @@ void Renderbar() {
                     std::cerr << "Error: Unable to open file " << currentFilePath << std::endl;
                 }
             }
+
 
             ImGui::Separator();
             if (ImGui::MenuItem("Exit")) {
@@ -434,3 +448,8 @@ void Renderbar() {
 
 
 //this would be wayyyy more cleaner if i could just leave all the funct on the bottom, but nope :(
+
+
+
+
+
