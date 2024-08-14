@@ -43,6 +43,8 @@ void initImgui() {
 
     io.Fonts->AddFontFromFileTTF("Fonts/Inter-Regular.ttf", 16.0f);
 
+
+
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
 
@@ -59,6 +61,11 @@ void initImgui() {
 
     in.close();
 
+  
+    // Add more color settings as needed
+
+
+
     // Register ImGui functions
     registerImGuiFunctions(L);
 
@@ -67,10 +74,12 @@ void initImgui() {
     if (luaL_dostring(L, script) != LUA_OK) {
         std::cerr << "Error: " << lua_tostring(L, -1) << std::endl;
     }
-
+  
     lua_close(L);
 }
 int main() {
+   
+
     // Init GLFW
     initGLFW();
 

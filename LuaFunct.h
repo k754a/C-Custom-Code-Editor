@@ -142,7 +142,12 @@ void pushImGuiColorConstants(lua_State* L) {
     lua_setfield(L, -2, "HeaderHovered");
     lua_pushnumber(L, ImGuiCol_HeaderActive);
     lua_setfield(L, -2, "HeaderActive");
-    // Add other ImGuiCol constants as needed
+    lua_pushnumber(L, ImGuiCol_Text);
+    lua_setfield(L, -2, "Text");
+    lua_pushnumber(L, ImGuiCol_TextDisabled);
+    lua_setfield(L, -2, "TextDisabled");
+    lua_pushnumber(L, ImGuiCol_TextSelectedBg);
+    lua_setfield(L, -2, "TextSelectedBg");
     lua_setglobal(L, "ImGuiCol");
 }
 

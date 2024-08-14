@@ -1,7 +1,6 @@
---Unimportant start at  -- set the rounding of window corners --
+-- Unimportant start at -- set the rounding of window corners --
 
-
---DO NOT EDIT THIS DOCUMENT, THIS IS A BACKUP, IF YOU SOMEHOW BROKE THE OTHER ONE, MAKE A COPY AND CALL IT "CStyle.Style"
+-- DO NOT EDIT THIS DOCUMENT, THIS IS A BACKUP, IF YOU SOMEHOW BROKE THE OTHER ONE, MAKE A COPY AND CALL IT "CStyle.Style"
 
 -------------------------------------------------------------------------
 
@@ -25,6 +24,7 @@ end
 -- Make sure the style table exists
 if not style then
     print("Error: style table is null")
+    style = {}  -- Initialize the style table if it doesn't exist
 end
 
 -- Make sure color table exists
@@ -34,49 +34,143 @@ if not colors then
     style.Colors = colors
 end
 
+-------------------------------------------------------------------------
+
+-- Ok to edit :)
+
+-- Set the rounding of window corners
+style.WindowRounding = 8.0
+
+-- Set the frame rounding and padding
+style.FrameRounding = 4.0
+style.FramePadding = ImVec2(6, 4)
+
+-- Set the window background color to a light gray similar to Discord's light mode
+local BackgroundColor = ImVec4(0.98, 0.98, 0.98, 1.0)  -- Light gray background
+colors[1] = BackgroundColor  -- WindowBg
+print("Set WindowBg color to light gray")
+
+-- Set other background colors to match the light gray
+colors[2] = BackgroundColor  -- ChildBg
+colors[3] = BackgroundColor  -- PopupBg
+
+-- Set the title background color to a slightly darker gray for contrast
+local TitleBgColor = ImVec4(0.94, 0.94, 0.94, 1.0)  -- Slightly darker gray
+colors[4] = TitleBgColor  -- TitleBgActive
+
+-- Set button colors to fit the light theme
+local ButtonColor = ImVec4(0.95, 0.95, 0.95, 1.0)  -- Light button color
+local ButtonHoveredColor = ImVec4(0.9, 0.9, 0.9, 1.0)  -- Button hovered color
+local ButtonActiveColor = ImVec4(0.85, 0.85, 0.85, 1.0)  -- Button active color
+colors[5] = ButtonColor  -- Button
+colors[6] = ButtonHoveredColor  -- ButtonHovered
+colors[7] = ButtonActiveColor  -- ButtonActive
+
+-- Set header colors to match the light theme
+local HeaderColor = ImVec4(0.95, 0.95, 0.95, 1.0)  -- Light header color
+local HeaderHoveredColor = ImVec4(0.9, 0.9, 0.9, 1.0)  -- Header hovered color
+local HeaderActiveColor = ImVec4(0.85, 0.85, 0.85, 1.0)  -- Header active color
+colors[8] = HeaderColor  -- Header
+colors[9] = HeaderHoveredColor  -- HeaderHovered
+colors[10] = HeaderActiveColor  -- HeaderActive
+
+-- Set border color to a subtle gray
+colors[11] = ImVec4(0.9, 0.9, 0.9, 1.0)  -- Border
+
+-- Set scrollbar colors to match the light theme
+local ScrollbarBgColor = ImVec4(0.95, 0.95, 0.95, 1.0)  -- Scrollbar background color
+local ScrollbarGrabColor = ImVec4(0.8, 0.8, 0.8, 1.0)  -- Scrollbar grab color
+local ScrollbarGrabHoveredColor = ImVec4(0.7, 0.7, 0.7, 1.0)  -- Scrollbar grab hovered color
+local ScrollbarGrabActiveColor = ImVec4(0.6, 0.6, 0.6, 1.0)  -- Scrollbar grab active color
+colors[12] = ScrollbarBgColor  -- ScrollbarBg
+colors[13] = ScrollbarGrabColor  -- ScrollbarGrab
+colors[14] = ScrollbarGrabHoveredColor  -- ScrollbarGrabHovered
+colors[15] = ScrollbarGrabActiveColor  -- ScrollbarGrabActive
+
+-- Set text color to green
+colors[16] = ImVec4(0.0, 1.0, 0.0, 1.0)   -- Green text
+
+-- Set menu bar background color to a slightly darker gray for contrast
+colors[17] = TitleBgColor  -- MenuBarBg
+
+
 
 -------------------------------------------------------------------------
 
---Ok to edit :)
+-- Update the style -DO NOT EDIT-
+setStyle()
 
+-------------------------------------------------------------------------
 
 -- Set the rounding of window corners
 style.WindowRounding = 10.0
 
-
-
-
-
--- Set the window background color to gray
-if ImGuiCol.WindowBg == nil then
-    print("Error: ImGuiCol.WindowBg is nil")
-else
-    colors[ImGuiCol.WindowBg] = ImVec4(0.1, 0.1, 0.1, 1.0)
-end
-
-
-
-
+-- Set the window background color to a dark gray
+colors[1] = ImVec4(0.1, 0.1, 0.1, 1.0)
 
 -- Set the frame rounding and padding
 style.FrameRounding = 4.0
 style.FramePadding = ImVec2(4, 2)
 
+-- Set the title bar background color (active window)
+colors[2] = ImVec4(0.1, 0.1, 0.1, 1.0)  -- TitleBgActive
 
 
 
+-------------------------------------------------------------------------
 
--- Copy the window background color
-if colors[ImGuiCol.WindowBg] == nil then
-    print("Error: colors[ImGuiCol.WindowBg] is nil")
-else
-    local backgroundColor = colors[ImGuiCol.WindowBg]
-    colors[ImGuiCol.TitleBgActive] = backgroundColor
-end
+-- Update the style -DO NOT EDIT-
+setStyle()
+
+-------------------------------------------------------------------------
+
+-- Set the rounding of window corners
+style.WindowRounding = 10.0
+
+-- Set the window background color to a light gray
+colors[1] = ImVec4(0.95, 0.95, 0.95, 1.0)  -- Light gray background
+
+-- Set scrollbar colors to match the light theme
+local ScrollbarBgColor = ImVec4(0.95, 0.95, 0.95, 1.0)  -- Scrollbar background color
+local ScrollbarGrabColor = ImVec4(0.8, 0.8, 0.8, 1.0)  -- Scrollbar grab color
+local ScrollbarGrabHoveredColor = ImVec4(0.7, 0.7, 0.7, 1.0)  -- Scrollbar grab hovered color
+local ScrollbarGrabActiveColor = ImVec4(0.6, 0.6, 0.6, 1.0)  -- Scrollbar grab active color
+colors[12] = ScrollbarBgColor  -- ScrollbarBg
+colors[13] = ScrollbarGrabColor  -- ScrollbarGrab
+colors[14] = ScrollbarGrabHoveredColor  -- ScrollbarGrabHovered
+colors[15] = ScrollbarGrabActiveColor  -- ScrollbarGrabActive
+
+-- Set text color to black
+colors[16] = ImVec4(0.1, 0.1, 0.1, 1.0)  -- Text
+
+-- Set menu bar background color to a slightly darker gray for contrast
+colors[17] = TitleBgColor  -- MenuBarBg
+
+print("Light theme style set")
+
+-------------------------------------------------------------------------
+
+-- Update the style -DO NOT EDIT-
+setStyle()
+
+-------------------------------------------------------------------------
+
+-- Set the rounding of window corners
+style.WindowRounding = 10.0
+
+-- Set the window background color to a dark gray
+colors[1] = ImVec4(0.1, 0.1, 0.1, 1.0)
+
+-- Set the frame rounding and padding
+style.FrameRounding = 4.0
+style.FramePadding = ImVec2(4, 2)
+
+-- Set the title bar background color (active window)
+colors[2] = ImVec4(0.1, 0.1, 0.1, 1.0)  -- TitleBgActive
 
 
 
-
+-------------------------------------------------------------------------
 
 -- Update the style -DO NOT EDIT-
 setStyle()
