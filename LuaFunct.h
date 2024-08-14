@@ -118,12 +118,15 @@ int lua_setStyle(lua_State* L) {
         lua_pop(L, 1);
     }
 
+    lua_pop(L, 1); // Pop the "style" table
     return 0;
 }
 
 // Color constants
+// Color constants
 void pushImGuiColorConstants(lua_State* L) {
     lua_newtable(L);
+
     lua_pushnumber(L, ImGuiCol_WindowBg);
     lua_setfield(L, -2, "WindowBg");
     lua_pushnumber(L, ImGuiCol_TitleBgActive);
@@ -148,13 +151,35 @@ void pushImGuiColorConstants(lua_State* L) {
     lua_setfield(L, -2, "TextDisabled");
     lua_pushnumber(L, ImGuiCol_TextSelectedBg);
     lua_setfield(L, -2, "TextSelectedBg");
+
     lua_setglobal(L, "ImGuiCol");
 }
 
-// Register more ImGui functions in Lua
+// Lua function to set text color
+int lua_setTextColor(lua_State* L) {
+    if (lua_gettop(L) != 3) {
+        lua_pushstring(L, "Expected 3 arguments: r, g, b");
+        lua_error(L);
+        return 0;
+    }
+
+    float r = (float)luaL_checknumber(L, 1);
+    float g = (float)luaL_checknumber(L, 2);
+    float b = (float)luaL_checknumber(L, 3);
+
+    ImVec4 color = ImVec4(r, g, b, 1.0f);
+
+    ImGuiStyle* style = &ImGui::GetStyle();
+    style->Colors[ImGuiCol_Text] = color;
+
+    return 0;
+}
+
+// Register ImGui functions in Lua
 void registerImGuiFunctions(lua_State* L) {
     lua_register(L, "getStyle", lua_getStyle);
     lua_register(L, "setStyle", lua_setStyle);
+    lua_register(L, "setTextColor", lua_setTextColor);
     pushImGuiColorConstants(L);
 }
 
