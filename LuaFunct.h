@@ -3,7 +3,6 @@
 
 #include "imgui.h"
 
-
 extern "C" {
 #include "Lua/include/lua.h"
 #include "Lua/include/lauxlib.h"
@@ -15,14 +14,7 @@ extern "C" {
 #pragma comment(lib, "Lua/lua54.lib")
 #endif // _WIN32
 
-
-//*** This is cobbled together through forum posts and chatgpt ***\\
-// I would of loved to code it myself, but i really dont understand anything about lua :(
-// If you find any bugs or ways to make it better i would really appreciate some code or some advice!
-
-
-
-//  push ImVec4 to Lua stack
+// Push ImVec4 to Lua stack
 void pushImVec4(lua_State* L, const ImVec4& vec) {
     lua_newtable(L);
     lua_pushnumber(L, vec.x);
@@ -35,7 +27,7 @@ void pushImVec4(lua_State* L, const ImVec4& vec) {
     lua_setfield(L, -2, "w");
 }
 
-//  retrieve ImVec4 from Lua stack
+// Retrieve ImVec4 from Lua stack
 ImVec4 getImVec4(lua_State* L, int index) {
     lua_getfield(L, index, "x");
     float x = lua_tonumber(L, -1);
@@ -52,7 +44,7 @@ ImVec4 getImVec4(lua_State* L, int index) {
     return ImVec4(x, y, z, w);
 }
 
-//  push ImVec2 to Lua stack
+// Push ImVec2 to Lua stack
 void pushImVec2(lua_State* L, const ImVec2& vec) {
     lua_newtable(L);
     lua_pushnumber(L, vec.x);
@@ -61,7 +53,7 @@ void pushImVec2(lua_State* L, const ImVec2& vec) {
     lua_setfield(L, -2, "y");
 }
 
-//  retrieve ImVec2 from Lua stack
+// Retrieve ImVec2 from Lua stack
 ImVec2 getImVec2(lua_State* L, int index) {
     lua_getfield(L, index, "x");
     float x = lua_tonumber(L, -1);
@@ -76,10 +68,15 @@ ImVec2 getImVec2(lua_State* L, int index) {
 int lua_getStyle(lua_State* L) {
     ImGuiStyle* style = &ImGui::GetStyle();
     lua_newtable(L);
+
     lua_pushnumber(L, style->WindowRounding);
     lua_setfield(L, -2, "WindowRounding");
     pushImVec2(L, style->FramePadding);
     lua_setfield(L, -2, "FramePadding");
+    lua_pushnumber(L, style->WindowBorderSize);
+    lua_setfield(L, -2, "WindowBorderSize");
+    lua_pushnumber(L, style->FrameRounding);
+    lua_setfield(L, -2, "FrameRounding");
 
     lua_newtable(L);
     for (int i = 0; i < ImGuiCol_COUNT; i++) {
@@ -88,12 +85,12 @@ int lua_getStyle(lua_State* L) {
     }
     lua_setfield(L, -2, "Colors");
 
-    lua_setglobal(L, "style");  
+    lua_setglobal(L, "style");
 
     return 1;
 }
 
-// Lua settings for like rounding and colors
+// Lua settings for ImGui Style properties
 int lua_setStyle(lua_State* L) {
     lua_getglobal(L, "style");
     ImGuiStyle* style = &ImGui::GetStyle();
@@ -106,6 +103,14 @@ int lua_setStyle(lua_State* L) {
     style->FramePadding = getImVec2(L, -1);
     lua_pop(L, 1);
 
+    lua_getfield(L, -1, "WindowBorderSize");
+    style->WindowBorderSize = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, -1, "FrameRounding");
+    style->FrameRounding = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
     lua_getfield(L, -1, "Colors");
     for (int i = 0; i < ImGuiCol_COUNT; i++) {
         lua_rawgeti(L, -1, i + 1);
@@ -116,22 +121,36 @@ int lua_setStyle(lua_State* L) {
     return 0;
 }
 
-// color constants ( so like if i want it to change color or not when its selected
+// Color constants
 void pushImGuiColorConstants(lua_State* L) {
     lua_newtable(L);
     lua_pushnumber(L, ImGuiCol_WindowBg);
     lua_setfield(L, -2, "WindowBg");
     lua_pushnumber(L, ImGuiCol_TitleBgActive);
     lua_setfield(L, -2, "TitleBgActive");
+    lua_pushnumber(L, ImGuiCol_Border);
+    lua_setfield(L, -2, "Border");
+    lua_pushnumber(L, ImGuiCol_Button);
+    lua_setfield(L, -2, "Button");
+    lua_pushnumber(L, ImGuiCol_ButtonHovered);
+    lua_setfield(L, -2, "ButtonHovered");
+    lua_pushnumber(L, ImGuiCol_ButtonActive);
+    lua_setfield(L, -2, "ButtonActive");
+    lua_pushnumber(L, ImGuiCol_Header);
+    lua_setfield(L, -2, "Header");
+    lua_pushnumber(L, ImGuiCol_HeaderHovered);
+    lua_setfield(L, -2, "HeaderHovered");
+    lua_pushnumber(L, ImGuiCol_HeaderActive);
+    lua_setfield(L, -2, "HeaderActive");
     // Add other ImGuiCol constants as needed
     lua_setglobal(L, "ImGuiCol");
 }
 
-// set some imgui functions in lua
+// Register more ImGui functions in Lua
 void registerImGuiFunctions(lua_State* L) {
     lua_register(L, "getStyle", lua_getStyle);
     lua_register(L, "setStyle", lua_setStyle);
-    pushImGuiColorConstants(L); 
+    pushImGuiColorConstants(L);
 }
 
-#endif 
+#endif

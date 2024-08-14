@@ -1,9 +1,8 @@
 --Unimportant start at  -- set the rounding of window corners --
 
 
---
---DO NOT REMOVE THIS PART, THIS CAN CAUSE THE EDITOR TO NOT WORK AT ALL, IF YOU DO, THERE IS A BACKUP ON GITHUB OR ./Style/--BACKUP--
---
+--DO NOT EDIT THIS DOCUMENT, THIS IS A BACKUP, IF YOU SOMEHOW BROKE THE OTHER ONE, MAKE A COPY AND CALL IT "CStyle.Style"
+
 -------------------------------------------------------------------------
 
 -- get style
@@ -38,8 +37,7 @@ end
 
 -------------------------------------------------------------------------
 
-
-
+--Ok to edit :)
 
 
 -- Set the rounding of window corners
