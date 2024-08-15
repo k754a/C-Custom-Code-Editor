@@ -241,6 +241,15 @@ std::string readFileContents(const std::string& saveFilePath) {
     return contents;
 }
 
+std::vector<char> readFileContent(const std::string& filePath) {
+    std::ifstream inFile(filePath, std::ios::binary);
+    if (!inFile.is_open()) {
+        std::cerr << "Error: Unable to open file " << filePath << std::endl;
+        return {};
+    }
+    return std::vector<char>(std::istreambuf_iterator<char>(inFile), {});
+}
+
 
 void Renderbar() {
     float windowHeight = ImGui::GetIO().DisplaySize.y;
@@ -286,18 +295,24 @@ void Renderbar() {
     }
 
 
+   
+
+    // Compare buffer content with file content
     if (autoSave)
     {
-        std::ofstream outFile(currentFilePath, std::ios::binary); // Open the file in binary mode
-        if (outFile.is_open()) {
-            outFile.write(bufferContent.data(), std::strlen(bufferContent.data()));
-            outFile.close();
-            std::cout << "Buffer content saved to " << currentFilePath << std::endl;
-        }
-        else {
-            std::cerr << "Error: Unable to open file " << currentFilePath << std::endl;
+        std::vector<char> fileContent = readFileContent(currentFilePath);
+        if (bufferContent != fileContent) {
+            std::ofstream outFile(currentFilePath, std::ios::binary);
+            if (outFile.is_open()) {
+                outFile.write(bufferContent.data(), bufferContent.size());
+                outFile.close();
+                std::cout << "Buffer content saved to " << currentFilePath << std::endl;
+            }
+
         }
     }
+   
+    
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             ImGui::Separator();
