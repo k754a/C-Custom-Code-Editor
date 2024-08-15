@@ -1,176 +1,48 @@
- -- Unimportant start at -- set the rounding of window corners --
-
--- DO NOT EDIT THIS DOCUMENT, THIS IS A BACKUP, IF YOU SOMEHOW BROKE THE OTHER ONE, MAKE A COPY AND CALL IT "CStyle.Style"
-
--------------------------------------------------------------------------
-
--- get style
-getStyle()
-
--- pull vec 2 style
+-- Initialize required functions
 if not ImVec2 then
     function ImVec2(x, y)
         return {x = x, y = y}
     end
 end
 
--- pull vec 4 style
 if not ImVec4 then
     function ImVec4(x, y, z, w)
         return {x = x, y = y, z = z, w = w}
     end
 end
 
--- Make sure the style table exists
+-- Initialize style table if it doesn't exist
 if not style then
-    print("Error: style table is null")
-    style = {}  -- Initialize the style table if it doesn't exist
+    style = {}
 end
 
--- Make sure color table exists
+-- Initialize the color table if it doesn't exist
+if not style.Colors then
+    style.Colors = {}
+end
 local colors = style.Colors
-if not colors then
-    colors = {}
-    style.Colors = colors
-end
-
--------------------------------------------------------------------------
-
--- Ok to edit :)
-
--- Set the rounding of window corners
-style.WindowRounding = 8.0
-
--- Set the frame rounding and padding
-style.FrameRounding = 4.0
-style.FramePadding = ImVec2(6, 4)
-
--- Set the window background color to a light gray similar to Discord's light mode
-local BackgroundColor = ImVec4(0.98, 0.98, 0.98, 1.0)  -- Light gray background
-colors[1] = BackgroundColor  -- WindowBg
-print("Set WindowBg color to light gray")
-
-
-colors[2] = BackgroundColor  -- ChildBg
-colors[3] = BackgroundColor  -- PopupBg
-
--- Set the title background color to a slightly darker gray for contrast
-local TitleBgColor = ImVec4(0.94, 0.94, 0.94, 1.0)  -- Slightly darker gray
-colors[4] = TitleBgColor  -- TitleBgActive
-
-
-local ButtonColor = ImVec4(0.95, 0.95, 0.95, 1.0)  -- Light button color
-local ButtonHoveredColor = ImVec4(0.9, 0.9, 0.9, 1.0)  -- Button hovered color
-local ButtonActiveColor = ImVec4(0.85, 0.85, 0.85, 1.0)  -- Button active color
-colors[5] = ButtonColor  -- Button
-colors[6] = ButtonHoveredColor  -- ButtonHovered
-colors[7] = ButtonActiveColor  -- ButtonActive
-
-
-local HeaderColor = ImVec4(0.95, 0.95, 0.95, 1.0)  -- Light header color
-local HeaderHoveredColor = ImVec4(0.9, 0.9, 0.9, 1.0)  -- Header hovered color
-local HeaderActiveColor = ImVec4(0.85, 0.85, 0.85, 1.0)  -- Header active color
-colors[8] = HeaderColor  -- Header
-colors[9] = HeaderHoveredColor  -- HeaderHovered
-colors[10] = HeaderActiveColor  -- HeaderActive
-
-
-colors[11] = ImVec4(0.9, 0.9, 0.9, 1.0)  -- Border
-
--- Set scrollbar colors to match the light theme
-local ScrollbarBgColor = ImVec4(0.95, 0.95, 0.95, 1.0)  -- Scrollbar background color
-local ScrollbarGrabColor = ImVec4(0.8, 0.8, 0.8, 1.0)  -- Scrollbar grab color
-local ScrollbarGrabHoveredColor = ImVec4(0.7, 0.7, 0.7, 1.0)  -- Scrollbar grab hovered color
-local ScrollbarGrabActiveColor = ImVec4(0.6, 0.6, 0.6, 1.0)  -- Scrollbar grab active color
-colors[12] = ScrollbarBgColor  -- ScrollbarBg
-colors[13] = ScrollbarGrabColor  -- ScrollbarGrab
-colors[14] = ScrollbarGrabHoveredColor  -- ScrollbarGrabHovered
-colors[15] = ScrollbarGrabActiveColor  -- ScrollbarGrabActive
-
-
-
-
-
-colors[17] = TitleBgColor  -- MenuBarBg
-
-
-
--------------------------------------------------------------------------
-
--- Update the style -DO NOT EDIT-
-setStyle()
-
--------------------------------------------------------------------------
 
 -- Set the rounding of window corners
 style.WindowRounding = 10.0
-
--- Set the window background color to a dark gray
-colors[1] = ImVec4(0.1, 0.1, 0.1, 1.0)
 
 -- Set the frame rounding and padding
 style.FrameRounding = 4.0
 style.FramePadding = ImVec2(4, 2)
 
--- Set the title bar background color (active window)
-colors[2] = ImVec4(0.1, 0.1, 0.1, 1.0)  -- TitleBgActive
-
-
-
--------------------------------------------------------------------------
-
--- Update the style -DO NOT EDIT-
-setStyle()
-
--------------------------------------------------------------------------
-
--- Set the rounding of window corners
-style.WindowRounding = 10.0
-
--- Set the window background color to a light gray
-colors[1] = ImVec4(0.95, 0.95, 0.95, 1.0)  -- Light gray background
-
--- Set scrollbar colors to match the light theme
-local ScrollbarBgColor = ImVec4(0.95, 0.95, 0.95, 1.0)  -- Scrollbar background color
-local ScrollbarGrabColor = ImVec4(0.8, 0.8, 0.8, 1.0)  -- Scrollbar grab color
-local ScrollbarGrabHoveredColor = ImVec4(0.7, 0.7, 0.7, 1.0)  -- Scrollbar grab hovered color
-local ScrollbarGrabActiveColor = ImVec4(0.6, 0.6, 0.6, 1.0)  -- Scrollbar grab active color
-colors[12] = ScrollbarBgColor  -- ScrollbarBg
-colors[13] = ScrollbarGrabColor  -- ScrollbarGrab
-colors[14] = ScrollbarGrabHoveredColor  -- ScrollbarGrabHovered
-colors[15] = ScrollbarGrabActiveColor  -- ScrollbarGrabActive
-
--- Set text color to black
-colors[16] = ImVec4(0.1, 0.1, 0.1, 1.0)  -- Text
-
--- Set menu bar background color to a slightly darker gray for contrast
-colors[17] = TitleBgColor  -- MenuBarBg
-
-print("Light theme style set")
-
--------------------------------------------------------------------------
-
--- Update the style -DO NOT EDIT-
-setStyle()
-
--------------------------------------------------------------------------
-
--- Set the rounding of window corners
-style.WindowRounding = 10.0
-
 -- Set the window background color to a dark gray
-colors[1] = ImVec4(0.1, 0.1, 0.1, 1.0)
-
--- Set the frame rounding and padding
-style.FrameRounding = 4.0
-style.FramePadding = ImVec2(4, 2)
+colors[1] = ImVec4(0.1, 0.1, 0.1, 1.0)  -- WindowBg
 
 -- Set the title bar background color (active window)
 colors[2] = ImVec4(0.1, 0.1, 0.1, 1.0)  -- TitleBgActive
 
+-- Set scrollbar colors
+colors[12] = ImVec4(0.2, 0.2, 0.2, 1.0)  -- ScrollbarBg
+colors[13] = ImVec4(0.4, 0.4, 0.4, 1.0)  -- ScrollbarGrab
+colors[14] = ImVec4(0.5, 0.5, 0.5, 1.0)  -- ScrollbarGrabHovered
+colors[15] = ImVec4(0.6, 0.6, 0.6, 1.0)  -- ScrollbarGrabActive
 
+-- Set text color
+colors[16] = ImVec4(0.9, 0.9, 0.9, 1.0)  -- Text
 
--------------------------------------------------------------------------
-
--- Update the style -DO NOT EDIT-
+-- Update the style
 setStyle()

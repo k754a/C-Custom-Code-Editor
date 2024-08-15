@@ -285,6 +285,19 @@ void Renderbar() {
         ImGui::Text("Please Open A file...");
     }
 
+
+    if (autoSave)
+    {
+        std::ofstream outFile(currentFilePath, std::ios::binary); // Open the file in binary mode
+        if (outFile.is_open()) {
+            outFile.write(bufferContent.data(), std::strlen(bufferContent.data()));
+            outFile.close();
+            std::cout << "Buffer content saved to " << currentFilePath << std::endl;
+        }
+        else {
+            std::cerr << "Error: Unable to open file " << currentFilePath << std::endl;
+        }
+    }
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             ImGui::Separator();

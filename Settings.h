@@ -3,7 +3,7 @@
 
 extern bool settings; 
 extern bool winfpsread;
-
+extern bool autoSave;
 void Settingsrender();
 
 

@@ -29,22 +29,7 @@ void initGLFW() {
     // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 }
 
-void applyCustomColorText(float r, float g, float b, float a) {
-    ImGui::GetStyle().Colors[ImGuiCol_Text] = ImVec4(r, g, b, a);
-    std::cout << "Applied custom ImGui text color: (" << r << ", " << g << ", " << b << ", " << a << ")" << std::endl;
-}
 
-// Function to process lines from the Lua script
-void processScriptLine(const std::string& line) {
-    // Check if the line contains "CUSTOM COLOR TEXT"
-    if (line.find("CUSTOM COLOR TEXT") != std::string::npos) {
-        // Extract the color values from the line
-        float r, g, b, a;
-        if (sscanf(line.c_str(), "--CUSTOM COLOR TEXT %f, %f, %f, %f", &r, &g, &b, &a) == 4) {
-            applyCustomColorText(r, g, b, a);
-        }
-    }
-}
 
 
 void initImgui() {
@@ -61,8 +46,11 @@ void initImgui() {
 
     io.Fonts->AddFontFromFileTTF("Fonts/Inter-Regular.ttf", 16.0f);
 
+    //this turns off the title bar color
 
-   
+    style.Colors[ImGuiCol_TitleBgActive] = style.Colors[ImGuiCol_TitleBg];
+    style.Colors[ImGuiCol_TitleBgCollapsed] = style.Colors[ImGuiCol_TitleBg];
+    style.Colors[ImGuiCol_TitleBgActive] = style.Colors[ImGuiCol_TitleBg];
 
 
     lua_State* L = luaL_newstate();
@@ -96,12 +84,8 @@ void initImgui() {
         std::cerr << "Error: " << lua_tostring(L, -1) << std::endl;
     }
 
-    std::istringstream scriptStream(contents);
-    std::string line;
-    while (std::getline(scriptStream, line)) {
-        processScriptLine(line);
-    }
-  
+    ImGui::GetStyle().Colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+
     lua_close(L);
 }
 int main() {
