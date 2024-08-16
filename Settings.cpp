@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <cstdio>
+#include <windows.h>
 
 // Global variables
 bool settings = false;
@@ -29,6 +30,33 @@ void UpdateUsageData() {
     ramHistory[historyIndex] = ramUsage;
 
     historyIndex = (historyIndex + 1) % MAX_HISTORY_SIZE;
+}
+
+std::string GetCppFilePath() {
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    std::string exePath(buffer);
+    std::string cppFilePath = exePath.substr(0, exePath.find_last_of("\\/"));
+
+    // Navigate up from the executable to the root project folder
+    cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/")); // Move up to outer Project2 folder
+    cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/")); // Move up to the root Project2 folder
+
+    return cppFilePath + "\\Project2\\Docs\\Paged File Setting.html"; // Adjust path as needed
+}
+
+void OpenHTMLFile(const std::string& filePath) {
+    std::string command;
+
+#ifdef _WIN32
+    // Windows
+    command = "start \"\" \"" + filePath + "\"";
+#else
+    // macOS and Linux
+    command = "xdg-open \"" + filePath + "\"";
+#endif
+
+    system(command.c_str());
 }
 
 // Function to render the settings menu
@@ -65,13 +93,26 @@ void Settingsrender() {
 
                 if (autoSave)
                 {
-					ImGui::Text("Auto-Save is enabled.");
-				}
+                    ImGui::Text("Auto-Save is enabled.");
+                }
                 else
                 {
                     ImGui::Text("Auto-Save is disabled.");
                 }
 
+                ImGui::Separator();
+
+                ImGui::Checkbox("Paged file Setting", &autoSave); // New setting for auto-save
+
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("This setting controls whether files are paged.");
+                }
+
+                ImGui::SameLine();
+                if (ImGui::SmallButton("What's This?")) {
+                    std::string docPath = GetCppFilePath(); // Function to get the path to the Paged File Setting
+                    OpenHTMLFile(docPath);
+                }
 
                 ImGui::Separator();
                 ImGui::EndTabItem();

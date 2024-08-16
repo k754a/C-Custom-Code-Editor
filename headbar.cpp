@@ -3,19 +3,22 @@
 #include "Settings.h" // Include the header file
 #include <thread> // For sleep_for
 #include "Python/include/Python.h"
-
+#include <chrono>
 #include <mutex>
 #include <filesystem>
 #include "Terminal.h"
 
-
-//**I Used some copilot AI for loading html directorys**\\
 // Global variables and structures
 struct FileNode {
     std::wstring name;
     bool isDirectory;
     std::wstring path;
     std::vector<FileNode> children;
+};
+
+struct FileChunk {
+    std::vector<FileNode> nodes;
+    bool isLoaded = false;
 };
 
 std::string currentFilePath; // C file path
@@ -147,38 +150,39 @@ void OpenFile() {
     }
 }
 
-
 std::string CWstrTostr(const std::wstring& wstr) {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter; // Only one converter here
     return converter.to_bytes(wstr);
 }
 
+
+
+
+
+// Function to get current time in seconds
+float GetCurrentTimeSeconds() {
+    return std::chrono::duration<float>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+}
+
 void DisplayFile(const FileNode& node, bool isChildVisible) {
     static float previousScrollY = 0.0f;
     static float contentHeight = 0.0f;
+    static float viewportHeight = 0.0f;
     static bool initialDisplayDone = false;
+    static float lastUpdateTime = GetCurrentTimeSeconds();
+    static constexpr float updateInterval = 0.5f; // 0.5 seconds
+
     float currentScrollY = ImGui::GetScrollY();
-    float viewportHeight = ImGui::GetWindowHeight();
-    float maxScrollY = ImGui::GetScrollMaxY();
+    viewportHeight = ImGui::GetWindowHeight();
 
-    if (currentScrollY != previousScrollY) {
-        previousScrollY = currentScrollY;
-        initialDisplayDone = true;
-    }
-
-    float nodeHeight = 20.0f;
-
-    bool isNodeVisible = (currentScrollY <= contentHeight + nodeHeight) && (currentScrollY + viewportHeight >= contentHeight);
-
-    if (initialDisplayDone || isNodeVisible || currentScrollY == 0.0f) {
-
-        contentHeight += nodeHeight;
-
+    // Render immediately
+    {
         const std::string& nodeName = CWstrTostr(node.name);
 
         if (node.isDirectory) {
             bool childVisible = false;
             if (ImGui::TreeNode(nodeName.c_str())) {
+                // Recursively render child nodes
                 for (const auto& child : node.children) {
                     DisplayFile(child, childVisible);
                 }
@@ -186,17 +190,43 @@ void DisplayFile(const FileNode& node, bool isChildVisible) {
             }
         }
         else {
+            // Render file node
             if (ImGui::Selectable(nodeName.c_str())) {
                 PrintFileContent(node);
             }
         }
     }
-    else {
 
-        contentHeight += nodeHeight;
+    // Throttle updates
+    float currentTime = GetCurrentTimeSeconds();
+    if (currentTime - lastUpdateTime >= updateInterval) {
+        lastUpdateTime = currentTime; // Update the last update time
+
+        // Update contentHeight based on the node's visibility
+        float nodeHeight = 20.0f;  // Height of each node item
+
+        // Check if scroll position has changed
+        if (currentScrollY != previousScrollY) {
+            previousScrollY = currentScrollY;
+            initialDisplayDone = true;
+        }
+
+        // Determine if the current node is within the viewport
+        bool isNodeVisible = (currentScrollY <= contentHeight + viewportHeight) &&
+            (currentScrollY + viewportHeight >= contentHeight);
+
+        if (initialDisplayDone || isNodeVisible || currentScrollY == 0.0f) {
+            if (ImGui::GetCursorPosY() + nodeHeight >= viewportHeight && !initialDisplayDone) {
+                // If the cursor is near the bottom, update contentHeight for rendering
+                contentHeight += nodeHeight;
+            }
+        }
+        else {
+            // Skip rendering for nodes not visible
+            contentHeight += nodeHeight;
+        }
     }
 }
-
 
 
 
@@ -223,7 +253,6 @@ void PrintFileContent(const FileNode& node) {
         std::cerr << "Cannot find the selected file, sorry! " << CWstrTostr(node.path) << std::endl;
     }
 }
-
 
 std::string ReadFileToString(const std::string& filePath) {
     std::ifstream file(filePath);
