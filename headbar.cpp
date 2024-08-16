@@ -34,7 +34,8 @@ void PrintFileContent(const FileNode& node);
 void ListFilesRecursively(const std::wstring& directory, FileNode& node);
 void OpenFile();
 std::string CWstrTostr(const std::wstring& wstr);
-void DisplayFile(const FileNode& node);
+void DisplayFile(const FileNode& node, bool isChildVisible = false);
+
 void Renderbar();
 void incrementCout();
 std::string ReadFileToString(const std::string& filePath);
@@ -46,7 +47,8 @@ void RenderTerminal(float windowWidth, float windowHeight, float terminalHeight)
 void incrementCout() {
     while (true) {
         if (cout < 2) {
-            std::cout << "count" << std::endl;
+            //lags to hard so we need this 
+            //yo necesidad esto muy muy mucho
             cout++;
         }
         std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -151,22 +153,52 @@ std::string CWstrTostr(const std::wstring& wstr) {
     return converter.to_bytes(wstr);
 }
 
-void DisplayFile(const FileNode& node) {
-    std::string nodeName = CWstrTostr(node.name);
-    if (node.isDirectory) {
-        if (ImGui::TreeNode(nodeName.c_str())) {
-            for (const auto& child : node.children) {
-                DisplayFile(child);
+void DisplayFile(const FileNode& node, bool isChildVisible) {
+    static float previousScrollY = 0.0f;
+    static float contentHeight = 0.0f;
+    static bool initialDisplayDone = false;
+    float currentScrollY = ImGui::GetScrollY();
+    float viewportHeight = ImGui::GetWindowHeight();
+    float maxScrollY = ImGui::GetScrollMaxY();
+
+    if (currentScrollY != previousScrollY) {
+        previousScrollY = currentScrollY;
+        initialDisplayDone = true;
+    }
+
+    float nodeHeight = 20.0f;
+
+    bool isNodeVisible = (currentScrollY <= contentHeight + nodeHeight) && (currentScrollY + viewportHeight >= contentHeight);
+
+    if (initialDisplayDone || isNodeVisible || currentScrollY == 0.0f) {
+
+        contentHeight += nodeHeight;
+
+        const std::string& nodeName = CWstrTostr(node.name);
+
+        if (node.isDirectory) {
+            bool childVisible = false;
+            if (ImGui::TreeNode(nodeName.c_str())) {
+                for (const auto& child : node.children) {
+                    DisplayFile(child, childVisible);
+                }
+                ImGui::TreePop();
             }
-            ImGui::TreePop();
+        }
+        else {
+            if (ImGui::Selectable(nodeName.c_str())) {
+                PrintFileContent(node);
+            }
         }
     }
     else {
-        if (ImGui::Selectable(nodeName.c_str())) {
-            PrintFileContent(node);
-        }
+
+        contentHeight += nodeHeight;
     }
 }
+
+
+
 
 void PrintFileContent(const FileNode& node) {
     std::ifstream fileStream(CWstrTostr(node.path), std::ios::binary | std::ios::ate);
@@ -298,17 +330,29 @@ void Renderbar() {
    
 
     // Compare buffer content with file content
-    if (autoSave)
-    {
-        std::vector<char> fileContent = readFileContent(currentFilePath);
-        if (bufferContent != fileContent) {
+    if (autoSave) {
+        std::ifstream inFile(currentFilePath, std::ios::binary | std::ios::ate);
+        if (inFile.is_open()) {
+            auto fileSize = inFile.tellg();
+            if (fileSize == bufferContent.size()) {
+                inFile.seekg(0, std::ios::beg);
+                std::vector<char> fileContent(fileSize);
+                if (inFile.read(fileContent.data(), fileSize) && bufferContent == fileContent) {
+                    inFile.close();
+                   
+                }
+            }
+            else {
+                inFile.close();
+            }
+
+            
             std::ofstream outFile(currentFilePath, std::ios::binary);
             if (outFile.is_open()) {
                 outFile.write(bufferContent.data(), bufferContent.size());
                 outFile.close();
                 std::cout << "Buffer content saved to " << currentFilePath << std::endl;
             }
-
         }
     }
    
@@ -454,7 +498,7 @@ void Renderbar() {
             incrementThread.detach();
 
             if (cout < 2) {
-                std::cout << "count" << std::endl;
+               //got rid of print so slow :(
                 cout++;
             }
             else {
