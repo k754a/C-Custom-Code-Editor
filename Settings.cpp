@@ -1,3 +1,5 @@
+// Settings.cpp
+#include "Settings.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <vector>
@@ -6,6 +8,15 @@
 #include <string>
 #include <cstdio>
 #include <windows.h>
+#include <shlobj.h> 
+#include <locale>
+#include <codecvt>
+#include "stb/stb_image.h"
+#include <direct.h> // For mkdir
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 bool settings = false;
 ImVec4 warningc = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
@@ -16,12 +27,83 @@ bool darkMode = true;
 bool autoSave = false;
 bool BetterMouseImage = false;
 
+static bool ret;
+static GLuint texture;
+static int texWidth, texHeight;
+
+static int my_image_width = 1;
+static int my_image_height = 1;
+static GLuint my_image_texture = 1;
+static float textHeight;
+#include <algorithm>
+static ImVec2 imageSize;
+
 bool PagedFileSetting = false;
 
 constexpr int MAX_HISTORY_SIZE = 100;
 std::vector<float> cpuHistory(MAX_HISTORY_SIZE, 0.0f);
 std::vector<float> ramHistory(MAX_HISTORY_SIZE, 0.0f);
 int historyIndex = 0;
+
+namespace {
+    // Function to load a texture from memory
+    bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_texture, int* out_width, int* out_height)
+    {
+        int image_width = 0;
+        int image_height = 0;
+        unsigned char* image_data = stbi_load_from_memory((const unsigned char*)data, (int)data_size, &image_width, &image_height, NULL, 4);
+        if (image_data == NULL)
+            return false;
+
+        GLuint image_texture;
+        glGenTextures(1, &image_texture);
+        glBindTexture(GL_TEXTURE_2D, image_texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+        stbi_image_free(image_data);
+
+        *out_texture = image_texture;
+        *out_width = image_width;
+        *out_height = image_height;
+
+        return true;
+    }
+
+    // Function to load a texture from a file
+    bool LoadTextureFromFile(const char* filename, GLuint* texture, int* width, int* height) {
+        int imgWidth, imgHeight, imgChannels;
+        unsigned char* imgData = stbi_load(filename, &imgWidth, &imgHeight, &imgChannels, STBI_rgb_alpha);
+        if (!imgData) {
+            std::cerr << "Failed to load texture: " << filename << std::endl;
+            return false;
+        }
+
+        glGenTextures(1, texture);
+        glBindTexture(GL_TEXTURE_2D, *texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        stbi_image_free(imgData);
+
+        *width = imgWidth;
+        *height = imgHeight;
+
+        return true;
+    }
+
+    // Function to render an image in ImGui
+    void RenderImageInImGui(GLuint texture, int width, int height) {
+        ImGui::Begin("Texture Viewer");
+        ImGui::Text("Texture Dimensions: %d x %d", width, height);
+        ImGui::Image((void*)(intptr_t)texture, ImVec2(static_cast<float>(width), static_cast<float>(height)));
+        ImGui::End();
+    }
+}
 
 void UpdateUsageData() {
     float cpuUsage = 50.0f;
@@ -42,7 +124,7 @@ std::string GetCppFilePath(std::string htmlname) {
     cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/"));
     cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/"));
 
-    return cppFilePath + "\\Project2\\Docs\\" +htmlname;
+    return cppFilePath + "\\Project2\\Docs\\" + htmlname;
 }
 
 void OpenHTMLFile(const std::string& filePath) {
@@ -59,15 +141,10 @@ void OpenHTMLFile(const std::string& filePath) {
     system(command.c_str());
 }
 
-
-
 void GFS(float scale) {
     ImGuiIO& io = ImGui::GetIO();
-    io.FontGlobalScale = scale; 
+    io.FontGlobalScale = scale;
 }
-
-
-
 
 static float GFSSCALE = 1.0f;
 void Settingsrender() {
@@ -76,10 +153,23 @@ void Settingsrender() {
     bgcolor.w = 0.9f;
     ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = bgcolor;
 
+    ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\open.png", &my_image_texture, &my_image_width, &my_image_height);
+    IM_ASSERT(ret);  // Ensure the texture loading succeeded
+    textHeight = ImGui::GetTextLineHeight();
+
+    // Adjust the image size to match the text height
+    ImVec2 imageSizea(textHeight, textHeight);
+
+    ImGui::Image((void*)(intptr_t)my_image_texture, imageSizea);
+    ImGui::SameLine();  // Aligns the text to the right of the image
     ImGui::SetWindowFocus("Settings");
     if (ImGui::Begin("Settings", &settings, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)) {
         if (ImGui::BeginTabBar("SettingsTabBar")) {
 
+
+
+
+           
             if (ImGui::BeginTabItem("Editor")) {
                 ImGui::Separator();
                 ImGui::Checkbox("Auto-Save", &autoSave);
@@ -126,7 +216,7 @@ void Settingsrender() {
 
                 ImGui::InputFloat("TEXT SIZE", &GFSSCALE, 0.1f, 1.0f);
                 GFS(GFSSCALE);
-                
+
                 ImGui::EndTabItem();
                 ImGui::Checkbox("MouseTrack", &BetterMouseImage);
 
@@ -136,14 +226,14 @@ void Settingsrender() {
                     OpenHTMLFile(docPath);
                 }
 
-                if(BetterMouseImage) {
-					ImGui::Text("Mouse Track is enabled.");
-             
-				}
-				else {
-					ImGui::Text("Mouse Track is disabled.");
-				}
-              
+                if (BetterMouseImage) {
+                    ImGui::Text("Mouse Track is enabled.");
+
+                }
+                else {
+                    ImGui::Text("Mouse Track is disabled.");
+                }
+
             }
 
             if (ImGui::BeginTabItem("Current Files")) {
@@ -165,8 +255,8 @@ void Settingsrender() {
                             UpdateUsageData();
                             c = 0;
                         }
-                        ImGui::PlotLines("CPU Usage", cpuHistory.data(), cpuHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
-                        ImGui::PlotLines("RAM Usage", ramHistory.data(), ramHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
+                        ImGui::PlotLines("CPU Usage", cpuHistory.data(), static_cast<int>(cpuHistory.size()), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
+                        ImGui::PlotLines("RAM Usage", ramHistory.data(), static_cast<int>(ramHistory.size()), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
                     }
 
                     ImGui::Checkbox("Enable Window FPS reader", &winfpsread);

@@ -486,18 +486,9 @@ GLuint my_image_texture = 1;
 float textHeight;
 #include <algorithm>
 ImVec2 imageSize;
-std::string RemoveNullBytes(const std::string& input) {
-    std::string output;
-    std::copy_if(input.begin(), input.end(), std::back_inserter(output), [](char c) { return c != '\0'; });
-    return output;
-}
 
 
-std::string remove_null_bytes(const std::string& input) {
-    std::string output;
-    std::copy_if(input.begin(), input.end(), std::back_inserter(output), [](char c) { return c != '\0'; });
-    return output;
-}
+
 
 
 void Renderbar() {
