@@ -7,11 +7,13 @@
 #include <mutex>
 #include <filesystem>
 #include "Terminal.h"
+#include <map>
 
+#include "imgui.h"
 // Global variables and structures
 struct FileNode {
     std::wstring name;
-    bool isDirectory;
+    bool isDirectory = false; // Initialize here
     std::wstring path;
     std::vector<FileNode> children;
 };
@@ -28,6 +30,7 @@ std::vector<FileNode> fileTree;
 std::wstring save = L"";
 std::string content;
 std::vector<char> bufferContent;
+static std::map<std::string, bool> expandedDirectories;
 
 std::string CURRENT = "CURRENT";
 std::atomic<int> cout(0);
@@ -41,7 +44,7 @@ void PrintFileContent(const FileNode& node);
 void ListFilesRecursively(const std::wstring& directory, FileNode& node);
 void OpenFile();
 std::string CWstrTostr(const std::wstring& wstr);
-void DisplayFile(const FileNode& node, bool isChildVisible = false);
+void DisplayFile(const FileNode& node, bool isChildVisible = false, bool pagedFileSetting = false);
 
 void Renderbar();
 void incrementCout();
@@ -111,7 +114,9 @@ void OpenFile() {
             std::string savefolder = "Psettings";
             std::string fileP = savefolder + "/CfilePath.FUNCT";
             // Make a folder
-            _mkdir("Psettings");
+            if (_mkdir("Psettings") != 0 && errno != EEXIST) {
+                std::cerr << "Error creating directory 'Psettings'" << std::endl;
+            }
             // Create save file
             std::ofstream Savefile(fileP);
 
@@ -154,11 +159,6 @@ void OpenFile() {
     }
 }
 
-std::string CWstrTostr(const std::wstring& wstr) {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter; // Only one converter here
-    return converter.to_bytes(wstr);
-}
-
 
 
 
@@ -168,7 +168,7 @@ float GetCurrentTimeSeconds() {
     return std::chrono::duration<float>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 
-void DisplayFile(const FileNode& node, bool isChildVisible) {
+void DisplayFile(const FileNode& node, bool isChildVisible, bool pagedFileSetting) {
     static float previousScrollY = 0.0f;
     static float contentHeight = 0.0f;
     static float viewportHeight = 0.0f;
@@ -179,20 +179,73 @@ void DisplayFile(const FileNode& node, bool isChildVisible) {
     float currentScrollY = ImGui::GetScrollY();
     viewportHeight = ImGui::GetWindowHeight();
 
-    // Calculate start and end index for current page
-    int startIdx = currentPage * itemsPerPage;
-    int endIdx = (startIdx + itemsPerPage < static_cast<int>(node.children.size())) ? (startIdx + itemsPerPage) : static_cast<int>(node.children.size());
+    if (pagedFileSetting) {
+        // Handle pagination
+        int startIdx = currentPage * itemsPerPage;
+        int endIdx = (startIdx + itemsPerPage < static_cast<int>(node.children.size())) ? (startIdx + itemsPerPage) : static_cast<int>(node.children.size());
 
-    // Render immediately
-    {
+        // Render immediately
+        {
+            const std::string& nodeName = CWstrTostr(node.name);
+
+            if (node.isDirectory) {
+                bool childVisible = false;
+                if (ImGui::TreeNode(nodeName.c_str())) {
+                    // Recursively render child nodes with pagination
+                    for (int i = startIdx; i < endIdx; ++i) {
+                        DisplayFile(node.children[i], childVisible, pagedFileSetting);
+                    }
+                    ImGui::TreePop();
+                }
+            }
+            else {
+                // Render file node
+                if (ImGui::Selectable(nodeName.c_str())) {
+                    PrintFileContent(node);
+                }
+            }
+        }
+
+        // Throttle updates
+        float currentTime = GetCurrentTimeSeconds();
+        if (currentTime - lastUpdateTime >= updateInterval) {
+            lastUpdateTime = currentTime; // Update the last update time
+
+            // Update contentHeight based on the node's visibility
+            float nodeHeight = 20.0f;  // Height of each node item
+
+            // Check if scroll position has changed
+            if (currentScrollY != previousScrollY) {
+                previousScrollY = currentScrollY;
+                initialDisplayDone = true;
+            }
+
+            // Determine if the current node is within the viewport
+            bool isNodeVisible = (currentScrollY <= contentHeight + viewportHeight) &&
+                (currentScrollY + viewportHeight >= contentHeight);
+
+            if (initialDisplayDone || isNodeVisible || currentScrollY == 0.0f) {
+                if (ImGui::GetCursorPosY() + nodeHeight >= viewportHeight && !initialDisplayDone) {
+                    // If the cursor is near the bottom, update contentHeight for rendering
+                    contentHeight += nodeHeight;
+                }
+            }
+            else {
+                // Skip rendering for nodes not visible
+                contentHeight += nodeHeight;
+            }
+        }
+    }
+    else {
+        // Render without pagination
         const std::string& nodeName = CWstrTostr(node.name);
 
         if (node.isDirectory) {
             bool childVisible = false;
             if (ImGui::TreeNode(nodeName.c_str())) {
-                // Recursively render child nodes
-                for (int i = startIdx; i < endIdx; ++i) {
-                    DisplayFile(node.children[i], childVisible);
+                // Recursively render child nodes without pagination
+                for (const auto& child : node.children) {
+                    DisplayFile(child, childVisible, pagedFileSetting);
                 }
                 ImGui::TreePop();
             }
@@ -204,37 +257,8 @@ void DisplayFile(const FileNode& node, bool isChildVisible) {
             }
         }
     }
-
-    // Throttle updates
-    float currentTime = GetCurrentTimeSeconds();
-    if (currentTime - lastUpdateTime >= updateInterval) {
-        lastUpdateTime = currentTime; // Update the last update time
-
-        // Update contentHeight based on the node's visibility
-        float nodeHeight = 20.0f;  // Height of each node item
-
-        // Check if scroll position has changed
-        if (currentScrollY != previousScrollY) {
-            previousScrollY = currentScrollY;
-            initialDisplayDone = true;
-        }
-
-        // Determine if the current node is within the viewport
-        bool isNodeVisible = (currentScrollY <= contentHeight + viewportHeight) &&
-            (currentScrollY + viewportHeight >= contentHeight);
-
-        if (initialDisplayDone || isNodeVisible || currentScrollY == 0.0f) {
-            if (ImGui::GetCursorPosY() + nodeHeight >= viewportHeight && !initialDisplayDone) {
-                // If the cursor is near the bottom, update contentHeight for rendering
-                contentHeight += nodeHeight;
-            }
-        }
-        else {
-            // Skip rendering for nodes not visible
-            contentHeight += nodeHeight;
-        }
-    }
 }
+
 
 
 
@@ -321,6 +345,17 @@ std::vector<char> readFileContent(const std::string& filePath) {
 }
 
 
+
+
+
+std::string CWstrTostr(const std::wstring& wstr) {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return converter.to_bytes(wstr);
+}
+
+
+
+
 void Renderbar() {
     float windowHeight = ImGui::GetIO().DisplaySize.y;
     float windowWidth = ImGui::GetIO().DisplaySize.x;
@@ -331,13 +366,28 @@ void Renderbar() {
     ImGui::SetNextWindowSize(ImVec2(200, windowHeight - terminalHeight - 20));
     ImGui::SetNextWindowPos(ImVec2(0, 20)); // Lock top position
     ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+
     if (PagedFileSetting) {
+        // Pagination logic
         for (const auto& node : fileTree) {
-            DisplayFile(node);
+            // Render files/directories with pagination
+            // Calculate start and end index for current page
+            int startIdx = currentPage * itemsPerPage;
+            int endIdx = (startIdx + itemsPerPage < static_cast<int>(node.children.size())) ? (startIdx + itemsPerPage) : static_cast<int>(node.children.size());
+
+            if (node.isDirectory) {
+                if (ImGui::TreeNode(CWstrTostr(node.name).c_str())) {
+                    // Render only items on the current page
+                    for (int i = startIdx; i < endIdx; ++i) {
+                        DisplayFile(node.children[i], true); // Pass true to ensure child nodes are visible
+                    }
+                    ImGui::TreePop();
+                }
+            }
         }
 
         // Pagination controls
-        int totalItems = 0;
+        size_t totalItems = 0; // Change to size_t
         for (const auto& node : fileTree) {
             totalItems += node.children.size();
         }
@@ -358,12 +408,13 @@ void Renderbar() {
             }
         }
     }
-	else {
-		for (const auto& node : fileTree) {
-			DisplayFile(node);
-		}
-	}
-    
+    else {
+        // Render all files and directories without pagination
+        for (const auto& node : fileTree) {
+            DisplayFile(node, true); // Pass true to ensure all children are rendered
+        }
+    }
+
     ImGui::End();
 
     RenderTerminal(windowWidth, windowHeight, terminalHeight);
@@ -394,9 +445,6 @@ void Renderbar() {
         ImGui::Text("Please Open A file...");
     }
 
-
-   
-
     // Compare buffer content with file content
     if (autoSave) {
         std::ifstream inFile(currentFilePath, std::ios::binary | std::ios::ate);
@@ -407,14 +455,12 @@ void Renderbar() {
                 std::vector<char> fileContent(fileSize);
                 if (inFile.read(fileContent.data(), fileSize) && bufferContent == fileContent) {
                     inFile.close();
-                   
                 }
             }
             else {
                 inFile.close();
             }
 
-            
             std::ofstream outFile(currentFilePath, std::ios::binary);
             if (outFile.is_open()) {
                 outFile.write(bufferContent.data(), bufferContent.size());
@@ -423,16 +469,13 @@ void Renderbar() {
             }
         }
     }
-   
-    
+
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             ImGui::Separator();
             if (ImGui::MenuItem("Open Directory")) {
                 OpenFile();
             }
-
-           
 
             if (ImGui::MenuItem("Save")) {
                 std::ofstream outFile(currentFilePath, std::ios::binary); // Open the file in binary mode
@@ -445,7 +488,6 @@ void Renderbar() {
                     std::cerr << "Error: Unable to open file " << currentFilePath << std::endl;
                 }
             }
-
 
             ImGui::Separator();
             if (ImGui::MenuItem("Exit")) {
@@ -552,43 +594,25 @@ void Renderbar() {
             ImGui::EndMenu();
         }
 
-        
-
-
         if (settings) {
             Settingsrender();
         }
 
         if (winfpsread) {
-            ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::CalcTextSize("Documentation").x - ImGui::GetStyle().ItemSpacing.x * 2);
-
-            std::thread incrementThread(incrementCout);
-            incrementThread.detach();
-
-            if (cout < 2) {
-               //got rid of print so slow :(
-                cout++;
-            }
-            else {
-                fpsString = "FPS:" + std::to_string(fps);
-                fps = ImGui::GetIO().Framerate;
-                cout = 0;
-            }
-
-            if (ImGui::BeginMenu(fpsString.c_str())) {
-                ImGui::EndMenu();
-            }
+            ImGui::SameLine();
+            ImGui::Text("FPS: %d", fps);
         }
 
         ImGui::EndMainMenuBar();
     }
+
 }
 
 
 
 
-//this would be wayyyy more cleaner if i could just leave all the funct on the bottom, but nope :(
 
+//this would be wayyyy more cleaner if i could just leave all the funct on the bottom, but nope :(
 
 
 
