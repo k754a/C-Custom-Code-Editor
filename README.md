@@ -1,20 +1,21 @@
-My C++ CUSTOM CODE EDITOR
+# My C++ Custom Code Editor
 
-Hi! this is my C++ code editor, and it’s still a work in progress. Currently, it doesn’t have many features, but I’ll be adding wayyyy more stuff soon!
+Hi! Welcome to my C++ code editor. It's still a work in progress, but I'm excited to keep building and adding more features soon!
 
-What we do have:
+## Current Features
+- **Saving**
+- **Loading**
+- **Terminal**
+- **Python Integration**
+- **PIP**
+- **Html code running**
 
--saving
--loading
--terminal
--python intigration, to run custom code
--pip
+This is just the beginning; expect many more features in the near future!
 
+## Documentation
+For a very basic editor documentation, you can visit: [Editor Documentation](https://k754a.github.io/Editor%20Documentation). I'll be adding more soon!
 
-very basic editor documentation, adding more soon :)
-
-https://k754a.github.io/Editor%20Documentation
-
-A guide for installation will be out soon.
+## Installation Guide
+A guide for installation will be available soon.
 
 Thanks for checking it out!
