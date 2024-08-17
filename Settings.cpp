@@ -14,6 +14,7 @@ int c = 0;
 bool winfpsread = false;
 bool darkMode = true;
 bool autoSave = false;
+bool BetterMouseImage = false;
 
 bool PagedFileSetting = false;
 
@@ -32,7 +33,7 @@ void UpdateUsageData() {
     historyIndex = (historyIndex + 1) % MAX_HISTORY_SIZE;
 }
 
-std::string GetCppFilePath() {
+std::string GetCppFilePath(std::string htmlname) {
     char buffer[MAX_PATH];
     GetModuleFileNameA(NULL, buffer, MAX_PATH);
     std::string exePath(buffer);
@@ -41,7 +42,7 @@ std::string GetCppFilePath() {
     cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/"));
     cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/"));
 
-    return cppFilePath + "\\Project2\\Docs\\Paged File Setting.html";
+    return cppFilePath + "\\Project2\\Docs\\" +htmlname;
 }
 
 void OpenHTMLFile(const std::string& filePath) {
@@ -58,6 +59,17 @@ void OpenHTMLFile(const std::string& filePath) {
     system(command.c_str());
 }
 
+
+
+void GFS(float scale) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.FontGlobalScale = scale; 
+}
+
+
+
+
+static float GFSSCALE = 1.0f;
 void Settingsrender() {
     ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_FirstUseEver);
     ImVec4 bgcolor = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
@@ -70,22 +82,6 @@ void Settingsrender() {
 
             if (ImGui::BeginTabItem("Editor")) {
                 ImGui::Separator();
-                ImGui::TextColored(warningc, "Warning");
-                ImGui::TextWrapped("Changing any of the settings below could cause issues or instability.");
-
-                ImGui::Separator();
-                if (ImGui::Button("[x] Clear Global Memory")) {
-                    if (std::remove(".\\Psettings\\CfilePath.FUNCT") == 0) {
-                        std::cout << "File deleted successfully.\n";
-                        settings = false;
-                    }
-                    else {
-                        std::cout << "File does not exist.\n";
-                    }
-                }
-
-                ImGui::Checkbox("Developer Mode", &devmode);
-                ImGui::Checkbox("Dark Mode", &darkMode);
                 ImGui::Checkbox("Auto-Save", &autoSave);
 
                 if (autoSave)
@@ -107,12 +103,47 @@ void Settingsrender() {
 
                 ImGui::SameLine();
                 if (ImGui::SmallButton("What's This?")) {
-                    std::string docPath = GetCppFilePath();
+                    std::string docPath = GetCppFilePath("Paged File Setting.html");
                     OpenHTMLFile(docPath);
                 }
 
                 ImGui::Separator();
+                ImGui::TextColored(warningc, "Warning");
+                ImGui::TextWrapped("Changing any of the settings below could cause issues or instability.");
+
+                ImGui::Separator();
+                if (ImGui::Button("[x] Clear Global Memory")) {
+                    if (std::remove(".\\Psettings\\CfilePath.FUNCT") == 0) {
+                        std::cout << "File deleted successfully.\n";
+                        settings = false;
+                    }
+                    else {
+                        std::cout << "File does not exist.\n";
+                    }
+                }
+
+                ImGui::Checkbox("Developer Mode", &devmode);
+
+                ImGui::InputFloat("TEXT SIZE", &GFSSCALE, 0.1f, 1.0f);
+                GFS(GFSSCALE);
+                
                 ImGui::EndTabItem();
+                ImGui::Checkbox("MouseTrack", &BetterMouseImage);
+
+                ImGui::SameLine();
+                if (ImGui::SmallButton("What's This?")) {
+                    std::string docPath = GetCppFilePath("Mouse Track.html");
+                    OpenHTMLFile(docPath);
+                }
+
+                if(BetterMouseImage) {
+					ImGui::Text("Mouse Track is enabled.");
+             
+				}
+				else {
+					ImGui::Text("Mouse Track is disabled.");
+				}
+              
             }
 
             if (ImGui::BeginTabItem("Current Files")) {

@@ -353,7 +353,26 @@ std::string CWstrTostr(const std::wstring& wstr) {
     return converter.to_bytes(wstr);
 }
 
+void DotAtCursor()
+{
+    ImGuiIO& io = ImGui::GetIO();
 
+    
+    ImVec2 mousePos = io.MousePos;
+
+   
+    float dotRadius = 7;
+
+  
+    ImVec4 dotColor = ImVec4(1.0f, 0.0f, 0.0f, 0.7f); 
+  
+
+  
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+ 
+    drawList->AddCircleFilled(mousePos, dotRadius, ImColor(dotColor));
+}
 
 
 void Renderbar() {
@@ -362,7 +381,7 @@ void Renderbar() {
     float terminalHeight = windowHeight * terminalHeightPercent;
     float editorHeight = windowHeight - terminalHeight - 20;
     float editorWidth = windowWidth;
-
+   
     ImGui::SetNextWindowSize(ImVec2(200, windowHeight - terminalHeight - 20));
     ImGui::SetNextWindowPos(ImVec2(0, 20)); // Lock top position
     ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
@@ -445,6 +464,8 @@ void Renderbar() {
         ImGui::Text("Please Open A file...");
     }
 
+
+    
     // Compare buffer content with file content
     if (autoSave) {
         std::ifstream inFile(currentFilePath, std::ios::binary | std::ios::ate);
@@ -604,6 +625,12 @@ void Renderbar() {
         }
 
         ImGui::EndMainMenuBar();
+    }
+
+
+    if (BetterMouseImage)
+    {
+        DotAtCursor();
     }
 
 }

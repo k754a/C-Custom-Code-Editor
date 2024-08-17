@@ -6,6 +6,7 @@ extern bool winfpsread;
 extern bool autoSave;
 
 extern bool PagedFileSetting;
+extern bool BetterMouseImage;
 void Settingsrender();
 
 

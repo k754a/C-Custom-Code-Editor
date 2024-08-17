@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Mouse Track Setting</title><link rel="icon" href="Icons/FAVICON.png" type="image/png"><style>html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%; /* Ensure the body takes full height */overflow: hidden; /* Hide scrollbar */
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    position: relative;
+    transition: background-color 0.5s ease;
+}
+
+/* Hide scrollbar for Chrome, Safari, and Opera */body::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge, and Firefox */body {
+    -ms-overflow-style: none; /* IE and Edge */scrollbar-width: none; /* Firefox */
+}
+
+.content {
+    font-size: 2rem;
+    line-height: 1.5;
+    max-width: 800px;
+    opacity: 0;
+    transition: opacity 1s ease;
+    text-align: center; /* Center text */
+}
+
+.content.visible {
+    opacity: 1;
+}
+
+.footer {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    color: #ffffff;
+    background-color: rgba(6, 7, 0, 0.8); /* Semi-transparent dark gray */padding: 10px;
+    display: none; /* Hidden by default */
+}
+</style></head><body><div class="content"><p>The Mouse Track setting adds a red dot to your mouse pointer. This helps people see where you are clicking or moving, making it easier for them to follow what you're doing. If you need to show others how to do something or point out something on the screen.</p></div><div class="footer">
+© k754a 2024
+</div><script>window.onload = function() {
+    document.querySelector('.content').classList.add('visible');
+};
+
+window.onscroll = function() {
+    const scrollTop = window.scrollY;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const opacity = Math.min(scrollTop / maxScroll, 1);
+
+    // Adjust background color based on scroll positiondocument.body.style.backgroundColor = `rgba(6, 7, 0, ${opacity})`;
+
+    // Show the footer if scrolled downconst footer = document.querySelector('.footer');
+    footer.style.display = scrollTop > 100 ? 'block' : 'none';
+};
+</script></body></html>
