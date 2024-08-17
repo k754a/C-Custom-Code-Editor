@@ -1,8 +1,2 @@
-Collecting NumPy
-  Downloading numpy-1.21.6-cp37-cp37m-win_amd64.whl.metadata (2.2 kB)
-Downloading numpy-1.21.6-cp37-cp37m-win_amd64.whl (14.0 MB)
-   ---------------------------------------- 14.0/14.0 MB 5.1 MB/s eta 0:00:00
-Installing collected packages: NumPy
-  WARNING: The script f2py.exe is installed in 'C:\Users\K754a\source\repos\Project2\Project2\Python\Scripts' which is not on PATH.
-  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
-Successfully installed NumPy-1.21.6
+This is the first test with running a script!
+It can edit and run aswell!

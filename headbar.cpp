@@ -476,14 +476,28 @@ void DotAtCursor()
     drawList->AddCircleFilled(mousePos, dotRadius, ImColor(dotColor));
 }
 
+bool ret;
 GLuint texture;
 int texWidth, texHeight;
 
 int my_image_width = 1;
 int my_image_height = 1;
 GLuint my_image_texture = 1;
+float textHeight;
+#include <algorithm>
+ImVec2 imageSize;
+std::string RemoveNullBytes(const std::string& input) {
+    std::string output;
+    std::copy_if(input.begin(), input.end(), std::back_inserter(output), [](char c) { return c != '\0'; });
+    return output;
+}
 
 
+std::string remove_null_bytes(const std::string& input) {
+    std::string output;
+    std::copy_if(input.begin(), input.end(), std::back_inserter(output), [](char c) { return c != '\0'; });
+    return output;
+}
 
 
 void Renderbar() {
@@ -602,13 +616,32 @@ void Renderbar() {
         }
     }
 
+   
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             ImGui::Separator();
+            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\open.png", &my_image_texture, &my_image_width, &my_image_height);
+            IM_ASSERT(ret);  // Ensure the texture loading succeeded
+            textHeight = ImGui::GetTextLineHeight();
+
+            // Adjust the image size to match the text height
+            ImVec2 imageSizea(textHeight, textHeight);
+
+            ImGui::Image((void*)(intptr_t)my_image_texture, imageSizea);
+            ImGui::SameLine();  // Aligns the text to the right of the image
             if (ImGui::MenuItem("Open Directory")) {
                 OpenFile();
             }
 
+            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\save.png", &my_image_texture, &my_image_width, &my_image_height);
+            IM_ASSERT(ret);  // Ensure the texture loading succeeded
+            textHeight = ImGui::GetTextLineHeight();
+
+            // Adjust the image size to match the text height
+            ImVec2 imageSize(textHeight, textHeight);
+
+            ImGui::Image((void*)(intptr_t)my_image_texture, imageSize);
+            ImGui::SameLine();  // Aligns the text to the right of the image
             if (ImGui::MenuItem("Save")) {
                 std::ofstream outFile(currentFilePath, std::ios::binary); // Open the file in binary mode
                 if (outFile.is_open()) {
@@ -622,6 +655,16 @@ void Renderbar() {
             }
 
             ImGui::Separator();
+
+            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\close.png", &my_image_texture, &my_image_width, &my_image_height);
+            IM_ASSERT(ret);  // Ensure the texture loading succeeded
+            textHeight = ImGui::GetTextLineHeight();
+
+            // Adjust the image size to match the text height
+            ImVec2 imageSizeb(textHeight, textHeight);
+
+            ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeb);
+            ImGui::SameLine();  // Aligns the text to the right of the image
             if (ImGui::MenuItem("Exit")) {
                 // Handle exit
             }
@@ -629,9 +672,29 @@ void Renderbar() {
         }
 
         if (ImGui::BeginMenu("Edit")) {
+
+            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\settings.png", &my_image_texture, &my_image_width, &my_image_height);
+            IM_ASSERT(ret);  // Ensure the texture loading succeeded
+            textHeight = ImGui::GetTextLineHeight();
+
+            // Adjust the image size to match the text height
+            ImVec2 imageSizeb(textHeight, textHeight);
+
+            ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeb);
+            ImGui::SameLine();  // Aligns the text to the right of the image
             if (ImGui::MenuItem("Settings")) {
                 settings = true;
             }
+
+            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\Call.png", &my_image_texture, &my_image_width, &my_image_height);
+            IM_ASSERT(ret);  // Ensure the texture loading succeeded
+            textHeight = ImGui::GetTextLineHeight();
+
+            // Adjust the image size to match the text height
+            ImVec2 imageSizec(textHeight, textHeight);
+
+            ImGui::Image((void*)(intptr_t)my_image_texture, imageSizec);
+            ImGui::SameLine();  // Aligns the text to the right of the image
             if (ImGui::MenuItem("Close All Windows")) {
                 settings = false;
                 bufferContent.clear();
@@ -658,7 +721,7 @@ void Renderbar() {
         }
        
 
-        bool ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\run.png", &my_image_texture, &my_image_width, &my_image_height);
+        ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\run.png", &my_image_texture, &my_image_width, &my_image_height);
         IM_ASSERT(ret);  // Ensure the texture loading succeeded
 
         // Get the height of the text
@@ -695,19 +758,55 @@ void Renderbar() {
                         }
 
                         doubled_path = path_str;
-                        std::cout << "Modified Path: " << doubled_path << std::endl;
 
-                        // Assuming the script is in the same directory as the application
-                        std::string command = "python \"" + currentFilePath + "\"";
-                        system(command.c_str());
+                        std::cout << "Modified Path: " << doubled_path << std::endl;
                     }
                     else {
                         std::cerr << "Error retrieving path" << std::endl;
+                        ImGui::EndMenu();
+                        return;
                     }
+
+                    std::string saveFilePath = doubled_path + "\\script.py";
+
+                    // Clean buffer content by removing null bytes
+                    std::string cleanBufferContent;
+                    for (char ch : bufferContent) {
+                        if (ch != '\0') {
+                            cleanBufferContent.push_back(ch);
+                        }
+                    }
+
+                    std::ofstream outFile(saveFilePath);
+                    if (outFile.is_open()) {
+                        outFile.write(cleanBufferContent.data(), cleanBufferContent.size());
+                        outFile.close();
+                        std::cout << "Buffer content saved to " << saveFilePath << std::endl;
+                    }
+                    else {
+                        std::cerr << "Error: Unable to open file " << saveFilePath << std::endl;
+                        ImGui::EndMenu();
+                        return;
+                    }
+
+                    std::string fileContents = readFileContents(saveFilePath);
+
+                    // Execute the saved Python file
+                    ExecutePythonCode(fileContents, "output.txt");
+                }
+                else if (currentFilePath.size() >= 5 && currentFilePath.substr(currentFilePath.size() - 5) == ".html") {
+                    // Run the HTML file
+                    std::string command = "start " + currentFilePath;
+                    system(command.c_str());
+                }
+                else {
+                    std::cerr << "Error: This is not a .py or .html file" << std::endl;
                 }
             }
+            ImGui::Separator();
             ImGui::EndMenu();
         }
+
 
       
 
