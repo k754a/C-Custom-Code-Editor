@@ -55,23 +55,29 @@ namespace {
         if (image_data == NULL)
             return false;
 
+        // Create a OpenGL texture identifier
         GLuint image_texture;
         glGenTextures(1, &image_texture);
         glBindTexture(GL_TEXTURE_2D, image_texture);
+
+        // Setup filtering parameters for display
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // Upload pixels into texture
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-        stbi_image_free(image_data);
+        stbi_image_free(image_data); // Ensure this is called
 
         *out_texture = image_texture;
         *out_width = image_width;
         *out_height = image_height;
 
+
+
         return true;
     }
 
-    // Function to load a texture from a file
     bool LoadTextureFromFile(const char* filename, GLuint* texture, int* width, int* height) {
         int imgWidth, imgHeight, imgChannels;
         unsigned char* imgData = stbi_load(filename, &imgWidth, &imgHeight, &imgChannels, STBI_rgb_alpha);
@@ -80,21 +86,30 @@ namespace {
             return false;
         }
 
+        // Generate and bind texture
         glGenTextures(1, texture);
         glBindTexture(GL_TEXTURE_2D, *texture);
+
+        // Set texture parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // Upload texture data
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
         glGenerateMipmap(GL_TEXTURE_2D);
-        stbi_image_free(imgData);
+
+        stbi_image_free(imgData); // Ensure this is called
 
         *width = imgWidth;
         *height = imgHeight;
 
+
+
         return true;
     }
+
 
     // Function to render an image in ImGui
     void RenderImageInImGui(GLuint texture, int width, int height) {
@@ -153,26 +168,30 @@ void Settingsrender() {
     bgcolor.w = 0.9f;
     ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = bgcolor;
 
-    ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\open.png", &my_image_texture, &my_image_width, &my_image_height);
-    IM_ASSERT(ret);  // Ensure the texture loading succeeded
-    textHeight = ImGui::GetTextLineHeight();
-
-    // Adjust the image size to match the text height
-    ImVec2 imageSizea(textHeight, textHeight);
-
-    ImGui::Image((void*)(intptr_t)my_image_texture, imageSizea);
-    ImGui::SameLine();  // Aligns the text to the right of the image
     ImGui::SetWindowFocus("Settings");
     if (ImGui::Begin("Settings", &settings, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)) {
         if (ImGui::BeginTabBar("SettingsTabBar")) {
 
 
 
-
+         
            
+
+
             if (ImGui::BeginTabItem("Editor")) {
                 ImGui::Separator();
-                ImGui::Checkbox("Auto-Save", &autoSave);
+                ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\Autosave.png", &my_image_texture, &my_image_width, &my_image_height);
+                IM_ASSERT(ret);  // Ensure the texture loading succeeded
+                textHeight = ImGui::GetTextLineHeight();
+
+                // Adjust the image size to match the text height
+                ImVec2 imageSizea(textHeight, textHeight);
+
+                ImGui::Image((void*)(intptr_t)my_image_texture, imageSizea);
+                ImGui::SameLine();  // Aligns the text to the right of the image
+                ImGui::Text("Auto-Save");
+                ImGui::SameLine(); 
+                ImGui::Checkbox("##AutoSaveCheckbox", &autoSave);  
 
                 if (autoSave)
                 {
@@ -185,7 +204,21 @@ void Settingsrender() {
 
                 ImGui::Separator();
 
-                ImGui::Checkbox("Paged file Setting", &PagedFileSetting);
+
+                ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\Pages.png", &my_image_texture, &my_image_width, &my_image_height);
+                IM_ASSERT(ret);  // Ensure the texture loading succeeded
+                textHeight = ImGui::GetTextLineHeight();
+
+                // Adjust the image size to match the text height
+                ImVec2 imageSizeb(textHeight, textHeight);
+
+                ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeb);
+                ImGui::SameLine();  // Aligns the text to the right of the image
+               
+                ImGui::Text("Paged file Setting");
+                ImGui::SameLine();
+                ImGui::Checkbox("##Pagesetting", &PagedFileSetting);
+               
 
                 if (ImGui::IsItemHovered()) {
                     ImGui::SetTooltip("This setting controls whether files are paged.");

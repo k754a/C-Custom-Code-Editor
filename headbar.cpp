@@ -56,6 +56,8 @@ bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_textu
     *out_width = image_width;
     *out_height = image_height;
 
+
+    // Ensure this is called
     return true;
 }
 
@@ -488,6 +490,10 @@ float textHeight;
 ImVec2 imageSize;
 
 
+void DeleteTexture(GLuint texture) {
+    glDeleteTextures(1, &texture);
+}
+
 
 
 
@@ -514,7 +520,7 @@ void Renderbar() {
                 if (ImGui::TreeNode(CWstrTostr(node.name).c_str())) {
                     // Render only items on the current page
                     for (int i = startIdx; i < endIdx; ++i) {
-                        DisplayFile(node.children[i], true); // Pass true to ensure child nodes are visible
+                        DisplayFile(node.children[i], true, PagedFileSetting); // Pass true to ensure child nodes are visible
                     }
                     ImGui::TreePop();
                 }
@@ -526,9 +532,9 @@ void Renderbar() {
         for (const auto& node : fileTree) {
             totalItems += node.children.size();
         }
-        int totalPages = (totalItems + itemsPerPage - 1) / itemsPerPage;
+        size_t totalPages = (totalItems + itemsPerPage - 1) / itemsPerPage;
 
-        ImGui::Text("Page %d of %d", currentPage + 1, totalPages);
+        ImGui::Text("Page %d of %zu", currentPage + 1, totalPages);
         ImGui::SameLine();
 
         if (ImGui::Button("Previous")) {
@@ -538,7 +544,7 @@ void Renderbar() {
         }
         ImGui::SameLine();
         if (ImGui::Button("Next")) {
-            if (currentPage < totalPages - 1) {
+            if (currentPage < static_cast<int>(totalPages) - 1) {
                 currentPage++;
             }
         }
@@ -546,7 +552,7 @@ void Renderbar() {
     else {
         // Render all files and directories without pagination
         for (const auto& node : fileTree) {
-            DisplayFile(node, true); // Pass true to ensure all children are rendered
+            DisplayFile(node, true, PagedFileSetting); // Pass true to ensure all children are rendered
         }
     }
 
@@ -607,7 +613,6 @@ void Renderbar() {
         }
     }
 
-   
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             ImGui::Separator();
@@ -651,72 +656,8 @@ void Renderbar() {
             IM_ASSERT(ret);  // Ensure the texture loading succeeded
             textHeight = ImGui::GetTextLineHeight();
 
-            // Adjust the image size to match the text height
-            ImVec2 imageSizeb(textHeight, textHeight);
-
-            ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeb);
-            ImGui::SameLine();  // Aligns the text to the right of the image
-            if (ImGui::MenuItem("Exit")) {
-                // Handle exit
-            }
-            ImGui::EndMenu();
+            // Get the height of the text
         }
-
-        if (ImGui::BeginMenu("Edit")) {
-
-            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\settings.png", &my_image_texture, &my_image_width, &my_image_height);
-            IM_ASSERT(ret);  // Ensure the texture loading succeeded
-            textHeight = ImGui::GetTextLineHeight();
-
-            // Adjust the image size to match the text height
-            ImVec2 imageSizeb(textHeight, textHeight);
-
-            ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeb);
-            ImGui::SameLine();  // Aligns the text to the right of the image
-            if (ImGui::MenuItem("Settings")) {
-                settings = true;
-            }
-
-            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\Call.png", &my_image_texture, &my_image_width, &my_image_height);
-            IM_ASSERT(ret);  // Ensure the texture loading succeeded
-            textHeight = ImGui::GetTextLineHeight();
-
-            // Adjust the image size to match the text height
-            ImVec2 imageSizec(textHeight, textHeight);
-
-            ImGui::Image((void*)(intptr_t)my_image_texture, imageSizec);
-            ImGui::SameLine();  // Aligns the text to the right of the image
-            if (ImGui::MenuItem("Close All Windows")) {
-                settings = false;
-                bufferContent.clear();
-                content.clear();
-
-                std::ifstream fileStream(CURRENT);
-                if (fileStream.is_open()) {
-                    std::string line;
-                    std::stringstream buffer;
-
-                    while (std::getline(fileStream, line)) {
-                        buffer << line << '\n';
-                    }
-
-                    bufferContent.resize(content.size() + bufferContent.size() + 1); // +1 for null terminator
-                    std::copy(content.begin(), content.end(), bufferContent.begin());
-                    bufferContent.back() = '\0';
-
-                    fileStream.close();
-                }
-            }
-            ImGui::Separator();
-            ImGui::EndMenu();
-        }
-       
-
-        ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\run.png", &my_image_texture, &my_image_width, &my_image_height);
-        IM_ASSERT(ret);  // Ensure the texture loading succeeded
-
-        // Get the height of the text
-        float textHeight = ImGui::GetTextLineHeight();
 
         // Adjust the image size to match the text height
         ImVec2 imageSize(textHeight, textHeight);
@@ -799,7 +740,7 @@ void Renderbar() {
         }
 
 
-      
+        
 
         
         ImGui::EndMainMenuBar();
@@ -818,6 +759,7 @@ void Renderbar() {
         ImGui::Text("FPS: %d", fps);
     }
 
+   
 }
 
 
