@@ -4,6 +4,8 @@
 extern bool settings; 
 extern bool winfpsread;
 extern bool autoSave;
+
+extern bool PagedFileSetting;
 void Settingsrender();
 
 

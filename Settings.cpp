@@ -15,6 +15,8 @@ bool winfpsread = false;
 bool darkMode = true;
 bool autoSave = false;
 
+bool PagedFileSetting = false;
+
 constexpr int MAX_HISTORY_SIZE = 100;
 std::vector<float> cpuHistory(MAX_HISTORY_SIZE, 0.0f);
 std::vector<float> ramHistory(MAX_HISTORY_SIZE, 0.0f);
@@ -97,7 +99,7 @@ void Settingsrender() {
 
                 ImGui::Separator();
 
-                ImGui::Checkbox("Paged file Setting", &autoSave);
+                ImGui::Checkbox("Paged file Setting", &PagedFileSetting);
 
                 if (ImGui::IsItemHovered()) {
                     ImGui::SetTooltip("This setting controls whether files are paged.");
