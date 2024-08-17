@@ -8,8 +8,102 @@
 #include <filesystem>
 #include "Terminal.h"
 #include <map>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+
+
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 
 #include "imgui.h"
+
+
+
+
+
+
+
+
+
+
+
+
+bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_texture, int* out_width, int* out_height)
+{
+    // Load from file
+    int image_width = 0;
+    int image_height = 0;
+    unsigned char* image_data = stbi_load_from_memory((const unsigned char*)data, (int)data_size, &image_width, &image_height, NULL, 4);
+    if (image_data == NULL)
+        return false;
+
+    // Create a OpenGL texture identifier
+    GLuint image_texture;
+    glGenTextures(1, &image_texture);
+    glBindTexture(GL_TEXTURE_2D, image_texture);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Upload pixels into texture
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+    stbi_image_free(image_data);
+
+    *out_texture = image_texture;
+    *out_width = image_width;
+    *out_height = image_height;
+
+    return true;
+}
+
+// Open and read a file, then forward to LoadTextureFromMemory()
+bool LoadTextureFromFile(const char* filename, GLuint* texture, int* width, int* height) {
+    // Load image file
+    int imgWidth, imgHeight, imgChannels;
+    unsigned char* imgData = stbi_load(filename, &imgWidth, &imgHeight, &imgChannels, STBI_rgb_alpha);
+    if (!imgData) {
+        std::cerr << "Failed to load texture: " << filename << std::endl;
+        return false;
+    }
+
+    // Generate and bind texture
+    glGenTextures(1, texture);
+    glBindTexture(GL_TEXTURE_2D, *texture);
+
+    // Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Upload texture data
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Free image data
+    stbi_image_free(imgData);
+
+    *width = imgWidth;
+    *height = imgHeight;
+
+    return true;
+}
+
+
+
+
+void RenderImageInImGui(GLuint texture, int width, int height) {
+    ImGui::Begin("Texture Viewer");
+    ImGui::Text("Texture Dimensions: %d x %d", width, height);
+    ImGui::Image((void*)(intptr_t)texture, ImVec2(width, height));
+    ImGui::End();
+}
+
+
+
 // Global variables and structures
 struct FileNode {
     std::wstring name;
@@ -374,8 +468,16 @@ void DotAtCursor()
     drawList->AddCircleFilled(mousePos, dotRadius, ImColor(dotColor));
 }
 
+GLuint texture;
+int texWidth, texHeight;
+
+int my_image_width = 30;
+int my_image_height = 30;
+GLuint my_image_texture = 0;
+
 
 void Renderbar() {
+   
     float windowHeight = ImGui::GetIO().DisplaySize.y;
     float windowWidth = ImGui::GetIO().DisplaySize.x;
     float terminalHeight = windowHeight * terminalHeightPercent;
@@ -464,6 +566,14 @@ void Renderbar() {
         ImGui::Text("Please Open A file...");
     }
 
+    // Ensure OpenGL context is active before this
+   
+    ImGui::Begin("OpenGL Texture Text");
+    ImGui::Text("pointer = %u", my_image_texture); // %u is used for GLuint
+    ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+    ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
+    ImGui::End();
+
 
     
     // Compare buffer content with file content
@@ -546,74 +656,54 @@ void Renderbar() {
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Run")) {
-            if (ImGui::MenuItem("Run Script")) {
-                if (currentFilePath.size() >= 3 && currentFilePath.substr(currentFilePath.size() - 3) == ".py") {
-                    std::string doubled_path;
-                    wchar_t path[MAX_PATH];
-                    if (GetModuleFileName(NULL, path, MAX_PATH)) {
-                        std::string path_str = wchar_to_string(path);
 
-                        int count = 0;
-                        for (int i = path_str.size() - 1; i >= 0; --i) {
-                            if (path_str[i] == '\\' || path_str[i] == '/') {
-                                count++;
-                                if (count == 3) {
-                                    path_str = path_str.substr(0, i);
-                                    break;
+        bool ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\run.png", &my_image_texture, &my_image_width, &my_image_height);
+        IM_ASSERT(ret);  // Ensure the texture loading succeeded
+        ImGui::Text("pointer = %u", my_image_texture); // %u is used for GLuint
+        ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+        ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
+        ImGui::End();
+
+        if (ImGui::BeginMenu("Run")) {
+            // Ensure texture is valid
+            if (my_image_texture != 0 && my_image_width > 0 && my_image_height > 0) {
+                    if (ImGui::ImageButton((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height))) {
+                    if (currentFilePath.size() >= 3 && currentFilePath.substr(currentFilePath.size() - 3) == ".py") {
+                        std::string doubled_path;
+                        wchar_t path[MAX_PATH];
+                        if (GetModuleFileName(NULL, path, MAX_PATH)) {
+                            std::string path_str = wchar_to_string(path);
+
+                            int count = 0;
+                            for (int i = path_str.size() - 1; i >= 0; --i) {
+                                if (path_str[i] == '\\' || path_str[i] == '/') {
+                                    count++;
+                                    if (count == 3) {
+                                        path_str = path_str.substr(0, i);
+                                        break;
+                                    }
                                 }
                             }
+
+                            doubled_path = path_str;
+                            std::cout << "Modified Path: " << doubled_path << std::endl;
+
+                            // Assuming the script is in the same directory as the application
+                            std::string command = "python \"" + currentFilePath + "\"";
+                            system(command.c_str());
                         }
-
-                        doubled_path = path_str;
-
-                        std::cout << "Modified Path: " << doubled_path << std::endl;
-                    }
-                    else {
-                        std::cerr << "Error retrieving path" << std::endl;
-                        ImGui::EndMenu();
-                        return;
-                    }
-
-                    std::string saveFilePath = doubled_path + "\\script.py";
-
-                    // Clean buffer content by removing null bytes
-                    std::string cleanBufferContent;
-                    for (char ch : bufferContent) {
-                        if (ch != '\0') {
-                            cleanBufferContent.push_back(ch);
+                        else {
+                            std::cerr << "Error retrieving path" << std::endl;
                         }
                     }
-
-                    std::ofstream outFile(saveFilePath);
-                    if (outFile.is_open()) {
-                        outFile.write(cleanBufferContent.data(), cleanBufferContent.size());
-                        outFile.close();
-                        std::cout << "Buffer content saved to " << saveFilePath << std::endl;
-                    }
-                    else {
-                        std::cerr << "Error: Unable to open file " << saveFilePath << std::endl;
-                        ImGui::EndMenu();
-                        return;
-                    }
-
-                    std::string fileContents = readFileContents(saveFilePath);
-
-                    // Execute the saved Python file
-                    ExecutePythonCode(fileContents, "output.txt");
-                }
-                else if (currentFilePath.size() >= 5 && currentFilePath.substr(currentFilePath.size() - 5) == ".html") {
-                    // Run the HTML file
-                    std::string command = "start " + currentFilePath;
-                    system(command.c_str());
-                }
-                else {
-                    std::cerr << "Error: This is not a .py or .html file" << std::endl;
                 }
             }
-            ImGui::Separator();
+            else {
+                std::cerr << "Invalid texture or dimensions" << std::endl;
+            }
             ImGui::EndMenu();
         }
+
 
         if (settings) {
             Settingsrender();
