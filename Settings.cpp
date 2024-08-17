@@ -7,24 +7,22 @@
 #include <cstdio>
 #include <windows.h>
 
-// Global variables
 bool settings = false;
 ImVec4 warningc = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 bool devmode = false, rendergraph = false;
 int c = 0;
 bool winfpsread = false;
-bool darkMode = true; // New setting for theme
-bool autoSave = false; // New setting for auto-save
+bool darkMode = true;
+bool autoSave = false;
 
 constexpr int MAX_HISTORY_SIZE = 100;
 std::vector<float> cpuHistory(MAX_HISTORY_SIZE, 0.0f);
 std::vector<float> ramHistory(MAX_HISTORY_SIZE, 0.0f);
 int historyIndex = 0;
 
-// Function to update CPU and RAM usage data
 void UpdateUsageData() {
-    float cpuUsage = 50.0f; // Placeholder for actual CPU usage
-    float ramUsage = 30.0f; // Placeholder for actual RAM usage
+    float cpuUsage = 50.0f;
+    float ramUsage = 30.0f;
 
     cpuHistory[historyIndex] = cpuUsage;
     ramHistory[historyIndex] = ramUsage;
@@ -38,39 +36,36 @@ std::string GetCppFilePath() {
     std::string exePath(buffer);
     std::string cppFilePath = exePath.substr(0, exePath.find_last_of("\\/"));
 
-    // Navigate up from the executable to the root project folder
-    cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/")); // Move up to outer Project2 folder
-    cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/")); // Move up to the root Project2 folder
+    cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/"));
+    cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/"));
 
-    return cppFilePath + "\\Project2\\Docs\\Paged File Setting.html"; // Adjust path as needed
+    return cppFilePath + "\\Project2\\Docs\\Paged File Setting.html";
 }
 
 void OpenHTMLFile(const std::string& filePath) {
     std::string command;
 
 #ifdef _WIN32
-    // Windows
+
     command = "start \"\" \"" + filePath + "\"";
 #else
-    // macOS and Linux
+
     command = "xdg-open \"" + filePath + "\"";
 #endif
 
     system(command.c_str());
 }
 
-// Function to render the settings menu
 void Settingsrender() {
     ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_FirstUseEver);
     ImVec4 bgcolor = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
-    bgcolor.w = 0.9f; // Adjust transparency for better readability
+    bgcolor.w = 0.9f;
     ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = bgcolor;
 
-    // Open the settings window
     ImGui::SetWindowFocus("Settings");
     if (ImGui::Begin("Settings", &settings, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)) {
         if (ImGui::BeginTabBar("SettingsTabBar")) {
-            // Editor Tab
+
             if (ImGui::BeginTabItem("Editor")) {
                 ImGui::Separator();
                 ImGui::TextColored(warningc, "Warning");
@@ -88,8 +83,8 @@ void Settingsrender() {
                 }
 
                 ImGui::Checkbox("Developer Mode", &devmode);
-                ImGui::Checkbox("Dark Mode", &darkMode); // New setting for theme
-                ImGui::Checkbox("Auto-Save", &autoSave); // New setting for auto-save
+                ImGui::Checkbox("Dark Mode", &darkMode);
+                ImGui::Checkbox("Auto-Save", &autoSave);
 
                 if (autoSave)
                 {
@@ -102,7 +97,7 @@ void Settingsrender() {
 
                 ImGui::Separator();
 
-                ImGui::Checkbox("Paged file Setting", &autoSave); // New setting for auto-save
+                ImGui::Checkbox("Paged file Setting", &autoSave);
 
                 if (ImGui::IsItemHovered()) {
                     ImGui::SetTooltip("This setting controls whether files are paged.");
@@ -110,7 +105,7 @@ void Settingsrender() {
 
                 ImGui::SameLine();
                 if (ImGui::SmallButton("What's This?")) {
-                    std::string docPath = GetCppFilePath(); // Function to get the path to the Paged File Setting
+                    std::string docPath = GetCppFilePath();
                     OpenHTMLFile(docPath);
                 }
 
@@ -118,13 +113,11 @@ void Settingsrender() {
                 ImGui::EndTabItem();
             }
 
-            // Current Files Tab
             if (ImGui::BeginTabItem("Current Files")) {
                 ImGui::Text("This is where you'd list current files.");
                 ImGui::EndTabItem();
             }
 
-            // Developer Tab (only visible in developer mode)
             if (devmode) {
                 if (ImGui::BeginTabItem("Developer")) {
                     if (ImGui::Button("Enable system resource display")) {
@@ -153,7 +146,6 @@ void Settingsrender() {
                 }
             }
 
-            // Debug Tab (only visible if developer mode is off)
             if (!devmode) {
                 if (ImGui::BeginTabItem("Debug")) {
                     ImGui::Text("Save statistics data? This is if you have an issue.");
@@ -177,7 +169,6 @@ void Settingsrender() {
                 }
             }
 
-            // Documentation Tab
             if (ImGui::BeginTabItem("Documentation")) {
                 ImGui::Text("This is the link to the documentation below!");
                 if (ImGui::Button("[Link] Editor Documentation")) {

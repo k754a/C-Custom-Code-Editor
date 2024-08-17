@@ -1,4 +1,4 @@
 ﻿  Settings.cpp
-C:\Users\K754a\source\repos\Project2\Project2\Settings.cpp(142,89): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\K754a\source\repos\Project2\Project2\Settings.cpp(143,89): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Settings.cpp(135,89): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\K754a\source\repos\Project2\Project2\Settings.cpp(136,89): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   Project2.vcxproj -> C:\Users\K754a\source\repos\Project2\x64\Debug\Project2.exe
