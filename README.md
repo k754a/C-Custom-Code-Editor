@@ -6,8 +6,9 @@ Hi! Welcome to my C++ code editor. It's still a work in progress, but I'm excite
 - **Saving**
 - **Loading**
 - **Terminal**
-- **Python Integration** - Run custom code directly
-- **PIP** - Manage your Python packages
+- **Python Integration**
+- **PIP**
+- **Html code running**
 
 This is just the beginning; expect many more features in the near future!
 
