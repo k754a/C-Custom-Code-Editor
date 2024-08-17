@@ -1,22 +1,17 @@
 #include "headbar.h"
 #include "libraries.h"
-#include "Settings.h"
-#include <thread> 
+#include "Settings.h" // Include the header file
+#include <thread> // For sleep_for
 #include "Python/include/Python.h"
 #include <chrono>
 #include <mutex>
 #include <filesystem>
 #include "Terminal.h"
-#include <vector>
-#include <algorithm>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 
 // Global variables and structures
 struct FileNode {
     std::wstring name;
-    bool isDirectory = false; // Initialize here
+    bool isDirectory;
     std::wstring path;
     std::vector<FileNode> children;
 };
@@ -26,7 +21,7 @@ struct FileChunk {
     bool isLoaded = false;
 };
 
-std::string currentFilePath; // Current file path
+std::string currentFilePath; // C file path
 int fps;
 std::string fpsString;
 std::vector<FileNode> fileTree;
@@ -36,7 +31,11 @@ std::vector<char> bufferContent;
 
 std::string CURRENT = "CURRENT";
 std::atomic<int> cout(0);
-#include <cstddef>
+
+int currentPage = 0;
+const int itemsPerPage = 10;
+
+
 // Function declarations
 void PrintFileContent(const FileNode& node);
 void ListFilesRecursively(const std::wstring& directory, FileNode& node);
@@ -50,57 +49,13 @@ std::string ReadFileToString(const std::string& filePath);
 void Settingsrender(); // Assuming this is defined elsewhere
 void RenderTerminal(float windowWidth, float windowHeight, float terminalHeight); // Assuming this is defined elsewhere
 
-void CreateFileChunks(const std::vector<FileNode>& nodes, size_t chunkSize);
-std::string wchar_to_string(const wchar_t* wstr);
-std::string double_path_separators(const std::string& path);
-std::string readFileContents(const std::string& saveFilePath);
-std::vector<char> readFileContent(const std::string& filePath);
-
-// Additional global variables and functions
-std::vector<FileChunk> fileChunks;
-int currentChunkIndex = 0;
-static float terminalHeightPercent = 0.2f;
-
-void CreateFileChunks(const std::vector<FileNode>& nodes, size_t chunkSize) {
-    fileChunks.clear();
-
-    for (size_t i = 0; i < nodes.size(); i += chunkSize) {
-        FileChunk chunk;
-        size_t end = i + chunkSize;
-
-        if (end > nodes.size()) {
-            end = nodes.size();
-        }
-
-        for (size_t j = i; j < end; ++j) {
-            chunk.nodes.push_back(nodes[j]);
-        }
-
-        fileChunks.push_back(chunk);
-    }
-}
-
-
-std::string readFileContents(const std::string& saveFilePath) {
-    std::ifstream file(saveFilePath);
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << saveFilePath << std::endl;
-        return "";
-    }
-
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
-std::string wchar_to_string(const wchar_t* wstr) {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    return converter.to_bytes(wstr);
-}
+// Function implementations
 
 void incrementCout() {
     while (true) {
         if (cout < 2) {
+            //lags to hard so we need this 
+            //yo necesidad esto muy muy mucho
             cout++;
         }
         std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -122,7 +77,8 @@ void ListFilesRecursively(const std::wstring& directory, FileNode& node) {
                 node.children.push_back(child);
 
                 if (child.isDirectory) {
-                    ListFilesRecursively(child.path, node.children.back());
+                    std::wstring subdir = directory + L"\\" + findFileData.cFileName;
+                    ListFilesRecursively(subdir, node.children.back());
                 }
             }
         } while (FindNextFile(hFind, &findFileData) != 0);
@@ -130,7 +86,7 @@ void ListFilesRecursively(const std::wstring& directory, FileNode& node) {
         FindClose(hFind);
     }
     else {
-        std::wcerr << L"Error: " << directory << std::endl;
+        std::wcerr << L"Error: " << directory.c_str() << std::endl;
     }
 }
 
@@ -142,23 +98,30 @@ void OpenFile() {
     if (pidl != nullptr) {
         wchar_t szDir[MAX_PATH];
         if (SHGetPathFromIDList(pidl, szDir)) {
+            std::wcout << L"Selected folder: " << szDir << std::endl;
+            // Get path and files in the path
             FileNode root;
             root.name = szDir;
             root.isDirectory = true;
             ListFilesRecursively(szDir, root);
             fileTree.push_back(root);
+            std::wcout << L"Output: " << save << std::endl;
+            std::wcout << L"Loaded!" << std::endl;
 
             std::string savefolder = "Psettings";
             std::string fileP = savefolder + "/CfilePath.FUNCT";
-            if (_mkdir(savefolder.c_str()) != 0 && errno != EEXIST) {
-                std::cerr << "Error creating directory: " << savefolder << std::endl;
-            }
-
+            // Make a folder
+            _mkdir("Psettings");
+            // Create save file
             std::ofstream Savefile(fileP);
+
+            // Use a unique name for the converter
             std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> fileConverter;
-            Savefile << fileConverter.to_bytes(save);
+            std::string narrow_string = fileConverter.to_bytes(save);
+            Savefile << narrow_string;
             Savefile.close();
 
+            // Start a local server to serve the HTML file and its dependencies
             std::wstring command = L"python -m http.server --directory \"" + std::wstring(szDir) + L"\" 8000";
             std::vector<wchar_t> cmd(command.begin(), command.end());
             cmd.push_back(0); // Null-terminate the command
@@ -173,48 +136,107 @@ void OpenFile() {
                 CloseHandle(pi.hThread);
             }
 
-            std::string htmlFilePath = "http://localhost:8000/index.html";
-            std::wstring wideHtmlFilePath = fileConverter.from_bytes(htmlFilePath);
+            // Open the HTML file in the default browser
+            std::string htmlFilePath = "http://localhost:8000/index.html"; // Assuming the main HTML file is index.html
+
+            // Another unique converter
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> htmlConverter;
+            std::wstring wideHtmlFilePath = htmlConverter.from_bytes(htmlFilePath);
             ShellExecute(0, 0, wideHtmlFilePath.c_str(), 0, 0, SW_SHOW);
         }
         else {
-            std::wcerr << L"Error getting folder path" << std::endl;
+            std::wcerr << "Error getting folder path" << std::endl;
         }
         CoTaskMemFree(pidl);
     }
     else {
-        std::wcerr << L"Folder selection canceled" << std::endl;
+        std::wcerr << "Folder selection canceled" << std::endl;
     }
 }
 
 std::string CWstrTostr(const std::wstring& wstr) {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter; // Only one converter here
     return converter.to_bytes(wstr);
 }
 
+
+
+
+
+// Function to get current time in seconds
 float GetCurrentTimeSeconds() {
     return std::chrono::duration<float>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 
 void DisplayFile(const FileNode& node, bool isChildVisible) {
-    const std::string& nodeName = CWstrTostr(node.name);
+    static float previousScrollY = 0.0f;
+    static float contentHeight = 0.0f;
+    static float viewportHeight = 0.0f;
+    static bool initialDisplayDone = false;
+    static float lastUpdateTime = GetCurrentTimeSeconds();
+    static constexpr float updateInterval = 0.5f; // 0.5 seconds
 
-    if (node.isDirectory) {
-        if (ImGui::TreeNode(nodeName.c_str())) {
-            // If a directory, display its children
-            for (const auto& child : node.children) {
-                DisplayFile(child, isChildVisible);
+    float currentScrollY = ImGui::GetScrollY();
+    viewportHeight = ImGui::GetWindowHeight();
+
+    // Calculate start and end index for current page
+    int startIdx = currentPage * itemsPerPage;
+    int endIdx = (startIdx + itemsPerPage < static_cast<int>(node.children.size())) ? (startIdx + itemsPerPage) : static_cast<int>(node.children.size());
+
+    // Render immediately
+    {
+        const std::string& nodeName = CWstrTostr(node.name);
+
+        if (node.isDirectory) {
+            bool childVisible = false;
+            if (ImGui::TreeNode(nodeName.c_str())) {
+                // Recursively render child nodes
+                for (int i = startIdx; i < endIdx; ++i) {
+                    DisplayFile(node.children[i], childVisible);
+                }
+                ImGui::TreePop();
             }
-            ImGui::TreePop();
+        }
+        else {
+            // Render file node
+            if (ImGui::Selectable(nodeName.c_str())) {
+                PrintFileContent(node);
+            }
         }
     }
-    else {
-        // If a file, make it selectable
-        if (ImGui::Selectable(nodeName.c_str())) {
-            PrintFileContent(node);
+
+    // Throttle updates
+    float currentTime = GetCurrentTimeSeconds();
+    if (currentTime - lastUpdateTime >= updateInterval) {
+        lastUpdateTime = currentTime; // Update the last update time
+
+        // Update contentHeight based on the node's visibility
+        float nodeHeight = 20.0f;  // Height of each node item
+
+        // Check if scroll position has changed
+        if (currentScrollY != previousScrollY) {
+            previousScrollY = currentScrollY;
+            initialDisplayDone = true;
+        }
+
+        // Determine if the current node is within the viewport
+        bool isNodeVisible = (currentScrollY <= contentHeight + viewportHeight) &&
+            (currentScrollY + viewportHeight >= contentHeight);
+
+        if (initialDisplayDone || isNodeVisible || currentScrollY == 0.0f) {
+            if (ImGui::GetCursorPosY() + nodeHeight >= viewportHeight && !initialDisplayDone) {
+                // If the cursor is near the bottom, update contentHeight for rendering
+                contentHeight += nodeHeight;
+            }
+        }
+        else {
+            // Skip rendering for nodes not visible
+            contentHeight += nodeHeight;
         }
     }
 }
+
+
 
 
 void PrintFileContent(const FileNode& node) {
@@ -223,9 +245,9 @@ void PrintFileContent(const FileNode& node) {
         std::streamsize fileSize = fileStream.tellg();
         fileStream.seekg(0, std::ios::beg);
 
-        bufferContent.resize(fileSize + 1);
+        bufferContent.resize(fileSize + 1); // Increase buffer size by 1 for null terminator
         if (fileStream.read(bufferContent.data(), fileSize)) {
-            bufferContent[fileSize] = '\0';
+            bufferContent[fileSize] = '\0'; // Add null terminator at the end
             content.assign(bufferContent.data(), fileSize);
             currentFilePath = CWstrTostr(node.path);
         }
@@ -253,6 +275,51 @@ std::string ReadFileToString(const std::string& filePath) {
     return buffer.str();
 }
 
+static float terminalHeightPercent = 0.2f;
+
+std::string wchar_to_string(const wchar_t* wstr) {
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL);
+    std::string str(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, &str[0], size_needed, NULL, NULL);
+    return str;
+}
+
+std::string double_path_separators(const std::string& path) {
+    std::string result;
+    for (char ch : path) {
+        if (ch == '/' || ch == '\\') {
+            result += ch;
+            result += ch; // Add the separator twice
+        }
+        else {
+            result += ch;
+        }
+    }
+    return result;
+}
+
+std::string readFileContents(const std::string& saveFilePath) {
+    std::ifstream file(saveFilePath);
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open file " << saveFilePath << std::endl;
+        return "";
+    }
+
+    std::string contents((std::istreambuf_iterator<char>(file)),
+        std::istreambuf_iterator<char>());
+    file.close();
+    return contents;
+}
+
+std::vector<char> readFileContent(const std::string& filePath) {
+    std::ifstream inFile(filePath, std::ios::binary);
+    if (!inFile.is_open()) {
+        std::cerr << "Error: Unable to open file " << filePath << std::endl;
+        return {};
+    }
+    return std::vector<char>(std::istreambuf_iterator<char>(inFile), {});
+}
+
 
 void Renderbar() {
     float windowHeight = ImGui::GetIO().DisplaySize.y;
@@ -265,30 +332,37 @@ void Renderbar() {
     ImGui::SetNextWindowPos(ImVec2(0, 20)); // Lock top position
     ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
     if (PagedFileSetting) {
-        if (currentChunkIndex < fileChunks.size()) {
-            const auto& currentChunk = fileChunks[currentChunkIndex];
-            for (const auto& node : currentChunk.nodes) {
-                DisplayFile(node);
-            }
-        }
-
-        // Navigation buttons
-        if (ImGui::Button("Previous") && currentChunkIndex > 0) {
-            currentChunkIndex--;
-        }
-        ImGui::SameLine();
-        ImGui::Text("Chunk %d/%d", currentChunkIndex + 1, fileChunks.size());
-        ImGui::SameLine();
-        if (ImGui::Button("Next") && currentChunkIndex < fileChunks.size() - 1) {
-            currentChunkIndex++;
-        }
-    }
-    else {
-        // Normal file listing
         for (const auto& node : fileTree) {
             DisplayFile(node);
         }
+
+        // Pagination controls
+        int totalItems = 0;
+        for (const auto& node : fileTree) {
+            totalItems += node.children.size();
+        }
+        int totalPages = (totalItems + itemsPerPage - 1) / itemsPerPage;
+
+        ImGui::Text("Page %d of %d", currentPage + 1, totalPages);
+        ImGui::SameLine();
+
+        if (ImGui::Button("Previous")) {
+            if (currentPage > 0) {
+                currentPage--;
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Next")) {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+            }
+        }
     }
+	else {
+		for (const auto& node : fileTree) {
+			DisplayFile(node);
+		}
+	}
     
     ImGui::End();
 
