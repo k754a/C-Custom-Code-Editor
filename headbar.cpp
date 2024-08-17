@@ -76,12 +76,12 @@ bool LoadTextureFromFile(const char* filename, GLuint* texture, int* width, int*
     // Set texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // Use mipmaps for better quality
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Upload texture data
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps
 
     // Free image data
     stbi_image_free(imgData);
@@ -363,10 +363,17 @@ void PrintFileContent(const FileNode& node) {
         std::streamsize fileSize = fileStream.tellg();
         fileStream.seekg(0, std::ios::beg);
 
-        bufferContent.resize(fileSize + 1); // Increase buffer size by 1 for null terminator
-        if (fileStream.read(bufferContent.data(), fileSize)) {
-            bufferContent[fileSize] = '\0'; // Add null terminator at the end
-            content.assign(bufferContent.data(), fileSize);
+        std::vector<char> rawBuffer(fileSize);
+        if (fileStream.read(rawBuffer.data(), fileSize)) {
+            bufferContent.clear();
+            for (char c : rawBuffer) {
+                if (c != '\0') {  // Filter out null bytes
+                    bufferContent.push_back(c);
+                }
+            }
+            bufferContent.push_back('\0');  // Add null terminator at the end
+
+            content.assign(bufferContent.data(), bufferContent.size() - 1);
             currentFilePath = CWstrTostr(node.path);
         }
         else {
@@ -380,6 +387,7 @@ void PrintFileContent(const FileNode& node) {
         std::cerr << "Cannot find the selected file, sorry! " << CWstrTostr(node.path) << std::endl;
     }
 }
+
 
 std::string ReadFileToString(const std::string& filePath) {
     std::ifstream file(filePath);
@@ -471,19 +479,20 @@ void DotAtCursor()
 GLuint texture;
 int texWidth, texHeight;
 
-int my_image_width = 30;
-int my_image_height = 30;
-GLuint my_image_texture = 0;
+int my_image_width = 1;
+int my_image_height = 1;
+GLuint my_image_texture = 1;
+
+
 
 
 void Renderbar() {
-   
     float windowHeight = ImGui::GetIO().DisplaySize.y;
     float windowWidth = ImGui::GetIO().DisplaySize.x;
     float terminalHeight = windowHeight * terminalHeightPercent;
     float editorHeight = windowHeight - terminalHeight - 20;
     float editorWidth = windowWidth;
-   
+
     ImGui::SetNextWindowSize(ImVec2(200, windowHeight - terminalHeight - 20));
     ImGui::SetNextWindowPos(ImVec2(0, 20)); // Lock top position
     ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
@@ -567,15 +576,7 @@ void Renderbar() {
     }
 
     // Ensure OpenGL context is active before this
-   
-    ImGui::Begin("OpenGL Texture Text");
-    ImGui::Text("pointer = %u", my_image_texture); // %u is used for GLuint
-    ImGui::Text("size = %d x %d", my_image_width, my_image_height);
-    ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
-    ImGui::End();
 
-
-    
     // Compare buffer content with file content
     if (autoSave) {
         std::ifstream inFile(currentFilePath, std::ios::binary | std::ios::ate);
@@ -655,72 +656,76 @@ void Renderbar() {
             ImGui::Separator();
             ImGui::EndMenu();
         }
-
+       
 
         bool ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\run.png", &my_image_texture, &my_image_width, &my_image_height);
         IM_ASSERT(ret);  // Ensure the texture loading succeeded
-        ImGui::Text("pointer = %u", my_image_texture); // %u is used for GLuint
-        ImGui::Text("size = %d x %d", my_image_width, my_image_height);
-        ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
-        ImGui::End();
 
+        // Get the height of the text
+        float textHeight = ImGui::GetTextLineHeight();
+
+        // Adjust the image size to match the text height
+        ImVec2 imageSize(textHeight, textHeight);
+
+   
+
+        // ImageButton with action trigger
         if (ImGui::BeginMenu("Run")) {
-            // Ensure texture is valid
-            if (my_image_texture != 0 && my_image_width > 0 && my_image_height > 0) {
-                    if (ImGui::ImageButton((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height))) {
-                    if (currentFilePath.size() >= 3 && currentFilePath.substr(currentFilePath.size() - 3) == ".py") {
-                        std::string doubled_path;
-                        wchar_t path[MAX_PATH];
-                        if (GetModuleFileName(NULL, path, MAX_PATH)) {
-                            std::string path_str = wchar_to_string(path);
+            // Combine Image and Text in a single item
+            ImGui::Image((void*)(intptr_t)my_image_texture, imageSize);
+            ImGui::SameLine();  // Aligns the text to the right of the image
+            if (ImGui::MenuItem("Run Script")) {
+                // Action when menu item is clicked
+                std::cout << "RUN" << std::endl;
+                if (currentFilePath.size() >= 3 && currentFilePath.substr(currentFilePath.size() - 3) == ".py") {
+                    std::string doubled_path;
+                    wchar_t path[MAX_PATH];
+                    if (GetModuleFileName(NULL, path, MAX_PATH)) {
+                        std::string path_str = wchar_to_string(path);
 
-                            int count = 0;
-                            for (int i = path_str.size() - 1; i >= 0; --i) {
-                                if (path_str[i] == '\\' || path_str[i] == '/') {
-                                    count++;
-                                    if (count == 3) {
-                                        path_str = path_str.substr(0, i);
-                                        break;
-                                    }
+                        int count = 0;
+                        for (int i = path_str.size() - 1; i >= 0; --i) {
+                            if (path_str[i] == '\\' || path_str[i] == '/') {
+                                count++;
+                                if (count == 3) {
+                                    path_str = path_str.substr(0, i);
+                                    break;
                                 }
                             }
-
-                            doubled_path = path_str;
-                            std::cout << "Modified Path: " << doubled_path << std::endl;
-
-                            // Assuming the script is in the same directory as the application
-                            std::string command = "python \"" + currentFilePath + "\"";
-                            system(command.c_str());
                         }
-                        else {
-                            std::cerr << "Error retrieving path" << std::endl;
-                        }
+
+                        doubled_path = path_str;
+                        std::cout << "Modified Path: " << doubled_path << std::endl;
+
+                        // Assuming the script is in the same directory as the application
+                        std::string command = "python \"" + currentFilePath + "\"";
+                        system(command.c_str());
+                    }
+                    else {
+                        std::cerr << "Error retrieving path" << std::endl;
                     }
                 }
-            }
-            else {
-                std::cerr << "Invalid texture or dimensions" << std::endl;
             }
             ImGui::EndMenu();
         }
 
+      
 
-        if (settings) {
-            Settingsrender();
-        }
-
-        if (winfpsread) {
-            ImGui::SameLine();
-            ImGui::Text("FPS: %d", fps);
-        }
-
+        
         ImGui::EndMainMenuBar();
     }
 
-
-    if (BetterMouseImage)
-    {
+    if (BetterMouseImage) {
         DotAtCursor();
+    }
+
+    if (settings) {
+        Settingsrender();
+    }
+
+    if (winfpsread) {
+        ImGui::SameLine();
+        ImGui::Text("FPS: %d", fps);
     }
 
 }
