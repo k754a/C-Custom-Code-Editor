@@ -25,20 +25,22 @@
 
 
 
+std::vector<GLuint> textureIDs;
 
 
 
 
-bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_texture, int* out_width, int* out_height)
-{
-    // Load from file
+bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_texture, int* out_width, int* out_height) {
+    // Load image from memory
     int image_width = 0;
     int image_height = 0;
-    unsigned char* image_data = stbi_load_from_memory((const unsigned char*)data, (int)data_size, &image_width, &image_height, NULL, 4);
-    if (image_data == NULL)
+    unsigned char* image_data = stbi_load_from_memory((const unsigned char*)data, (int)data_size, &image_width, &image_height, NULL, STBI_rgb_alpha);
+    if (image_data == NULL) {
+        std::cerr << "Failed to load image from memory." << std::endl;
         return false;
+    }
 
-    // Create a OpenGL texture identifier
+    // Create an OpenGL texture identifier
     GLuint image_texture;
     glGenTextures(1, &image_texture);
     glBindTexture(GL_TEXTURE_2D, image_texture);
@@ -48,16 +50,19 @@ bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_textu
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Upload pixels into texture
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Free image data
     stbi_image_free(image_data);
 
     *out_texture = image_texture;
     *out_width = image_width;
     *out_height = image_height;
 
+    // Store the texture ID
+    textureIDs.push_back(image_texture);
 
-    // Ensure this is called
     return true;
 }
 
@@ -72,8 +77,9 @@ bool LoadTextureFromFile(const char* filename, GLuint* texture, int* width, int*
     }
 
     // Generate and bind texture
-    glGenTextures(1, texture);
-    glBindTexture(GL_TEXTURE_2D, *texture);
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
 
     // Set texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -88,10 +94,22 @@ bool LoadTextureFromFile(const char* filename, GLuint* texture, int* width, int*
     // Free image data
     stbi_image_free(imgData);
 
+    *texture = textureID;
     *width = imgWidth;
     *height = imgHeight;
 
+    // Store the texture ID
+    textureIDs.push_back(textureID);
+
     return true;
+}
+
+
+void FlushTextures() {
+    if (!textureIDs.empty()) {
+        glDeleteTextures(static_cast<GLsizei>(textureIDs.size()), textureIDs.data());
+        textureIDs.clear();
+    }
 }
 
 
@@ -461,20 +479,20 @@ void DotAtCursor()
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    
+
     ImVec2 mousePos = io.MousePos;
 
-   
+
     float dotRadius = 7;
 
-  
-    ImVec4 dotColor = ImVec4(1.0f, 0.0f, 0.0f, 0.7f); 
-  
 
-  
+    ImVec4 dotColor = ImVec4(1.0f, 0.0f, 0.0f, 0.7f);
+
+
+
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
- 
+
     drawList->AddCircleFilled(mousePos, dotRadius, ImColor(dotColor));
 }
 
@@ -490,14 +508,11 @@ float textHeight;
 ImVec2 imageSize;
 
 
-void DeleteTexture(GLuint texture) {
-    glDeleteTextures(1, &texture);
-}
-
 
 
 
 void Renderbar() {
+    FlushTextures();
     float windowHeight = ImGui::GetIO().DisplaySize.y;
     float windowWidth = ImGui::GetIO().DisplaySize.x;
     float terminalHeight = windowHeight * terminalHeightPercent;
@@ -520,7 +535,7 @@ void Renderbar() {
                 if (ImGui::TreeNode(CWstrTostr(node.name).c_str())) {
                     // Render only items on the current page
                     for (int i = startIdx; i < endIdx; ++i) {
-                        DisplayFile(node.children[i], true, PagedFileSetting); // Pass true to ensure child nodes are visible
+                        DisplayFile(node.children[i], true); // Pass true to ensure child nodes are visible
                     }
                     ImGui::TreePop();
                 }
@@ -532,9 +547,9 @@ void Renderbar() {
         for (const auto& node : fileTree) {
             totalItems += node.children.size();
         }
-        size_t totalPages = (totalItems + itemsPerPage - 1) / itemsPerPage;
+        int totalPages = (totalItems + itemsPerPage - 1) / itemsPerPage;
 
-        ImGui::Text("Page %d of %zu", currentPage + 1, totalPages);
+        ImGui::Text("Page %d of %d", currentPage + 1, totalPages);
         ImGui::SameLine();
 
         if (ImGui::Button("Previous")) {
@@ -544,7 +559,7 @@ void Renderbar() {
         }
         ImGui::SameLine();
         if (ImGui::Button("Next")) {
-            if (currentPage < static_cast<int>(totalPages) - 1) {
+            if (currentPage < totalPages - 1) {
                 currentPage++;
             }
         }
@@ -552,7 +567,7 @@ void Renderbar() {
     else {
         // Render all files and directories without pagination
         for (const auto& node : fileTree) {
-            DisplayFile(node, true, PagedFileSetting); // Pass true to ensure all children are rendered
+            DisplayFile(node, true); // Pass true to ensure all children are rendered
         }
     }
 
@@ -613,6 +628,7 @@ void Renderbar() {
         }
     }
 
+
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             ImGui::Separator();
@@ -656,13 +672,73 @@ void Renderbar() {
             IM_ASSERT(ret);  // Ensure the texture loading succeeded
             textHeight = ImGui::GetTextLineHeight();
 
-            // Get the height of the text
+            // Adjust the image size to match the text height
+            ImVec2 imageSizeb(textHeight, textHeight);
+
+            ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeb);
+
+            ImGui::SameLine();  // Aligns the text to the right of the image
+            if (ImGui::MenuItem("Exit")) {
+                // Handle exit
+            }
+            ImGui::EndMenu();
         }
 
-        // Adjust the image size to match the text height
-        ImVec2 imageSize(textHeight, textHeight);
+        if (ImGui::BeginMenu("Edit")) {
 
-   
+            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\settings.png", &my_image_texture, &my_image_width, &my_image_height);
+            IM_ASSERT(ret);  // Ensure the texture loading succeeded
+            textHeight = ImGui::GetTextLineHeight();
+
+            // Adjust the image size to match the text height
+            ImVec2 imageSizeb(textHeight, textHeight);
+
+            ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeb);
+            ImGui::SameLine();  // Aligns the text to the right of the image
+            if (ImGui::MenuItem("Settings")) {
+                Settingsrender();
+            }
+
+            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\call.png", &my_image_texture, &my_image_width, &my_image_height);
+            IM_ASSERT(ret);  // Ensure the texture loading succeeded
+            textHeight = ImGui::GetTextLineHeight();
+
+            // Adjust the image size to match the text height
+            ImVec2 imageSize(textHeight, textHeight);
+
+
+            ImGui::Image((void*)(intptr_t)my_image_texture, imageSize);
+            ImGui::SameLine();  // Aligns the text to the right of the image
+            if (ImGui::MenuItem("Close All Windows")) {
+                settings = false;
+                bufferContent.clear();
+                content.clear();
+
+                std::ifstream fileStream(CURRENT);
+                if (fileStream.is_open()) {
+                    std::string line;
+                    std::stringstream buffer;
+
+                    while (std::getline(fileStream, line)) {
+                        buffer << line << '\n';
+                    }
+
+                    bufferContent.resize(content.size() + bufferContent.size() + 1); // +1 for null terminator
+                    std::copy(content.begin(), content.end(), bufferContent.begin());
+                    bufferContent.back() = '\0';
+
+                    fileStream.close();
+                }
+            }
+            ImGui::Separator();
+            ImGui::EndMenu();
+        }
+
+       
+
+       
+
+
 
         // ImageButton with action trigger
         if (ImGui::BeginMenu("Run")) {
@@ -740,9 +816,9 @@ void Renderbar() {
         }
 
 
-        
 
-        
+
+
         ImGui::EndMainMenuBar();
     }
 
@@ -759,7 +835,10 @@ void Renderbar() {
         ImGui::Text("FPS: %d", fps);
     }
 
-   
+
+
+ 
+
 }
 
 
@@ -767,7 +846,6 @@ void Renderbar() {
 
 
 //this would be wayyyy more cleaner if i could just leave all the funct on the bottom, but nope :(
-
 
 
 
