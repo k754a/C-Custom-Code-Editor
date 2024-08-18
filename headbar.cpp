@@ -509,6 +509,34 @@ ImVec2 imageSize;
 
 
 
+int TextEditCallback(ImGuiInputTextCallbackData* data) {
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
+        // Resize string callback
+        std::vector<char>* buffer = (std::vector<char>*)data->UserData;
+        buffer->resize(data->BufTextLen + 1);
+        data->Buf = buffer->data();
+    }
+    return 0;
+}
+
+
+void DrawLineNumbers(const std::vector<char>& bufferContent, float scrollY) {
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(0, 0, 0, 0)); // Set background to clear
+    ImGui::BeginChild("LineNumbers", ImVec2(40, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+    ImGui::SetScrollY(scrollY); // Synchronize scrolling
+
+    int lineNumber = 1;
+    for (size_t i = 0; i < bufferContent.size(); ++i) {
+        if (bufferContent[i] == '\n') {
+            ImGui::Text("%d", lineNumber++);
+        }
+    }
+
+    ImGui::EndChild();
+    ImGui::PopStyleColor();
+}
+
 
 
 void Renderbar() {
@@ -579,6 +607,16 @@ void Renderbar() {
     ImGui::SetNextWindowSize(ImVec2(editorWidth + 10, editorHeight));
     ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
     ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+
+    // Draw line numbers
+    ImGui::BeginChild("EditorWithLineNumbers", ImVec2(0, 0), false);
+    ImGui::Columns(2, "EditorColumns");
+    ImGui::SetColumnWidth(0, 40);
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 5); // Adjust position to overlap slightly
+    float scrollY = ImGui::GetScrollY(); // Get the current scroll position
+    DrawLineNumbers(bufferContent, scrollY);
+    ImGui::NextColumn();
+
     std::string line;
     std::stringstream fileBuffer;
 
@@ -593,13 +631,26 @@ void Renderbar() {
 
     bufferContent.resize(buf.length() * buf.length());
 
+    // Ensure bufferContent is properly initialized with a size
+    if (bufferContent.empty()) {
+        bufferContent.resize(1024); // Initial size
+    }
+
+    // Render the InputTextMultiline widget with a callback for resizing
     if (!bufferContent.empty()) {
         // Render the text editor
-        ImGui::InputTextMultiline("##CodeEditor", bufferContent.data(), bufferContent.size(), ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
+        ImGui::InputTextMultiline("##CodeEditor", bufferContent.data(), bufferContent.size(), ImVec2(-1.0f, -1.0f),
+            ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize,
+            TextEditCallback, (void*)&bufferContent);
     }
     else {
         ImGui::Text("Please Open A file...");
     }
+
+    ImGui::EndChild();
+  
+
+   
 
     // Ensure OpenGL context is active before this
 
@@ -627,7 +678,6 @@ void Renderbar() {
             }
         }
     }
-
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {

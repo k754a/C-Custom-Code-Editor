@@ -7,6 +7,8 @@ extern bool autoSave;
 
 extern bool PagedFileSetting;
 extern bool BetterMouseImage;
+extern bool CodeEditor;
+
 void Settingsrender();
 
 

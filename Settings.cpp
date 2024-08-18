@@ -26,6 +26,7 @@ bool winfpsread = false;
 bool darkMode = true;
 bool autoSave = false;
 bool BetterMouseImage = false;
+bool CodeEditor = false;
 
 static bool ret;
 static GLuint texture;
@@ -379,7 +380,9 @@ void Settingsrender() {
                         ImGui::PlotLines("CPU Usage", cpuHistory.data(), static_cast<int>(cpuHistory.size()), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
                         ImGui::PlotLines("RAM Usage", ramHistory.data(), static_cast<int>(ramHistory.size()), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
                     }
-
+                    if (ImGui::Button("Open Style Folder")) {
+                        system("start .\\Style");
+                    }
 
                     ret = LoadTextureFromFile(".\\Images\\FPSSHOT.png", &my_image_texture, &my_image_width, &my_image_height);
                     IM_ASSERT(ret);  // Ensure the texture loading succeeded
@@ -397,9 +400,25 @@ void Settingsrender() {
 
                     ImGui::Checkbox("##winfpsread", &winfpsread);
 
-                    if (ImGui::Button("Open Style Folder")) {
-                        system("start .\\Style");
-                    }
+                   
+
+
+
+                    ret = LoadTextureFromFile(".\\Images\\term.png", &my_image_texture, &my_image_width, &my_image_height);
+                    IM_ASSERT(ret);  // Ensure the texture loading succeeded
+                    textHeight = ImGui::GetTextLineHeight();
+
+                    // Adjust the image size to match the text height
+                    ImVec2 imageSizeh(textHeight, textHeight);
+
+                    ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeh);
+                    ImGui::SameLine();
+
+
+                    ImGui::Text("Code Editor Features");
+                    ImGui::SameLine();
+
+                    ImGui::Checkbox("##codeeditorfeatures", &CodeEditor);
 
                     ImGui::EndTabItem();
                 }
