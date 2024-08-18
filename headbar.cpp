@@ -632,7 +632,7 @@ void Renderbar() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             ImGui::Separator();
-            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\open.png", &my_image_texture, &my_image_width, &my_image_height);
+            ret = LoadTextureFromFile(".\\Images\\open.png", &my_image_texture, &my_image_width, &my_image_height);
             IM_ASSERT(ret);  // Ensure the texture loading succeeded
             textHeight = ImGui::GetTextLineHeight();
 
@@ -645,7 +645,7 @@ void Renderbar() {
                 OpenFile();
             }
 
-            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\save.png", &my_image_texture, &my_image_width, &my_image_height);
+            ret = LoadTextureFromFile(".\\Images\\save.png", &my_image_texture, &my_image_width, &my_image_height);
             IM_ASSERT(ret);  // Ensure the texture loading succeeded
             textHeight = ImGui::GetTextLineHeight();
 
@@ -696,7 +696,7 @@ void Renderbar() {
             ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeb);
             ImGui::SameLine();  // Aligns the text to the right of the image
             if (ImGui::MenuItem("Settings")) {
-                Settingsrender();
+                settings = true;
             }
 
             ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\call.png", &my_image_texture, &my_image_width, &my_image_height);
@@ -739,7 +739,12 @@ void Renderbar() {
        
 
 
+        ret = LoadTextureFromFile(".\\Images\\run.png", &my_image_texture, &my_image_width, &my_image_height);
+        IM_ASSERT(ret);  // Ensure the texture loading succeeded
+        textHeight = ImGui::GetTextLineHeight();
 
+        // Adjust the image size to match the text height
+        ImVec2 imageSize(textHeight, textHeight);
         // ImageButton with action trigger
         if (ImGui::BeginMenu("Run")) {
             // Combine Image and Text in a single item

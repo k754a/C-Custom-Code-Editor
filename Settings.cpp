@@ -45,17 +45,23 @@ std::vector<float> cpuHistory(MAX_HISTORY_SIZE, 0.0f);
 std::vector<float> ramHistory(MAX_HISTORY_SIZE, 0.0f);
 int historyIndex = 0;
 
+
+
 namespace {
+
+    std::vector<GLuint> textureIDs;
     // Function to load a texture from memory
-    bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_texture, int* out_width, int* out_height)
-    {
+    bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_texture, int* out_width, int* out_height) {
+        // Load image from memory
         int image_width = 0;
         int image_height = 0;
-        unsigned char* image_data = stbi_load_from_memory((const unsigned char*)data, (int)data_size, &image_width, &image_height, NULL, 4);
-        if (image_data == NULL)
+        unsigned char* image_data = stbi_load_from_memory((const unsigned char*)data, (int)data_size, &image_width, &image_height, NULL, STBI_rgb_alpha);
+        if (image_data == NULL) {
+            std::cerr << "Failed to load image from memory." << std::endl;
             return false;
+        }
 
-        // Create a OpenGL texture identifier
+        // Create an OpenGL texture identifier
         GLuint image_texture;
         glGenTextures(1, &image_texture);
         glBindTexture(GL_TEXTURE_2D, image_texture);
@@ -65,20 +71,24 @@ namespace {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         // Upload pixels into texture
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-        stbi_image_free(image_data); // Ensure this is called
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        // Free image data
+        stbi_image_free(image_data);
 
         *out_texture = image_texture;
         *out_width = image_width;
         *out_height = image_height;
 
-
+        // Store the texture ID
+        textureIDs.push_back(image_texture);
 
         return true;
     }
 
     bool LoadTextureFromFile(const char* filename, GLuint* texture, int* width, int* height) {
+        // Load image file
         int imgWidth, imgHeight, imgChannels;
         unsigned char* imgData = stbi_load(filename, &imgWidth, &imgHeight, &imgChannels, STBI_rgb_alpha);
         if (!imgData) {
@@ -87,25 +97,29 @@ namespace {
         }
 
         // Generate and bind texture
-        glGenTextures(1, texture);
-        glBindTexture(GL_TEXTURE_2D, *texture);
+        GLuint textureID;
+        glGenTextures(1, &textureID);
+        glBindTexture(GL_TEXTURE_2D, textureID);
 
         // Set texture parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // Use mipmaps for better quality
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         // Upload texture data
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps
 
-        stbi_image_free(imgData); // Ensure this is called
+        // Free image data
+        stbi_image_free(imgData);
 
+        *texture = textureID;
         *width = imgWidth;
         *height = imgHeight;
 
-
+        // Store the texture ID
+        textureIDs.push_back(textureID);
 
         return true;
     }
@@ -117,6 +131,13 @@ namespace {
         ImGui::Text("Texture Dimensions: %d x %d", width, height);
         ImGui::Image((void*)(intptr_t)texture, ImVec2(static_cast<float>(width), static_cast<float>(height)));
         ImGui::End();
+    }
+
+    void FlushTextures() {
+        if (!textureIDs.empty()) {
+            glDeleteTextures(static_cast<GLsizei>(textureIDs.size()), textureIDs.data());
+            textureIDs.clear();
+        }
     }
 }
 
@@ -163,6 +184,7 @@ void GFS(float scale) {
 
 static float GFSSCALE = 1.0f;
 void Settingsrender() {
+    FlushTextures();
     ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_FirstUseEver);
     ImVec4 bgcolor = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
     bgcolor.w = 0.9f;
@@ -180,7 +202,7 @@ void Settingsrender() {
 
             if (ImGui::BeginTabItem("Editor")) {
                 ImGui::Separator();
-                ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\Autosave.png", &my_image_texture, &my_image_width, &my_image_height);
+                ret = LoadTextureFromFile(".\\Images\\Autosave.png", &my_image_texture, &my_image_width, &my_image_height);
                 IM_ASSERT(ret);  // Ensure the texture loading succeeded
                 textHeight = ImGui::GetTextLineHeight();
 
@@ -205,7 +227,7 @@ void Settingsrender() {
                 ImGui::Separator();
 
 
-                ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\Pages.png", &my_image_texture, &my_image_width, &my_image_height);
+                ret = LoadTextureFromFile(".\\Images\\Pages.png", &my_image_texture, &my_image_width, &my_image_height);
                 IM_ASSERT(ret);  // Ensure the texture loading succeeded
                 textHeight = ImGui::GetTextLineHeight();
 
@@ -231,11 +253,37 @@ void Settingsrender() {
                 }
 
                 ImGui::Separator();
+
+
+
+
+                ret = LoadTextureFromFile(".\\Images\\warningR.png", &my_image_texture, &my_image_width, &my_image_height);
+                IM_ASSERT(ret);  // Ensure the texture loading succeeded
+                textHeight = ImGui::GetTextLineHeight();
+
+                // Adjust the image size to match the text height
+                ImVec2 imageSizec(textHeight, textHeight);
+
+                ImGui::Image((void*)(intptr_t)my_image_texture, imageSizec);
+                ImGui::SameLine();  // Aligns the text to the right of the image
+
                 ImGui::TextColored(warningc, "Warning");
+                ImGui::SameLine();
+                ImGui::Image((void*)(intptr_t)my_image_texture, imageSizec);
                 ImGui::TextWrapped("Changing any of the settings below could cause issues or instability.");
 
                 ImGui::Separator();
-                if (ImGui::Button("[x] Clear Global Memory")) {
+
+                ret = LoadTextureFromFile(".\\Images\\trash.png", &my_image_texture, &my_image_width, &my_image_height);
+                IM_ASSERT(ret);  // Ensure the texture loading succeeded
+                textHeight = ImGui::GetTextLineHeight();
+
+                // Adjust the image size to match the text height
+                ImVec2 imageSized(textHeight, textHeight);
+
+                ImGui::Image((void*)(intptr_t)my_image_texture, imageSized);
+                ImGui::SameLine();  // Aligns the text to the right of the image
+                if (ImGui::Button("Clear Global Memory")) {
                     if (std::remove(".\\Psettings\\CfilePath.FUNCT") == 0) {
                         std::cout << "File deleted successfully.\n";
                         settings = false;
@@ -244,14 +292,54 @@ void Settingsrender() {
                         std::cout << "File does not exist.\n";
                     }
                 }
+                ret = LoadTextureFromFile(".\\Images\\Dev.png", &my_image_texture, &my_image_width, &my_image_height);
+                IM_ASSERT(ret);  // Ensure the texture loading succeeded
+                textHeight = ImGui::GetTextLineHeight();
 
-                ImGui::Checkbox("Developer Mode", &devmode);
+                // Adjust the image size to match the text height
+                ImVec2 imageSizee(textHeight, textHeight);
 
+                ImGui::Image((void*)(intptr_t)my_image_texture, imageSizee);
+                ImGui::SameLine();
+                ImGui::Text("Developer Mode");
+                ImGui::SameLine();
+          
+                ImGui::Checkbox("##DeveloperMode", &devmode);
+
+
+
+
+                ret = LoadTextureFromFile(".\\Images\\textsize.png", &my_image_texture, &my_image_width, &my_image_height);
+                IM_ASSERT(ret);  // Ensure the texture loading succeeded
+                textHeight = ImGui::GetTextLineHeight();
+
+                // Adjust the image size to match the text height
+                ImVec2 imageSizef(textHeight, textHeight);
+
+                ImGui::Image((void*)(intptr_t)my_image_texture, imageSizef);
+                ImGui::SameLine();
                 ImGui::InputFloat("TEXT SIZE", &GFSSCALE, 0.1f, 1.0f);
                 GFS(GFSSCALE);
 
                 ImGui::EndTabItem();
-                ImGui::Checkbox("MouseTrack", &BetterMouseImage);
+
+
+
+                ret = LoadTextureFromFile(".\\Images\\mouse.png", &my_image_texture, &my_image_width, &my_image_height);
+                IM_ASSERT(ret);  // Ensure the texture loading succeeded
+                textHeight = ImGui::GetTextLineHeight();
+
+                // Adjust the image size to match the text height
+                ImVec2 imageSizeg(textHeight, textHeight);
+
+                ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeg);
+				ImGui::SameLine();
+
+                ImGui::Text("MouseTrack");
+                ImGui::SameLine();
+
+                ImGui::Checkbox("##MouseTrack", &BetterMouseImage);
+            
 
                 ImGui::SameLine();
                 if (ImGui::SmallButton("What's This?")) {
@@ -292,7 +380,22 @@ void Settingsrender() {
                         ImGui::PlotLines("RAM Usage", ramHistory.data(), static_cast<int>(ramHistory.size()), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
                     }
 
-                    ImGui::Checkbox("Enable Window FPS reader", &winfpsread);
+
+                    ret = LoadTextureFromFile(".\\Images\\FPSSHOT.png", &my_image_texture, &my_image_width, &my_image_height);
+                    IM_ASSERT(ret);  // Ensure the texture loading succeeded
+                    textHeight = ImGui::GetTextLineHeight();
+
+                    // Adjust the image size to match the text height
+                    ImVec2 imageSizeg(textHeight, textHeight);
+
+                    ImGui::Image((void*)(intptr_t)my_image_texture, imageSizeg);
+                    ImGui::SameLine();
+
+
+                    ImGui::Text("Enable Window FPS reader");
+                    ImGui::SameLine();
+
+                    ImGui::Checkbox("##winfpsread", &winfpsread);
 
                     if (ImGui::Button("Open Style Folder")) {
                         system("start .\\Style");
