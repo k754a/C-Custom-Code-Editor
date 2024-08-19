@@ -518,25 +518,17 @@ int TextEditCallback(ImGuiInputTextCallbackData* data) {
     }
     return 0;
 }
-
-
-void DrawLineNumbers(const std::vector<char>& bufferContent, float scrollY) {
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(0, 0, 0, 0)); // Set background to clear
-    ImGui::BeginChild("LineNumbers", ImVec2(40, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-    ImGui::SetScrollY(scrollY); // Synchronize scrolling
-
+void DrawLineNumbers(const std::vector<char>& bufferContent, float lineHeight) {
     int lineNumber = 1;
+    float yPos = ImGui::GetCursorPosY();  // Get the current Y position to align line numbers
     for (size_t i = 0; i < bufferContent.size(); ++i) {
-        if (bufferContent[i] == '\n') {
+        if (i == 0 || bufferContent[i - 1] == '\n') {
+            ImGui::SetCursorPosY(yPos); // Set Y position for line number
             ImGui::Text("%d", lineNumber++);
+            yPos += lineHeight; // Increment Y position for the next line number
         }
     }
-
-    ImGui::EndChild();
-    ImGui::PopStyleColor();
 }
-
 
 
 void Renderbar() {
@@ -552,16 +544,12 @@ void Renderbar() {
     ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
     if (PagedFileSetting) {
-        // Pagination logic
         for (const auto& node : fileTree) {
-            // Render files/directories with pagination
-            // Calculate start and end index for current page
             int startIdx = currentPage * itemsPerPage;
             int endIdx = (startIdx + itemsPerPage < static_cast<int>(node.children.size())) ? (startIdx + itemsPerPage) : static_cast<int>(node.children.size());
 
             if (node.isDirectory) {
                 if (ImGui::TreeNode(CWstrTostr(node.name).c_str())) {
-                    // Render only items on the current page
                     for (int i = startIdx; i < endIdx; ++i) {
                         DisplayFile(node.children[i], true); // Pass true to ensure child nodes are visible
                     }
@@ -570,8 +558,7 @@ void Renderbar() {
             }
         }
 
-        // Pagination controls
-        size_t totalItems = 0; // Change to size_t
+        size_t totalItems = 0;
         for (const auto& node : fileTree) {
             totalItems += node.children.size();
         }
@@ -593,7 +580,6 @@ void Renderbar() {
         }
     }
     else {
-        // Render all files and directories without pagination
         for (const auto& node : fileTree) {
             DisplayFile(node, true); // Pass true to ensure all children are rendered
         }
@@ -602,55 +588,44 @@ void Renderbar() {
     ImGui::End();
 
     RenderTerminal(windowWidth, windowHeight, terminalHeight);
+ 
 
     bufferContent.resize(content.size() + bufferContent.size());
     ImGui::SetNextWindowSize(ImVec2(editorWidth + 10, editorHeight));
     ImGui::SetNextWindowPos(ImVec2(200.1f, 20)); // Lock top position
-    ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+    ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
-    // Draw line numbers
-    ImGui::BeginChild("EditorWithLineNumbers", ImVec2(0, 0), false);
-    ImGui::Columns(2, "EditorColumns");
-    ImGui::SetColumnWidth(0, 40);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 5); // Adjust position to overlap slightly
-    float scrollY = ImGui::GetScrollY(); // Get the current scroll position
-    DrawLineNumbers(bufferContent, scrollY);
-    ImGui::NextColumn();
-
-    std::string line;
-    std::stringstream fileBuffer;
-
-    std::string newContent = fileBuffer.str();
-    std::vector<char> newContentVec(newContent.begin(), newContent.end());
-
-    bufferContent.insert(bufferContent.end(), newContentVec.begin(), newContentVec.end());
-
-    bufferContent.push_back('\0');
-
-    std::string buf = bufferContent.data();
-
-    bufferContent.resize(buf.length() * buf.length());
-
-    // Ensure bufferContent is properly initialized with a size
-    if (bufferContent.empty()) {
-        bufferContent.resize(1024); // Initial size
-    }
-
-    // Render the InputTextMultiline widget with a callback for resizing
     if (!bufferContent.empty()) {
-        // Render the text editor
-        ImGui::InputTextMultiline("##CodeEditor", bufferContent.data(), bufferContent.size(), ImVec2(-1.0f, -1.0f),
+        // Begin child window for both line numbers and text editor
+        ImGui::BeginChild("EditorContent", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove);
+
+        // Set up columns: one for line numbers, one for the text editor
+        ImGui::Columns(2, "EditorColumns");
+        ImGui::SetColumnWidth(0, 40.0f); // Set the width for the line numbers column
+
+        // Calculate the line height
+        ImVec2 textSize = ImGui::CalcTextSize("A");
+        float lineHeight = textSize.y;
+
+        // Draw line numbers
+        DrawLineNumbers(bufferContent, lineHeight);
+
+        ImGui::NextColumn();
+
+        // Calculate the required height for the input box based on the content
+        int lineCount = std::count(bufferContent.begin(), bufferContent.end(), '\n') + 1;
+        float inputBoxHeight = lineCount * lineHeight + 20.0f; // Add some padding
+
+        // Render the text editor with dynamic height
+        ImGui::InputTextMultiline("##CodeEditor", bufferContent.data(), bufferContent.size(), ImVec2(-1.0f, inputBoxHeight),
             ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize,
             TextEditCallback, (void*)&bufferContent);
+
+        ImGui::EndChild();
     }
     else {
         ImGui::Text("Please Open A file...");
     }
-
-    ImGui::EndChild();
-  
-
-   
 
     // Ensure OpenGL context is active before this
 
@@ -696,7 +671,8 @@ void Renderbar() {
             }
 
             ret = LoadTextureFromFile(".\\Images\\save.png", &my_image_texture, &my_image_width, &my_image_height);
-            IM_ASSERT(ret);  // Ensure the texture loading succeeded
+        
+            IM_ASSERT(ret);  // Ensure the texture loading succee
             textHeight = ImGui::GetTextLineHeight();
 
             // Adjust the image size to match the text height
