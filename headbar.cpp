@@ -848,7 +848,29 @@ void Renderbar() {
 
 
 
+        float windowWidth = ImGui::GetWindowWidth();
+        float textWidth = ImGui::CalcTextSize("2").x;
+        ImGui::SetCursorPosX(windowWidth-15 - textWidth - ImGui::GetStyle().ItemSpacing.x);
 
+
+        ret = LoadTextureFromFile(".\\Images\\main.png", &my_image_texture, &my_image_width, &my_image_height);
+        IM_ASSERT(ret);  // Ensure the texture loading succeeded
+        textHeight = ImGui::GetTextLineHeight();
+
+        // Adjust the image size to match the text height
+        ImVec2 imageSizea(textHeight, textHeight);
+    
+            // Combine Image and Text in a single item
+        ImGui::Image((void*)(intptr_t)my_image_texture, imageSizea);
+   
+        if (ImGui::IsItemHovered())
+        {
+            // Display the tooltip
+            ImGui::BeginTooltip();
+            ImGui::Text("Made with love :D -K754a");
+            ImGui::Text("you can hide this on line 871 on headbar.cpp");
+            ImGui::EndTooltip();
+        }
 
         ImGui::EndMainMenuBar();
     }
