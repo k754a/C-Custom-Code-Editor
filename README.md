@@ -2,7 +2,7 @@
 
 Hi! Welcome to my C++ code editor. It's still a work in progress, but I'm excited to keep building and adding more features!
 
-Over 53000 lines!
+Over 53000 lines of code!
 
 ## Current Features
 - **Saving**
