@@ -14,7 +14,7 @@ Over 53000 lines of code!
 - **Custom Theme's!**
 - **Dev settings, and custom ui elements**
 
-This is just the beginning; expect many more features!
+This is just the beginning, expect many more features!
 
 ## Documentation
 For a very basic editor documentation, you can visit: [Editor Documentation](https://k754a.github.io/Editor%20Documentation). I'll be adding more soon!
