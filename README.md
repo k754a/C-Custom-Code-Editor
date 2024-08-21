@@ -22,4 +22,12 @@ For a very basic editor documentation, you can visit: [Editor Documentation](htt
 ## Installation Guide
 A guide for installation is out [here.](https://k754a.github.io/Editor%20Documentation)
 
+
+
+## Some Images!
+![ScreenShot](https://github.com/k754a/C-Custom-Code-Editor/blob/main/git%20images/Screenshot%202024-08-20%20181731.png)
+
+You can change the way the edit menu renders!
+![ScreenShot](https://github.com/k754a/C-Custom-Code-Editor/blob/main/git%20images/Screenshot%202024-08-20%20181754.png)
+
 Thanks for checking this out!
