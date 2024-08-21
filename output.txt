@@ -1,4 +1,2 @@
-  File "C:\Users\K754a\source\repos\Project2\Project2\temp_script.py", line 1
-    this closes the buffer...
-         ^^^^^^
-SyntaxError: invalid syntax
+This is the first test with running a script!
+It can edit and run aswell!
