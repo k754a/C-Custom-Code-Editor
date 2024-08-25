@@ -179,15 +179,21 @@
     <ClInclude Include="imgui_console.h" />
     <ClInclude Include="libraries.h" />
     <ClInclude Include="LuaFunct.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Systemstat.h" />
     <ClInclude Include="Terminal.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Downloads\example.png" />
+    <Image Include="..\..\..\..\Downloads\main.png" />
+    <Image Include="bitmap1.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Fonts\Inter-Regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Project2.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

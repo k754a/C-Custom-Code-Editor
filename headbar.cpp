@@ -597,6 +597,11 @@ void Renderbar() {
 
     if (!bufferContent.empty()) {
         // Begin child window for both line numbers and text editor
+        if (CodeEditor)
+        {
+
+        }
+
         ImGui::BeginChild("EditorContent", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove);
 
         // Set up columns: one for line numbers, one for the text editor
@@ -608,7 +613,11 @@ void Renderbar() {
         float lineHeight = textSize.y;
 
         // Draw line numbers
-        DrawLineNumbers(bufferContent, lineHeight);
+        if (CodeEditor)
+        {
+            DrawLineNumbers(bufferContent, lineHeight);
+        }
+        
 
         ImGui::NextColumn();
 

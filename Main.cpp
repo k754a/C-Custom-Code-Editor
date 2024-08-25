@@ -12,6 +12,7 @@ extern "C" {
 #ifdef _WIN32
 #pragma comment(lib, "Lua/lua54.lib")
 #endif // _WIN32
+#include "resource.h"
 
 
 
@@ -44,7 +45,7 @@ void initImgui() {
     // Initialize the style
     ImGuiStyle& style = ImGui::GetStyle();
 
-    io.Fonts->AddFontFromFileTTF("Fonts/Inter-Regular.ttf", 16.0f);
+    io.Fonts->AddFontFromFileTTF("Fonts/segoeuithis.ttf", 16.0f);
 
     //this turns off the title bar color
 
@@ -88,6 +89,72 @@ void initImgui() {
 
     lua_close(L);
 }
+#include <windows.h>
+
+
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+#include <windows.h>
+#include "resource.h"  // Include your resource header file
+
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    // Register the window class
+    WNDCLASS wc = { };
+    wc.lpfnWndProc = WndProc;
+    wc.hInstance = hInstance;
+    wc.lpszClassName = L"MyAppClass";
+    wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APP_ICON));  // Set the icon
+
+    RegisterClass(&wc);
+
+    // Create the window
+    HWND hwnd = CreateWindowEx(
+        0,                              // Optional window styles.
+        L"MyAppClass",                  // Window class
+        L"My App",                      // Window text
+        WS_OVERLAPPEDWINDOW,            // Window style
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        NULL,       // Parent window    
+        NULL,       // Menu
+        hInstance,  // Instance handle
+        NULL        // Additional application data
+    );
+
+    if (hwnd == NULL) {
+        return 0;
+    }
+
+    // Set the window's icon (for taskbar)
+    SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APP_ICON)));
+    SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APP_ICON)));
+
+    ShowWindow(hwnd, nCmdShow);
+
+    // Run the message loop
+    MSG msg = { };
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    return 0;
+}
+
+// Process messages for the main window
+LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    switch (uMsg) {
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+    }
+
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+
+
 int main() {
    
 
