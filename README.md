@@ -20,7 +20,13 @@ This is just the beginning, expect many more features!
 For a very basic editor documentation, you can visit: [Editor Documentation](https://k754a.github.io/Editor%20Documentation). I'll be adding more soon!
 
 ## Installation Guide
-A guide for installation is out [here.](https://k754a.github.io/Editor%20Documentation)
+
+
+New install guide! You can use the one below for more users who plan to code/Add to the editor!
+
+(**NEW**) This is then new exe [installer.]()
+
+(**OLD**) A guide for the old installation is out [here.](https://k754a.github.io/Editor%20Documentation)
 
 
 
