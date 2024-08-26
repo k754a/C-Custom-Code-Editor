@@ -24,7 +24,7 @@ For a very basic editor documentation, you can visit: [Editor Documentation](htt
 
 New install guide! You can use the one below for more users who plan to code/Add to the editor!
 
-(**NEW**) This is then new exe [installer.](https://github.com/k754a/C-Custom-Code-Editor/tree/main/Installer)
+(**NEW**) This is then new exe [installer.](https://github.com/k754a/C-Custom-Code-Editor/blob/main/Installer/C%20write-INSTALLER.exe)
 
 (**OLD**) A guide for the old installation is out [here.](https://k754a.github.io/Editor%20Documentation)
 
