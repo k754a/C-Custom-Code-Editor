@@ -51,5 +51,6 @@ You can change the way the edit menu renders!
 
 
 
-
+<p align="center">
 Thanks for checking this out!
+</p>
