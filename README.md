@@ -29,7 +29,7 @@ Download the new installer: [C Write Installer](https://github.com/k754a/C-Custo
 Follow the old installation guide [here](https://k754a.github.io/Editor%20Documentation) if you plan to contribute code or customize the editor.
 
 ## Screenshots
-You can customize the way the edit menu renders!
+
 
 ![Screenshot](https://raw.githubusercontent.com/k754a/C-Custom-Code-Editor/main/git%20images/Screenshot%202024-08-20%20181731.png)
 
