@@ -54,6 +54,6 @@ You can change the way the edit menu renders!
 <br>
 <br>
 <br>
-<p align="center">
+
 Thanks for checking this out!
-</p>
+
