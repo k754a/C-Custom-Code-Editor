@@ -6,13 +6,6 @@
 # My C++ Custom Code Editor
 
 
-
-$$
-\textcolor{orange}{\text{⚠ Note: The exe installer is sometimes flagged as a virus. }} \\
-\textcolor{orange}{\text{It was compiled using PyInstaller. }} \\
-\textcolor{orange}{\text{If you do not trust the exe you can manually install it. ⚠ }}
-$$
-
 Hi! Welcome to my C++ code editor. It's still a work in progress, but I'm excited to keep building and adding more features!
 
 Over 53000 lines of code!
@@ -35,7 +28,9 @@ For a very basic editor documentation, you can visit: [Editor Documentation](htt
 ## Installation Guide
 
 
-New install guide! You can use the one below for more users who plan to code/Add to the editor!
+New install guide! You can use the Old one below for more users who plan to code/Add to the editor!
+
+Note, This might be flagged as a virus, It was created using Py installer, if you do not trust that, you can manauly install it.
 
 (**NEW**) This is then new exe [installer.](https://github.com/k754a/C-Custom-Code-Editor/blob/main/Installer/C%20write-INSTALLER.exe)
 
