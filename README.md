@@ -7,7 +7,7 @@
 
 
 
-$$\textcolor{orange}{\text{⚠ Note: The exe installer is sometimes flagged as a virus. It was compiled using PyInstaller. If you do not trust the exe, you can manually install it.⚠}}$$
+$$\textcolor{orange}{\text{⚠ Note: The exe installer is sometimes flagged as a virus. It was compiled using PyInstaller. If you do not trust the exe you can manually install it.⚠}}$$
 
 
 Hi! Welcome to my C++ code editor. It's still a work in progress, but I'm excited to keep building and adding more features!
