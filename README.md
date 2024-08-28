@@ -43,7 +43,7 @@ Note, This might be flagged as a virus, It was created using Py installer, if yo
 
 You can change the way the edit menu renders!
 
-<div style="display: flex; gap: 10px;">
+<div style="display: flex; gap: 10px; align="center">
   <img src="https://raw.githubusercontent.com/k754a/C-Custom-Code-Editor/main/git%20images/Screenshot%202024-08-20%20181754.png" alt="ScreenShot" width="30%">
   <img src="https://raw.githubusercontent.com/k754a/C-Custom-Code-Editor/main/git%20images/Screenshot%202024-08-28%20095949.png" alt="ScreenShot" width="30%">
 </div>
