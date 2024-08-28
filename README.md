@@ -39,11 +39,11 @@ Note, This might be flagged as a virus, It was created using Py installer, if yo
 
 
 ## Some Images!
-![ScreenShot](https://github.com/k754a/C-Custom-Code-Editor/blob/main/git%20images/Screenshot%202024-08-20%20181731.png)
+![ScreenShot](https://raw.githubusercontent.com/k754a/C-Custom-Code-Editor/main/git%20images/Screenshot%202024-08-20%20181731.png)
 
 You can change the way the edit menu renders!
 
+![ScreenShot](https://raw.githubusercontent.com/k754a/C-Custom-Code-Editor/main/git%20images/Screenshot%202024-08-20%20181754.png)
 
-![ScreenShot](https://github.com/k754a/C-Custom-Code-Editor/blob/main/git%20images/Screenshot%202024-08-20%20181754.png)
 
 Thanks for checking this out!
