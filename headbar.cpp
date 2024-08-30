@@ -496,6 +496,7 @@ void DotAtCursor()
     drawList->AddCircleFilled(mousePos, dotRadius, ImColor(dotColor));
 }
 
+
 bool ret;
 GLuint texture;
 int texWidth, texHeight;
