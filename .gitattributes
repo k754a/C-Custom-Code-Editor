@@ -1,7 +1,7 @@
-#note, i did not code any C or python, so i want to hide it, just to show the real files I changed :D
+#note, i did not a lot C or python, so i want to hide it, just to show the real files I changed :D
 *.py linguist-vendored
 *.C linguist-vendored
-
+*.h linguist-vendored
 
 # Auto detect text files and perform LF normalization
 * text=auto
