@@ -1,5 +1,7 @@
-# Ignore Python files in language stats
-*.py linguist-generated
+#note, i did not code any C or python, so i want to hide it, just to show the real files I changed :D
+*.py linguist-vendored
+*.C linguist-vendored
+
 
 # Auto detect text files and perform LF normalization
 * text=auto
