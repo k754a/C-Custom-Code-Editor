@@ -1,7 +1,9 @@
-#note, i did not a lot C or python, so i want to hide it, just to show the real files I changed :D
+#note, this is almost all packages, so im hiding it just to make it more clear :D
 *.py linguist-vendored
 *.C linguist-vendored
-*.h linguist-vendored
+*.h linguist-vendored 
+*.tcl linguist-vendored
+*.html linguist-vendored
 
 # Auto detect text files and perform LF normalization
 * text=auto
