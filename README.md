@@ -20,7 +20,7 @@ For basic documentation, visit the [Editor Documentation](https://k754a.github.i
 
 ## Theme's!
 
-Themes are created in Style/CStyle.Style, you can change many things in the file, while it is laid out, here is a table of what things do what:
+Themes are created in  [Style/CStyle.Style](https://github.com/k754a/C-Custom-Code-Editor/blob/main/Style/CStyle.Style), you can change many things in the file, while it is laid out, here is a table of what things do what:
 
 | Section                        | Description                                      | Example Setting                                    |
 |--------------------------------|--------------------------------------------------|---------------------------------------------------|
