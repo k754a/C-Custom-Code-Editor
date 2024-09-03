@@ -18,6 +18,20 @@ This is just the beginning—expect many more features soon!
 ## Documentation
 For basic documentation, visit the [Editor Documentation](https://k754a.github.io/Editor%20Documentation). More details will be added soon!
 
+## Theme's!
+
+Themes are created in Style/CStyle.Style, you can change many things in the file, while it is laid out, here is a table of what things do what:
+
+| Section                        | Description                                      | Example Setting                                    |
+|--------------------------------|--------------------------------------------------|---------------------------------------------------|
+| [Window Corner Rounding](#window-corner-rounding) | Set the rounding of window corners                     | `style.WindowRounding = 15.0`                     |
+| [Frame Rounding and Padding](#frame-rounding-and-padding) | Set the frame rounding and padding                      | `style.FrameRounding = 6.0` <br> `style.FramePadding = ImVec2(8, 4)` |
+| [Window Background Color](#window-background-color) | Set the window background color to a dark gray          | `colors[1] = ImVec4(0.2, 0.2, 0.2, 1.0)`          |
+| [Title Bar Background Color](#title-bar-background-color) | Set the title bar background color (active window)       | `colors[2] = ImVec4(0.3, 0.3, 0.3, 1.0)`          |
+| [Scrollbar Colors](#scrollbar-colors)            | Set the scrollbar background and grab colors           | `colors[12] = ImVec4(0.3, 0.3, 0.3, 1.0)` <br> `colors[13] = ImVec4(0.5, 0.5, 0.5, 1.0)` <br> `colors[14] = ImVec4(0.6, 0.6, 0.6, 1.0)` <br> `colors[15] = ImVec4(0.7, 0.7, 0.7, 1.0)` |
+| [Text Color](#text-color)                    | Set the text color                                    | `colors[16] = ImVec4(1.0, 1.0, 1.0, 1.0)`          |
+| [Update the Style](#update-the-style)            | Update the style       
+
 ## Installation Guide
 
 ### New Installation
@@ -29,7 +43,6 @@ Download the new installer: [C Write Installer](https://github.com/k754a/C-Custo
 Follow the old installation guide [here](https://k754a.github.io/Editor%20Documentation) if you plan to contribute code or customize the editor.
 
 ## Screenshots
-
 
 ![Screenshot](https://raw.githubusercontent.com/k754a/C-Custom-Code-Editor/main/git%20images/Screenshot%202024-08-20%20181731.png)
 
