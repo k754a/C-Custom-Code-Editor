@@ -30,7 +30,10 @@ Themes are created in Style/CStyle.Style, you can change many things in the file
 | [Title Bar Background Color](#title-bar-background-color) | Set the title bar background color (active window)       | `colors[2] = ImVec4(0.3, 0.3, 0.3, 1.0)`          |
 | [Scrollbar Colors](#scrollbar-colors)            | Set the scrollbar background and grab colors           | `colors[12] = ImVec4(0.3, 0.3, 0.3, 1.0)` <br> `colors[13] = ImVec4(0.5, 0.5, 0.5, 1.0)` <br> `colors[14] = ImVec4(0.6, 0.6, 0.6, 1.0)` <br> `colors[15] = ImVec4(0.7, 0.7, 0.7, 1.0)` |
 | [Text Color](#text-color)                    | Set the text color                                    | `colors[16] = ImVec4(1.0, 1.0, 1.0, 1.0)`          |
-| [Update the Style](#update-the-style)            | Update the style       
+
+
+
+  
 
 ## Installation Guide
 
