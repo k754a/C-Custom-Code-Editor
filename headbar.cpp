@@ -704,7 +704,7 @@ void Renderbar() {
 
             ImGui::Separator();
 
-            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\close.png", &my_image_texture, &my_image_width, &my_image_height);
+            ret = LoadTextureFromFile(".\\Images\\close.png", &my_image_texture, &my_image_width, &my_image_height);
             IM_ASSERT(ret);  // Ensure the texture loading succeeded
             textHeight = ImGui::GetTextLineHeight();
 
@@ -722,7 +722,7 @@ void Renderbar() {
 
         if (ImGui::BeginMenu("Edit")) {
 
-            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\settings.png", &my_image_texture, &my_image_width, &my_image_height);
+            ret = LoadTextureFromFile(".\\Images\\settings.png", &my_image_texture, &my_image_width, &my_image_height);
             IM_ASSERT(ret);  // Ensure the texture loading succeeded
             textHeight = ImGui::GetTextLineHeight();
 
@@ -735,7 +735,7 @@ void Renderbar() {
                 settings = true;
             }
 
-            ret = LoadTextureFromFile("C:\\Users\\K754a\\source\\repos\\Project2\\Project2\\Images\\call.png", &my_image_texture, &my_image_width, &my_image_height);
+            ret = LoadTextureFromFile(".\\Images\\call.png", &my_image_texture, &my_image_width, &my_image_height);
             IM_ASSERT(ret);  // Ensure the texture loading succeeded
             textHeight = ImGui::GetTextLineHeight();
 
