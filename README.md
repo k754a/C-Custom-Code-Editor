@@ -32,8 +32,27 @@ Themes are created in  [Style/CStyle.Style](https://github.com/k754a/C-Custom-Co
 | [Text Color](#text-color)                    | Set the text color                                    | `colors[16] = ImVec4(1.0, 1.0, 1.0, 1.0)`          |
 
 
+## Settings
 
-  
+Settings are stored in [Settings.cpp](https://github.com/k754a/C-Custom-Code-Editor/blob/main/Settings.cpp), you can set custom settings to work on start, I don't have an active saver, but I am creating that now!
+
+| Section                        | Description                                      | Example Setting                                    | 
+|--------------------------------|--------------------------------------------------|---------------------------------------------------|
+| [settings](#settings) | Show's setting window| `bool settings = false/true;`     |           
+| [rendergraph](#rendergraph) | Shows's an cpu and ram usage graph| `bool rendergraph = false/true;`        |       
+| [devmode](#devmode) | Show's up new settings, like fps reader| `bool winfpsread = false/true;`       |
+| [darkMode](#darkmode) | Will be added at a later time| `bool darkMode = false/true;`  |
+| [autoSave](#autoSave)            | Auto saves your doocuments| `bool autoSave = false/true`       | 
+| [Better Mouse Image](#Better-Mouse-Image)                    | Renders a colored circle around the mouse|    `bool BetterMouseImage = false/true;`| 
+| [CodeEditor](#CodeEditor)                    | Renders a number for each line like in vs code|    `bool CodeEditor = false/true;`|    
+| [PagedFileSetting](#PagedFileSetting)                    | Changes rendering of the exploror, you can see screenshots below|    `bool PagedFileSetting = false/true;`|  
+
+
+
+
+
+
+
 
 ## Installation Guide
 
