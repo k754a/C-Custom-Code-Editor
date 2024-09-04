@@ -3,7 +3,7 @@
 Welcome to my C++ code editor! It's a work in progress, and I'm excited to keep adding more features.
 
 
-*Note: This only works for windows 11, windows 10 seems to have a lot of strange issues, and i will create some patches to fix it!*
+*Note: This only works for windows 11, windows 10 seems to have a lot of strange issues.*
 
 **Over 53,000 lines of code!**
 
