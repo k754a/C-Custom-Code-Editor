@@ -1,5 +1,9 @@
-# Ignore Python files in language stats
-*.py linguist-generated
+#note, this is almost all packages, so im hiding it just to make it more clear :D
+*.py linguist-vendored
+*.C linguist-vendored
+*.h linguist-vendored 
+*.tcl linguist-vendored
+*.html linguist-vendored
 
 # Auto detect text files and perform LF normalization
 * text=auto
