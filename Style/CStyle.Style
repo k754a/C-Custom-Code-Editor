@@ -26,7 +26,7 @@ local colors = style.Colors
 style.WindowRounding = 10.0
 
 -- Set the frame rounding and padding
-style.FrameRounding = 4.0
+style.FrameRounding = 300.0
 style.FramePadding = ImVec2(4, 2)
 
 -- Set the window background color to a dark gray
