@@ -71,10 +71,6 @@ Follow the old installation guide [here](https://k754a.github.io/Editor%20Docume
 
 ![Screenshot](https://raw.githubusercontent.com/k754a/C-Custom-Code-Editor/main/git%20images/Screenshot%202024-08-20%20181731.png)
 
-<div style="display: flex; gap: 10px; align="center">
-  <img src="https://raw.githubusercontent.com/k754a/C-Custom-Code-Editor/main/git%20images/Screenshot%202024-08-20%20181754.png" alt="Screenshot" width="30%">
-  <img src="https://raw.githubusercontent.com/k754a/C-Custom-Code-Editor/main/git%20images/Screenshot%202024-08-28%20095949.png" alt="Screenshot" width="30%">
-</div>
 
 ---
 
