@@ -1,2 +1,1 @@
-This is the first test with running a script!
-It can edit and run aswell!
+Requirement already satisfied: pygame in c:\users\k754a\downloads\c-custom-code-editor-main\c-custom-code-editor-main\python\lib\site-packages (2.6.0)

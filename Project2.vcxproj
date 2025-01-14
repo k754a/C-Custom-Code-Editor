@@ -120,12 +120,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\Libraries\lib;C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\imgui;C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\Libraries\include;C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\Libraries\include\stb;C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\Libraries\include\glad\glad.h;C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\Libraries\include\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\Libraries;C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main;imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\Libraries\lib\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\Libraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

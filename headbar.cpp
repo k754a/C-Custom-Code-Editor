@@ -261,7 +261,7 @@ void OpenFile() {
             // Another unique converter
             std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> htmlConverter;
             std::wstring wideHtmlFilePath = htmlConverter.from_bytes(htmlFilePath);
-            ShellExecute(0, 0, wideHtmlFilePath.c_str(), 0, 0, SW_SHOW);
+            //ShellExecute(0, 0, wideHtmlFilePath.c_str(), 0, 0, SW_SHOW);
         }
         else {
             std::wcerr << "Error getting folder path" << std::endl;
@@ -715,7 +715,7 @@ void Renderbar() {
 
             ImGui::SameLine();  // Aligns the text to the right of the image
             if (ImGui::MenuItem("Exit")) {
-                // Handle exit
+                exit(0);
             }
             ImGui::EndMenu();
         }

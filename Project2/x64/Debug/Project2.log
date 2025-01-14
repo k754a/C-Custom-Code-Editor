@@ -1,0 +1,8 @@
+﻿  headbar.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\headbar.cpp(121,58): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\headbar.cpp(121,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\headbar.cpp(566,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\headbar.cpp(626,23): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\headbar.cpp(799,36): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Project2.vcxproj -> C:\Users\K754a\Downloads\C-Custom-Code-Editor-main\C-Custom-Code-Editor-main\x64\Debug\Project2.exe

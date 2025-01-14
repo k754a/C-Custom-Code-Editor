@@ -13,6 +13,9 @@ cmake_uninstall.cmake
 *.vcxproj
 *.vcxproj.user
 *.filters
+*.ipch
+.vs/
+
 example.dir
 Win32
 x64

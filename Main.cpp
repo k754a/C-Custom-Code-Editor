@@ -1,5 +1,5 @@
 #include "libraries.h"
-#include "headbar.h"
+#include "headbar.h"//error beacause of windows 11 uncompadibilty, lol
 #include "LuaFunct.h"
 // Need to tell the code I'm using C for Lua
 extern "C" {
@@ -7,7 +7,7 @@ extern "C" {
 #include "Lua/include/lauxlib.h"
 #include "Lua/include/lualib.h"
 }
-
+using namespace std;
 // Link
 #ifdef _WIN32
 #pragma comment(lib, "Lua/lua54.lib")
@@ -59,6 +59,8 @@ void initImgui() {
 
     std::ifstream in("Style/CStyle.Style");
 
+
+
     std::stringstream buffer;
 
     //this grabs everything in 1 line
@@ -66,8 +68,6 @@ void initImgui() {
 
     //set string to the line
     std::string contents = buffer.str();
-    in.close();
-
     in.close();
 
     
@@ -96,6 +96,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 #include <windows.h>
 #include "resource.h"  // Include your resource header file
+#include <io.h>
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -192,9 +193,25 @@ int main() {
         glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
         glViewport(0, 0, windowWidth, windowHeight);
 
+
+
+
+
+
+
+        lua_State* L = luaL_newstate();
+        luaL_openlibs(L);
+
+        std::ifstream in("Style/CStyle.Style");
+
+
+
         // Clear the screen
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+
+       
 
         // UI win
         ImGui_ImplOpenGL3_NewFrame();
@@ -204,9 +221,6 @@ int main() {
         // From headbar.h
         Renderbar();
 
-        // Inspector window
-
-        // Terminal window
 
         ImGui::End();
 
