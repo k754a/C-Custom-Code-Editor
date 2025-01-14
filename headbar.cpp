@@ -1,7 +1,7 @@
 #include "headbar.h"
 #include "libraries.h"
 #include "Settings.h" // Include the header file
-#include <thread> // For sleep_for
+
 #include "Python/include/Python.h"
 #include <chrono>
 #include <mutex>
@@ -10,13 +10,12 @@
 #include <map>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
+#include <filesystem>
+#include <iostream>
 
 
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
 
 
-#include "imgui.h"
 
 
 
@@ -162,7 +161,7 @@ void DisplayFile(const FileNode& node, bool isChildVisible = false, bool pagedFi
 
 void Renderbar();
 void incrementCout();
-std::string ReadFileToString(const std::string& filePath);
+
 void Settingsrender(); // Assuming this is defined elsewhere
 void RenderTerminal(float windowWidth, float windowHeight, float terminalHeight); // Assuming this is defined elsewhere
 
@@ -406,19 +405,6 @@ void PrintFileContent(const FileNode& node) {
         std::cerr << "ERROR: file_not_found, error 101 " << CWstrTostr(node.path) << std::endl;
         std::cerr << "Cannot find the selected file, sorry! " << CWstrTostr(node.path) << std::endl;
     }
-}
-
-
-std::string ReadFileToString(const std::string& filePath) {
-    std::ifstream file(filePath);
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filePath << std::endl;
-        return "";
-    }
-
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
 }
 
 static float terminalHeightPercent = 0.2f;
@@ -796,7 +782,11 @@ void Renderbar() {
                         std::string path_str = wchar_to_string(path);
 
                         int count = 0;
-                        for (int i = path_str.size() - 1; i >= 0; --i) {
+
+                        float size = path_str.size() - 1;
+                        
+
+                        for (int i = size ; i >= 0; --i) {
                             if (path_str[i] == '\\' || path_str[i] == '/') {
                                 count++;
                                 if (count == 3) {

@@ -161,7 +161,7 @@ std::string GetCppFilePath(std::string htmlname) {
     cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/"));
     cppFilePath = cppFilePath.substr(0, cppFilePath.find_last_of("\\/"));
 
-    return cppFilePath + "\\Project2\\Docs\\" + htmlname;
+    return cppFilePath + "\\Docs\\" + htmlname;
 }
 
 void OpenHTMLFile(const std::string& filePath) {
