@@ -1,3 +1,6 @@
+# NOTE: This project really does suck, its super slow, and I really was NOT good at c++ programming, just FYI.
+
+
 # My C++ Custom Code Editor
 
 Welcome to my C++ code editor! It's a work in progress, and I'm excited to keep adding more features.
